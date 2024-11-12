@@ -1,0 +1,3 @@
+/home/debix/Documents/DEBIX/build/CMakeFiles/DEBIX.dir
+/home/debix/Documents/DEBIX/build/CMakeFiles/edit_cache.dir
+/home/debix/Documents/DEBIX/build/CMakeFiles/rebuild_cache.dir
