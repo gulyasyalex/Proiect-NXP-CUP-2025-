@@ -179,7 +179,7 @@ int main() {
     return 0;
 }
 
-/*
+
 int main() {
     //std::string imagePath = "ogImage.jpg";
     //std::string imagePath = "ogCurves.jpg";
@@ -315,7 +315,7 @@ int main() {
     cv::waitKey(0);
     return 0;
 }
-*/
+
 
 
 /*
