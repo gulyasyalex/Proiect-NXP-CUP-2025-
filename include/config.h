@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 // Global values
-    int cutHeight = 40;
+    int cutHeight = 0;
     int frameWidth = 320; //160; //320;
     int frameHeight = 180; //90; //180;
 
@@ -10,7 +10,7 @@
     // Used in perspectiveChange()
     // Size of new perspective box
     int heightBirdsEyeView = 600 - cutHeight*2;
-    int widthBirdsEyeView = 300;
+    int widthBirdsEyeView = 400;
     // dstPoints Box size in pixels
     // (This box is placed in the middle bottom part of the perspective box)
     int heightDstPoints = 140;
@@ -32,4 +32,8 @@
     int num_points = 15;  
 
     double slopeThreshold = 0.6;
+
+// Used in line_detection.h
+    // Used in customConnectedComponentsWithThreshold()
+    double rowThresholdCutOff = 0.4;
 #endif

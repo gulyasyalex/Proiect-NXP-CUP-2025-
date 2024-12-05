@@ -22,6 +22,8 @@ std::mutex frame_mutex; // Mutex for synchronizing access to the frame
 
 float fps_capture_frames;
 float fps_process_frame;
+std::vector<cv::Point> leftLine;
+std::vector<cv::Point> rightLine;
 
 void capture_frames(cv::VideoCapture& cap) {
     
@@ -85,6 +87,7 @@ void process_frame() {
     int frame_count = 0;
     double time_start = cv::getTickCount();
     TcpConnection laptopTCP(9999);
+
     while (running) {
         cv::Mat frame;
 
@@ -111,6 +114,7 @@ void process_frame() {
             //frame = cropFrameTop(frame,cutHeight);
             //cv::Mat edges = segmentEdges(frame);  
             cv::Mat edges;
+            
             cv::threshold(frame, edges, 90, 255, cv::THRESH_BINARY); //fara LED 25
             cv::bitwise_not(edges, edges);
             //laptopTCP.sendFrame(edges);
@@ -137,21 +141,13 @@ void process_frame() {
                 lines[i] = fitPolinomial(lines[i],false);
 
             }
-            /*// Draw the original contour (red)
-            for (int i = 0; i < lines.size(); ++i) {
-                for (int j = 0; j < lines[i].size() - 1; ++j) {
-                    cv::line(outputImage, lines[i][j], lines[i][j + 1], cv::Scalar(0, 0, 255), 2);  // Red
-                }
-            }
-            laptopTCP.sendFrame(outputImage);
-            // Display the result
-            */
             
             for (int i = 0; i < lines.size(); i++){
                 
                 lines[i] = evenlySpacePoints(lines[i], num_points);
             }
-              for (int i = 0; i < lines.size(); ++i) {
+
+            for (int i = 0; i < lines.size(); ++i) {
                 for (int j = 0; j < lines[i].size() - 1; ++j) {
                     cv::line(outputImage, lines[i][j], lines[i][j + 1], cv::Scalar(0, 0, 255), 2);  // Red
                 }
@@ -162,21 +158,26 @@ void process_frame() {
                 
                 lines[i] = removeHorizontalIf90Turn(frame,lines[i]);
             }
+            getLeftRightLines(lines,leftLine,rightLine);
+            
+            /*cv::Point result;
+            std::vector<cv::Point> interpolatedPoints;
+            try {
+                interpolatedPoints.push_back(interpolateClosestPoints(leftLine, 50));
+                interpolatedPoints.push_back(interpolateClosestPoints(leftLine, 130));
+                interpolatedPoints.push_back(interpolateClosestPoints(rightLine, 50));
+                interpolatedPoints.push_back(interpolateClosestPoints(rightLine, 130));
 
-            std::cout << "lines size: " << lines.size() << std::endl;
-            cv::Point firstPointLine1 = lines[0][0];
-            cv::Point firstPointLine2 = lines[1][0];
-            std::vector<cv::Point> leftFitted;
-            std::vector<cv::Point> rightFitted;
+                // Write interpolated points to a TXT file
+                writePointsToTxt(interpolatedPoints, "interpolated_points.txt");
 
-            if(firstPointLine1.x < firstPointLine2.x){
-                leftFitted = lines[0];
-                rightFitted = lines[1];
-            }else{
-                leftFitted = lines[1];
-                rightFitted = lines[0];
-            }
-            std::vector<cv::Point> allMidpoints = findMiddle(leftFitted,rightFitted);
+            } catch (const std::exception& e) {
+                std::cerr << "Error: " << e.what() << "\n";
+            }*/
+            
+
+            
+            std::vector<cv::Point> allMidpoints = findMiddle(leftLine,rightLine);
 
 
             outputImage = cv::Mat::zeros(frame.size(),CV_8UC3);
@@ -190,8 +191,9 @@ void process_frame() {
             for (int i = 1; i < lines[1].size(); i++) {
                 cv::line(outputImage, lines[1][i-1], lines[1][i], cv::Scalar(0, 0, 255), 2);  // Green
             }
-
-            laptopTCP.sendFrame(outputImage);
+            cv::Mat output = perspectiveChange(outputImage);
+            laptopTCP.sendFrame(output);
+            //laptopTCP.sendFrame(outputImage);
             
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (cv::waitKey(1) == 'q') {
