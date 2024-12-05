@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/DEBIX.dir/src/pixy2test.cpp.o"
-  "CMakeFiles/DEBIX.dir/src/pixy2test.cpp.o.d"
+  "CMakeFiles/DEBIX.dir/src/main.cpp.o"
+  "CMakeFiles/DEBIX.dir/src/main.cpp.o.d"
   "DEBIX"
   "DEBIX.pdb"
 )

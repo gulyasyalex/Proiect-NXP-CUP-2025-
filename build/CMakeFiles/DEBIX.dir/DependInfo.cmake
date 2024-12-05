@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/debix/Documents/DEBIX/src/pixy2test.cpp" "CMakeFiles/DEBIX.dir/src/pixy2test.cpp.o" "gcc" "CMakeFiles/DEBIX.dir/src/pixy2test.cpp.o.d"
+  "/home/debix/Documents/Proiect-NXP-CUP-2025-/src/main.cpp" "CMakeFiles/DEBIX.dir/src/main.cpp.o" "gcc" "CMakeFiles/DEBIX.dir/src/main.cpp.o.d"
   )
 
 # Targets to which this target links.

@@ -8,7 +8,7 @@ project("DEBIX")
 # Find OpenCV package (no need to set OpenCV_DIR explicitly on Linux if it's installed correctly)
 find_package(OpenCV REQUIRED)
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
+#pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
 
 
 
@@ -17,10 +17,8 @@ include_directories(
     ${LIBUSB_INCLUDE_DIRS}
     ${OpenCV_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}/include
-    /home/debix/pixy2/src/host/libpixyusb2/include
     /usr/local/include
     #/usr/local/include
-    #/home/debix/Documents/pixy2/common/inc
     #/usr/include/libusb-1.0
 )
 
@@ -35,11 +33,6 @@ add_executable(DEBIX ${SRC_FILES})
 find_package(CURL REQUIRED)
 link_directories(${LIBUSB_LIBRARY_DIRS})
 
-target_link_libraries(DEBIX ${LIBUSB_LIBRARIES} ${OpenCV_LIBS} ${CURL_LIBRARIES} gdal netcdf 
-    /home/debix/pixy2/build/libpixyusb2/libpixy2.a)
+target_link_libraries(DEBIX ${LIBUSB_LIBRARIES} ${OpenCV_LIBS} ${CURL_LIBRARIES})
 
-    find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
-include_directories(${LIBUSB_INCLUDE_DIRS})
-link_directories(${LIBUSB_LIBRARY_DIRS})
-target_link_libraries(DEBIX ${LIBUSB_LIBRARIES})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

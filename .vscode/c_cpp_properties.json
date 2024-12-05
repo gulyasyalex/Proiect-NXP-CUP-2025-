@@ -1,0 +1,18 @@
+{
+  "configurations": [
+    {
+      "name": "Linux",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "/usr/include/opencv4", // OpenCV include path
+        "/home/debix/Documents/Proiect-NXP-CUP-2025-/include" // Your project's include path
+      ],
+      "defines": [],
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "c17",
+      "cppStandard": "gnu++17", // Or c++17 if you use newer features
+      "intelliSenseMode": "linux-gcc-arm64"
+    }
+  ],
+  "version": 4
+}

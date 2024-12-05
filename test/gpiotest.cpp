@@ -1,5 +1,6 @@
 #include <iostream>
 #include "GpioFunctions/gpio_ctrl.h"
+#include <linux/gpio.h>
 
 int main(){
     int status;

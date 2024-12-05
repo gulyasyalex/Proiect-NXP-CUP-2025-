@@ -6,34 +6,14 @@
 #include <opencv2/imgproc.hpp>
 #include "config.h"
 
-cv::Mat adaptiveGuassianThreshold(const cv::Mat& frame);
 cv::Mat segmentEdges(const cv::Mat& frame);
 cv::Mat cropFrameTop(const cv::Mat& frame, int cutHeight);
 cv::Mat resizeImage(const cv::Mat& src, int width, int height);
-int demosaic(uint16_t width, uint16_t height, const uint8_t *bayerImage, uint32_t *image);
+//cv::Mat adaptiveGuassianThreshold(const cv::Mat& frame);
 //cv::Mat otsuThresholding(const cv::Mat& frame);
 
 
-cv::Mat adaptiveGuassianThreshold(const cv::Mat& frame){
-    
-    // Apply Gaussian blur
-    cv::Mat blur;
-    cv::GaussianBlur(frame, blur, cv::Size(blurBlockSize, blurBlockSize), 0);
-
-     // Apply adaptive threshold
-    cv::Mat adaptiveThreshold;
-    cv::adaptiveThreshold(blur, adaptiveThreshold, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY_INV, AdaptGaussBlockSize, AdaptGaussConstant);
-    
-    /* Visualize
-    cv::Mat outputImage = adaptiveThreshold.clone();   
-    outputImage = resizeImage(outputImage, frameWidth/1.6, frameHeight/1.6);
-    // Display the image with lines colored
-    cv::imshow("AdativeGaussianThreshold", outputImage);*/
-    
-    return adaptiveThreshold;
-}
-
-cv::Mat segmentEdges(const cv::Mat& frame) {
+cv::Mat segmentEdges(const cv::Mat& gray) {
 
     /* Visualize
     cv::Mat outputImage = frame.clone();   
@@ -41,14 +21,11 @@ cv::Mat segmentEdges(const cv::Mat& frame) {
     // Display the image with lines colored
     cv::imshow("Initial", outputImage)*/;
 
-    // Converting frame to grayscale
-    cv::Mat gray;
-    cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
     
     cv::Mat noiseImage;
     //noiseImage = adaptiveGuassianThreshold(gray);
 
-    cv::threshold(gray, noiseImage, 80, 255, cv::THRESH_BINARY); //fara LED 25
+    cv::threshold(gray, noiseImage, 90, 255, cv::THRESH_BINARY); //fara LED 25
     cv::bitwise_not(noiseImage, noiseImage);
 
     // At this point image is full of noise yet Lines are clearly visible
@@ -99,13 +76,13 @@ cv::Mat cropFrameTop(const cv::Mat& frame, int cutHeight) {
     }
 
     // Create a copy of the original frame to draw the line
-    cv::Mat frameWithLine = frame.clone();
+    /*cv::Mat frameWithLine = frame.clone();
 
     // Draw a horizontal line at the cutHeight
     cv::line(frameWithLine, cv::Point(0, cutHeight), cv::Point(frameWidth, cutHeight), cv::Scalar(0, 255, 255), 2);
 
     // Display the frame with the line
-    cv::imshow("FrameWithCutLine", frameWithLine);
+    cv::imshow("FrameWithCutLine", frameWithLine);*/
 
     // Define the region of interest (ROI) to crop the top part
     cv::Rect roi(0, cutHeight, frameWidth, frameHeight - cutHeight);
@@ -122,62 +99,24 @@ cv::Mat resizeImage(const cv::Mat& src, int width, int height){
     return resized;
 }
 
-int demosaic(uint16_t width, uint16_t height, const uint8_t *bayerImage, uint32_t *image)
-{
-    uint32_t x, y, xx, yy, r, g, b;
-    uint8_t *pixel0, *pixel;
+/*cv::Mat adaptiveGuassianThreshold(const cv::Mat& frame){
+    
+    // Apply Gaussian blur
+    cv::Mat blur;
+    cv::GaussianBlur(frame, blur, cv::Size(blurBlockSize, blurBlockSize), 0);
 
-    for (y = 0; y < height; y++)
-    {
-        yy = y;
-        if (yy == 0)
-            yy++;
-        else if (yy == height - 1)
-            yy--;
-        pixel0 = (uint8_t *)bayerImage + yy * width;
-        for (x = 0; x < width; x++, image++)
-        {
-            xx = x;
-            if (xx == 0)
-                xx++;
-            else if (xx == width - 1)
-                xx--;
-            pixel = pixel0 + xx;
-            if (yy & 1)
-            {
-                if (xx & 1)
-                {
-                    r = *pixel;
-                    g = (*(pixel - 1) + *(pixel + 1) + *(pixel + width) + *(pixel - width)) >> 2;
-                    b = (*(pixel - width - 1) + *(pixel - width + 1) + *(pixel + width - 1) + *(pixel + width + 1)) >> 2;
-                }
-                else
-                {
-                    r = (*(pixel - 1) + *(pixel + 1)) >> 1;
-                    g = *pixel;
-                    b = (*(pixel - width) + *(pixel + width)) >> 1;
-                }
-            }
-            else
-            {
-                if (xx & 1)
-                {
-                    r = (*(pixel - width) + *(pixel + width)) >> 1;
-                    g = *pixel;
-                    b = (*(pixel - 1) + *(pixel + 1)) >> 1;
-                }
-                else
-                {
-                    r = (*(pixel - width - 1) + *(pixel - width + 1) + *(pixel + width - 1) + *(pixel + width + 1)) >> 2;
-                    g = (*(pixel - 1) + *(pixel + 1) + *(pixel + width) + *(pixel - width)) >> 2;
-                    b = *pixel;
-                }
-            }
-            *image = (b << 16) | (g << 8) | r;
-        }
-    }
-    return 0;
-}
+     // Apply adaptive threshold
+    cv::Mat adaptiveThreshold;
+    cv::adaptiveThreshold(blur, adaptiveThreshold, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY_INV, AdaptGaussBlockSize, AdaptGaussConstant);
+    
+    /* Visualize
+    cv::Mat outputImage = adaptiveThreshold.clone();   
+    outputImage = resizeImage(outputImage, frameWidth/1.6, frameHeight/1.6);
+    // Display the image with lines colored
+    cv::imshow("AdativeGaussianThreshold", outputImage);
+    
+    return adaptiveThreshold;
+}*/
 
 /*// OtsuThreshold
 cv::Mat otsuThresholding(const cv::Mat& frame){
@@ -195,4 +134,5 @@ cv::Mat otsuThresholding(const cv::Mat& frame){
     return otsuThresh;
 }
 */
+
 #endif 

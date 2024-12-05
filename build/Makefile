@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/debix/Documents/DEBIX
+CMAKE_SOURCE_DIR = /home/debix/Documents/Proiect-NXP-CUP-2025-
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/debix/Documents/DEBIX/build
+CMAKE_BINARY_DIR = /home/debix/Documents/Proiect-NXP-CUP-2025-/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/debix/Documents/DEBIX/build/CMakeFiles /home/debix/Documents/DEBIX/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/debix/Documents/Proiect-NXP-CUP-2025-/build/CMakeFiles /home/debix/Documents/Proiect-NXP-CUP-2025-/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/debix/Documents/DEBIX/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/debix/Documents/Proiect-NXP-CUP-2025-/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -129,29 +129,29 @@ DEBIX/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/build
 .PHONY : DEBIX/fast
 
-src/pixy2test.o: src/pixy2test.cpp.o
-.PHONY : src/pixy2test.o
+src/main.o: src/main.cpp.o
+.PHONY : src/main.o
 
 # target to build an object file
-src/pixy2test.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/src/pixy2test.cpp.o
-.PHONY : src/pixy2test.cpp.o
+src/main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/src/main.cpp.o
+.PHONY : src/main.cpp.o
 
-src/pixy2test.i: src/pixy2test.cpp.i
-.PHONY : src/pixy2test.i
+src/main.i: src/main.cpp.i
+.PHONY : src/main.i
 
 # target to preprocess a source file
-src/pixy2test.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/src/pixy2test.cpp.i
-.PHONY : src/pixy2test.cpp.i
+src/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/src/main.cpp.i
+.PHONY : src/main.cpp.i
 
-src/pixy2test.s: src/pixy2test.cpp.s
-.PHONY : src/pixy2test.s
+src/main.s: src/main.cpp.s
+.PHONY : src/main.s
 
 # target to generate assembly for a file
-src/pixy2test.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/src/pixy2test.cpp.s
-.PHONY : src/pixy2test.cpp.s
+src/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/src/main.cpp.s
+.PHONY : src/main.cpp.s
 
 # Help Target
 help:
@@ -162,9 +162,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... DEBIX"
-	@echo "... src/pixy2test.o"
-	@echo "... src/pixy2test.i"
-	@echo "... src/pixy2test.s"
+	@echo "... src/main.o"
+	@echo "... src/main.i"
+	@echo "... src/main.s"
 .PHONY : help
 
 

@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/debix/Documents/DEBIX
+CMAKE_SOURCE_DIR = /home/debix/Documents/Proiect-NXP-CUP-2025-
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/debix/Documents/DEBIX/build
+CMAKE_BINARY_DIR = /home/debix/Documents/Proiect-NXP-CUP-2025-/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/DEBIX.dir/depend.make
@@ -69,28 +69,28 @@ include CMakeFiles/DEBIX.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/DEBIX.dir/flags.make
 
-CMakeFiles/DEBIX.dir/src/pixy2test.cpp.o: CMakeFiles/DEBIX.dir/flags.make
-CMakeFiles/DEBIX.dir/src/pixy2test.cpp.o: ../src/pixy2test.cpp
-CMakeFiles/DEBIX.dir/src/pixy2test.cpp.o: CMakeFiles/DEBIX.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/debix/Documents/DEBIX/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/DEBIX.dir/src/pixy2test.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/DEBIX.dir/src/pixy2test.cpp.o -MF CMakeFiles/DEBIX.dir/src/pixy2test.cpp.o.d -o CMakeFiles/DEBIX.dir/src/pixy2test.cpp.o -c /home/debix/Documents/DEBIX/src/pixy2test.cpp
+CMakeFiles/DEBIX.dir/src/main.cpp.o: CMakeFiles/DEBIX.dir/flags.make
+CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp
+CMakeFiles/DEBIX.dir/src/main.cpp.o: CMakeFiles/DEBIX.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/debix/Documents/Proiect-NXP-CUP-2025-/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/DEBIX.dir/src/main.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/DEBIX.dir/src/main.cpp.o -MF CMakeFiles/DEBIX.dir/src/main.cpp.o.d -o CMakeFiles/DEBIX.dir/src/main.cpp.o -c /home/debix/Documents/Proiect-NXP-CUP-2025-/src/main.cpp
 
-CMakeFiles/DEBIX.dir/src/pixy2test.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/DEBIX.dir/src/pixy2test.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/debix/Documents/DEBIX/src/pixy2test.cpp > CMakeFiles/DEBIX.dir/src/pixy2test.cpp.i
+CMakeFiles/DEBIX.dir/src/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/DEBIX.dir/src/main.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/debix/Documents/Proiect-NXP-CUP-2025-/src/main.cpp > CMakeFiles/DEBIX.dir/src/main.cpp.i
 
-CMakeFiles/DEBIX.dir/src/pixy2test.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/DEBIX.dir/src/pixy2test.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/debix/Documents/DEBIX/src/pixy2test.cpp -o CMakeFiles/DEBIX.dir/src/pixy2test.cpp.s
+CMakeFiles/DEBIX.dir/src/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/DEBIX.dir/src/main.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/debix/Documents/Proiect-NXP-CUP-2025-/src/main.cpp -o CMakeFiles/DEBIX.dir/src/main.cpp.s
 
 # Object files for target DEBIX
 DEBIX_OBJECTS = \
-"CMakeFiles/DEBIX.dir/src/pixy2test.cpp.o"
+"CMakeFiles/DEBIX.dir/src/main.cpp.o"
 
 # External object files for target DEBIX
 DEBIX_EXTERNAL_OBJECTS =
 
-DEBIX: CMakeFiles/DEBIX.dir/src/pixy2test.cpp.o
+DEBIX: CMakeFiles/DEBIX.dir/src/main.cpp.o
 DEBIX: CMakeFiles/DEBIX.dir/build.make
 DEBIX: /usr/lib/aarch64-linux-gnu/libopencv_stitching.so.4.5.4d
 DEBIX: /usr/lib/aarch64-linux-gnu/libopencv_alphamat.so.4.5.4d
@@ -128,9 +128,6 @@ DEBIX: /usr/lib/aarch64-linux-gnu/libopencv_wechat_qrcode.so.4.5.4d
 DEBIX: /usr/lib/aarch64-linux-gnu/libopencv_xobjdetect.so.4.5.4d
 DEBIX: /usr/lib/aarch64-linux-gnu/libopencv_xphoto.so.4.5.4d
 DEBIX: /usr/lib/aarch64-linux-gnu/libcurl.so
-DEBIX: /home/debix/pixy2/build/libpixyusb2/libpixy2.a
-DEBIX: /usr/lib/aarch64-linux-gnu/libcurl.so
-DEBIX: /home/debix/pixy2/build/libpixyusb2/libpixy2.a
 DEBIX: /usr/lib/aarch64-linux-gnu/libopencv_highgui.so.4.5.4d
 DEBIX: /usr/lib/aarch64-linux-gnu/libopencv_datasets.so.4.5.4d
 DEBIX: /usr/lib/aarch64-linux-gnu/libopencv_plot.so.4.5.4d
@@ -151,7 +148,7 @@ DEBIX: /usr/lib/aarch64-linux-gnu/libopencv_photo.so.4.5.4d
 DEBIX: /usr/lib/aarch64-linux-gnu/libopencv_imgproc.so.4.5.4d
 DEBIX: /usr/lib/aarch64-linux-gnu/libopencv_core.so.4.5.4d
 DEBIX: CMakeFiles/DEBIX.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/debix/Documents/DEBIX/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable DEBIX"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/debix/Documents/Proiect-NXP-CUP-2025-/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable DEBIX"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/DEBIX.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -163,6 +160,6 @@ CMakeFiles/DEBIX.dir/clean:
 .PHONY : CMakeFiles/DEBIX.dir/clean
 
 CMakeFiles/DEBIX.dir/depend:
-	cd /home/debix/Documents/DEBIX/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/debix/Documents/DEBIX /home/debix/Documents/DEBIX /home/debix/Documents/DEBIX/build /home/debix/Documents/DEBIX/build /home/debix/Documents/DEBIX/build/CMakeFiles/DEBIX.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/debix/Documents/Proiect-NXP-CUP-2025-/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/debix/Documents/Proiect-NXP-CUP-2025- /home/debix/Documents/Proiect-NXP-CUP-2025- /home/debix/Documents/Proiect-NXP-CUP-2025-/build /home/debix/Documents/Proiect-NXP-CUP-2025-/build /home/debix/Documents/Proiect-NXP-CUP-2025-/build/CMakeFiles/DEBIX.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/DEBIX.dir/depend
 

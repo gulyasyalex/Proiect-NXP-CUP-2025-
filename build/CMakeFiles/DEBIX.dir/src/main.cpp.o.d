@@ -1,6 +1,6 @@
 CMakeFiles/DEBIX.dir/src/main.cpp.o: \
- /home/debix/Documents/DEBIX/src/main.cpp /usr/include/stdc-predef.h \
- /usr/include/c++/11/iostream \
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/src/main.cpp \
+ /usr/include/stdc-predef.h /usr/include/c++/11/iostream \
  /usr/include/aarch64-linux-gnu/c++/11/bits/c++config.h \
  /usr/include/aarch64-linux-gnu/c++/11/bits/os_defines.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -327,11 +327,19 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: \
  /usr/include/opencv4/opencv2/video.hpp \
  /usr/include/opencv4/opencv2/video/tracking.hpp \
  /usr/include/opencv4/opencv2/video/background_segm.hpp \
- /home/debix/Documents/DEBIX/include/config.h \
- /home/debix/Documents/DEBIX/include/CameraFunctions/segmentation.h \
- /home/debix/Documents/DEBIX/include/CameraFunctions/line_detection.h \
- /home/debix/Documents/DEBIX/include/CameraFunctions/thinning.h \
- /home/debix/Documents/DEBIX/include/tcp_connect.h \
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/config.h \
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/segmentation.h \
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/line_detection.h \
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/thinning.h \
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/camera_setup.h \
+ /usr/include/unistd.h /usr/include/aarch64-linux-gnu/bits/posix_opt.h \
+ /usr/include/aarch64-linux-gnu/bits/environments.h \
+ /usr/include/aarch64-linux-gnu/bits/confname.h \
+ /usr/include/aarch64-linux-gnu/bits/getopt_posix.h \
+ /usr/include/aarch64-linux-gnu/bits/getopt_core.h \
+ /usr/include/aarch64-linux-gnu/bits/unistd_ext.h \
+ /usr/include/linux/close_range.h \
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/tcp_connect.h \
  /usr/include/boost/asio.hpp \
  /usr/include/boost/asio/associated_allocator.hpp \
  /usr/include/boost/asio/detail/config.hpp /usr/include/boost/config.hpp \
@@ -340,14 +348,7 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: \
  /usr/include/boost/config/compiler/gcc.hpp \
  /usr/include/boost/config/detail/select_stdlib_config.hpp \
  /usr/include/c++/11/version \
- /usr/include/boost/config/stdlib/libstdcpp3.hpp /usr/include/unistd.h \
- /usr/include/aarch64-linux-gnu/bits/posix_opt.h \
- /usr/include/aarch64-linux-gnu/bits/environments.h \
- /usr/include/aarch64-linux-gnu/bits/confname.h \
- /usr/include/aarch64-linux-gnu/bits/getopt_posix.h \
- /usr/include/aarch64-linux-gnu/bits/getopt_core.h \
- /usr/include/aarch64-linux-gnu/bits/unistd_ext.h \
- /usr/include/linux/close_range.h \
+ /usr/include/boost/config/stdlib/libstdcpp3.hpp \
  /usr/include/boost/config/detail/select_platform_config.hpp \
  /usr/include/boost/config/platform/linux.hpp \
  /usr/include/boost/config/detail/posix_features.hpp \

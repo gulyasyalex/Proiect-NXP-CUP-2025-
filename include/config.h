@@ -2,9 +2,9 @@
 #define CONFIG_H
 
 // Global values
-    int cutHeight = 130;
-    int frameWidth = 640; //160; //320;
-    int frameHeight = 360; //90; //180;
+    int cutHeight = 40;
+    int frameWidth = 320; //160; //320;
+    int frameHeight = 180; //90; //180;
 
 // Used in camera_setup.h
     // Used in perspectiveChange()

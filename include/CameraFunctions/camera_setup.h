@@ -2,7 +2,45 @@
 #define CAMERA_SETUP_H
 
 #include <opencv2/opencv.hpp>
-#include "include/config.h"
+#include "config.h"
+#include <unistd.h>
+#include <iostream>
+
+void printWorkingDirectory() {
+    char cwd[1024];
+    if (getcwd(cwd, sizeof(cwd)) != nullptr) {
+        std::cout << "Current Working Directory: " << cwd << std::endl;
+    } else {
+        std::cerr << "Error getting current working directory." << std::endl;
+    }
+}
+// Function to execute the shell script and capture the output
+std::string getCameraIndex() {
+    // Path to the shell script
+    std::string scriptPath = "./include/CameraFunctions/find_camera_index.sh";
+    char buffer[128];
+    std::string result = "";
+
+    // Open a pipe to run the shell script
+    FILE* pipe = popen(scriptPath.c_str(), "r");
+    if (!pipe) {
+        std::cerr << "Error: Unable to open pipe to script." << std::endl;
+        return "-1";
+    }
+
+    // Read the output of the script
+    while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+        result += buffer;
+    }
+
+    // Close the pipe
+    pclose(pipe);
+
+    // Remove any trailing newline character
+    result.erase(result.find_last_not_of(" \n\r\t") + 1);
+
+    return result;
+}
 
 cv::Mat refineEdgesPerspective(const cv::Mat& frame) {
         cv::Mat mask = cv::Mat::zeros(frame.size(), CV_8UC1); 

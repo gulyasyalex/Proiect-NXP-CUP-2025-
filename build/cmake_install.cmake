@@ -1,4 +1,4 @@
-# Install script for directory: /home/debix/Documents/DEBIX
+# Install script for directory: /home/debix/Documents/Proiect-NXP-CUP-2025-
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/debix/Documents/DEBIX/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/debix/Documents/Proiect-NXP-CUP-2025-/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

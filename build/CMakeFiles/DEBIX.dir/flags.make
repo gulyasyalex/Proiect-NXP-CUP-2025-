@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/usr/include/libusb-1.0 -I/home/debix/Documents/DEBIX/include -I/home/debix/pixy2/src/host/libpixyusb2/include -isystem /usr/include/opencv4
+CXX_INCLUDES = -I/home/debix/Documents/Proiect-NXP-CUP-2025-/include -isystem /usr/include/opencv4
 
 CXX_FLAGS = -std=gnu++11
 
