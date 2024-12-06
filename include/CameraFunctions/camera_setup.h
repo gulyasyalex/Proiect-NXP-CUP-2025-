@@ -9,7 +9,6 @@
 #include <vector>
 #include <fstream>
 
-std::vector<cv::Point2f> srcPoints;
 
 void printWorkingDirectory();
 std::string getCameraIndex();
@@ -94,14 +93,11 @@ void initPerspectiveVariables(){
         cv::Point2f(loadedPoints[2].x, loadedPoints[2].y - cutHeight), // Example top-right corner
         cv::Point2f(loadedPoints[3].x, loadedPoints[3].y - cutHeight) // Example bottom-right corner
     };
-}
-cv::Mat perspectiveChange(const cv::Mat& frame){
+    widthDstPoints = 200;
+    heightDstPoints = 160;
 
-    if(srcPoints.empty()){
-        initPerspectiveVariables();
-    }
     // Destination points for the bird's-eye view
-    std::vector<cv::Point2f> dstPoints = {
+    dstPoints = {
         cv::Point2f(
             static_cast<float>(widthBirdsEyeView) / 2 - static_cast<float>(widthDstPoints) / 2,
             static_cast<float>(heightBirdsEyeView) - 10.0f - static_cast<float>(heightDstPoints) 
@@ -119,6 +115,16 @@ cv::Mat perspectiveChange(const cv::Mat& frame){
             static_cast<float>(heightBirdsEyeView) - 10.0f 
         ) // Bottom-right corner
     };
+
+    M = cv::getPerspectiveTransform(srcPoints, dstPoints);
+    M_inv = M.inv();
+}
+cv::Mat perspectiveChange(const cv::Mat& frame){
+
+    if(srcPoints.empty()){
+        initPerspectiveVariables();
+    }
+    
     // Compute the perspective transform matrix
     cv::Mat M = cv::getPerspectiveTransform(srcPoints, dstPoints);
 
@@ -155,6 +161,44 @@ cv::Mat perspectiveChange(const cv::Mat& frame){
     return birdEyeViewWithPoints;
 }
 
+void perspectiveChangeLineM(std::vector<cv::Point>& line) {
+    if (M.empty()) {
+        initPerspectiveVariables();
+    }
+
+    // Convert input points to float
+    std::vector<cv::Point2f> floatLine(line.begin(), line.end());
+
+    // Transform the points
+    std::vector<cv::Point2f> transformedPoints;
+    cv::perspectiveTransform(floatLine, transformedPoints, M);
+
+    // Convert transformed points back to integer if needed
+    line.clear();
+    for (const auto& pt : transformedPoints) {
+        line.emplace_back(cv::Point(static_cast<int>(pt.x), static_cast<int>(pt.y)));
+    }
+}
+
+void perspectiveChangeLineMinv(std::vector<cv::Point>& line) {
+    if (M_inv.empty()) {
+        initPerspectiveVariables();
+    }
+
+    // Convert input points to float
+    std::vector<cv::Point2f> floatLine(line.begin(), line.end());
+
+    // Transform the points
+    std::vector<cv::Point2f> transformedPoints;
+    cv::perspectiveTransform(floatLine, transformedPoints, M_inv);
+
+    // Convert transformed points back to integer if needed
+    line.clear();
+    for (const auto& pt : transformedPoints) {
+        line.emplace_back(cv::Point(static_cast<int>(pt.x), static_cast<int>(pt.y)));
+    }
+}
+
 
 // Function to write points to a TXT file
 void writePointsToTxt(const std::vector<cv::Point>& points, const std::string& filename) {
@@ -183,6 +227,16 @@ std::vector<cv::Point> readPointsFromTxt(const std::string& filename) {
         std::cerr << "Unable to open file for reading: " << filename << "\n";
     }
     return points;
+}
+
+void saveImage(const std::string& filename, const cv::Mat& frame){
+    bool success = cv::imwrite(filename, frame);
+
+    if (success) {
+        std::cout << "Image successfully saved to " << std::endl;
+    } else {
+        std::cerr << "Failed to save the image!" << std::endl;
+    }
 }
 
 #endif 

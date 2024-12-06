@@ -409,6 +409,7 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o
  /usr/include/aarch64-linux-gnu/c++/11/bits/basic_file.h
  /usr/include/aarch64-linux-gnu/c++/11/bits/c++io.h
  /usr/include/c++/11/bits/fstream.tcc
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/camera_setup.h
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/tcp_connect.h
  /usr/include/boost/asio.hpp
  /usr/include/boost/asio/associated_allocator.hpp

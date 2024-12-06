@@ -408,6 +408,7 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/aarch64-linux-gnu/c++/11/bits/basic_file.h \
   /usr/include/aarch64-linux-gnu/c++/11/bits/c++io.h \
   /usr/include/c++/11/bits/fstream.tcc \
+  ../include/CameraFunctions/camera_setup.h \
   ../include/tcp_connect.h \
   /usr/include/boost/asio.hpp \
   /usr/include/boost/asio/associated_allocator.hpp \
