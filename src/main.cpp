@@ -32,7 +32,11 @@ void capture_frames(cv::VideoCapture& cap) {
     double time_start = cv::getTickCount();
 
     while (running) {
-        #if ENABLE_READING_FROM_JPG == 1
+        #if 1 == ENABLE_STREAMING
+            cv::Mat frame;
+            cap >> frame;
+        
+        #else
             //std::string imagePath = "ogImage.jpg";
             //std::string imagePath = "ogCurves.jpg";
             //std::string imagePath = "ogCurves1.jpg";
@@ -47,18 +51,23 @@ void capture_frames(cv::VideoCapture& cap) {
             //std::string imagePath = "imagineThreshold_01.jpg";
             //std::string imagePath = "imagineThreshold_02.jpg";
             //std::string imagePath = "imagineThreshold_03.jpg";
-            std::string imagePath = "imagineThreshold_04.jpg";
+            //std::string imagePath = "imagineThreshold_04.jpg";
+            //std::string imagePath = "imagine08122024_01.jpg";
+            //std::string imagePath = "imagine08122024_02.jpg";
+            //std::string imagePath = "imagine08122024_03.jpg";
+            //std::string imagePath = "imagine08122024_04.jpg";
+            //std::string imagePath = "imagine08122024_05.jpg";
+            //std::string imagePath = "imagine08122024_06.jpg";
+            //std::string imagePath = "imagine08122024_07.jpg";
+            std::string imagePath = "imagine08122024_08.jpg";
 
             cv::Mat frame = cv::imread(imagePath, cv::IMREAD_COLOR);
         #endif
-        #if ENABLE_STREAMING
-            cv::Mat frame;
-            cap >> frame;
-        #endif
+        
         if (frame.empty()) break;
         
         frame = resizeImage(frame, 320, 180);
-        //saveImage("imagine12022024_03.jpg")
+        //saveImage("imagine08122024_08.jpg",frame);
         cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
         // TO CROP
         //frame = cropFrameTop(frame, 40);
@@ -108,46 +117,56 @@ void process_frame() {
             std::cout << "FPS(process_frame): " << fps << " FPS(capture_frame): " << fps_capture_frames << std::endl;
 
             cv::Mat skeleton = segmentEdges(frame);  
-            //laptopTCP.sendFrame(skeleton);
+            laptopTCP.sendFrame(skeleton);
 
             std::vector<std::vector<cv::Point>> lines = findLines(skeleton);
 
             cv::Mat outputImage = cv::Mat::zeros(frame.size(), CV_8UC3);  // Output image for drawing
       
             drawLines(outputImage,lines,cv::Scalar(255, 0, 0));
+            /*for (const auto& line : lines){
+                drawPoints(outputImage, line, cv::Scalar(255, 0, 0));
+            }*/
             //laptopTCP.sendFrame(outputImage);
 
             for (int i = 0; i < lines.size(); i++){
                 lines[i] = fitPolinomial(lines[i],false);
-                lines[i] = evenlySpacePoints(lines[i], num_points);
+                std::cout << "fitPolinomial lines[i].size():" << lines[i].size() << std::endl;
             }
-
-            drawLines(outputImage,lines,cv::Scalar(0, 0, 255));
+            //drawLines(outputImage,lines,cv::Scalar(0, 0, 255));
             laptopTCP.sendFrame(outputImage);
 
-            for (int i = 0; i < lines.size(); i++) {
+            #if 1 != ENABLE_CALIBRATE_CAMERA 
+            for (int i = 0; i < lines.size(); i++){
+                perspectiveChangeLine(lines[i], MatrixBirdsEyeView);
                 lines[i] = removeHorizontalIf90Turn(lines[i]);
+                std::cout << "removeHorizontalIf90Turn lines[i].size():" << lines[i].size() << std::endl;
+                extendLineToEdges(lines[i], widthBirdsEyeView, heightBirdsEyeView);
+                lines[i] = evenlySpacePoints(lines[i], num_points);
+                std::cout << "evenlySpacePoints lines[i].size():" << lines[i].size() << std::endl;
             }
-            
+            #endif
             getLeftRightLines(lines,leftLine,rightLine);
             
-            #if ENABLE_CALIBRATE_CAMERA == 1
+            #if 1 == ENABLE_CALIBRATE_CAMERA 
                 // TO CALIBRATE CAMERA
                 cv::Point result;
                 std::vector<cv::Point> interpolatedPoints;
                 try {
-                    interpolatedPoints.push_back(interpolateClosestPoints(leftLine, 50));
-                    interpolatedPoints.push_back(interpolateClosestPoints(leftLine, 130));
-                    interpolatedPoints.push_back(interpolateClosestPoints(rightLine, 50));
-                    interpolatedPoints.push_back(interpolateClosestPoints(rightLine, 130));
-
+                    extendLineToEdges(leftLine, frameWidth, frameHeight);
+                    extendLineToEdges(rightLine, frameWidth, frameHeight);
+                    interpolatedPoints.push_back(interpolateClosestPoints(leftLine, 20));
+                    interpolatedPoints.push_back(interpolateClosestPoints(leftLine, 140));
+                    interpolatedPoints.push_back(interpolateClosestPoints(rightLine, 20));
+                    interpolatedPoints.push_back(interpolateClosestPoints(rightLine, 140));
                     // Write interpolated points to a TXT file
                     writePointsToTxt(interpolatedPoints, "interpolated_points.txt");
+                    initPerspectiveVariables();
 
                 } catch (const std::exception& e) {
                     std::cerr << "Error: " << e.what() << "\n";
                 }
-            #endif     
+            #else    
             
             std::vector<cv::Point> allMidpoints = findMiddle(leftLine,rightLine,widthBirdsEyeView,heightBirdsEyeView);
             // Create a frame of the desired size
@@ -155,34 +174,38 @@ void process_frame() {
 
             // Initialize an empty image (black by default)
             cv::Mat birdEyeViewWithPoints = cv::Mat::zeros(frameSize, CV_8UC3); // 3 channels (color)
-            std::cout <<  "dstPoints.size()" << dstPoints.size() << std::endl;
 
             drawPoints2f(birdEyeViewWithPoints, dstPoints, cv::Scalar(0, 255, 255));
             drawLine(birdEyeViewWithPoints,leftLine,cv::Scalar(0, 255, 0));
             drawLine(birdEyeViewWithPoints,allMidpoints,cv::Scalar(255, 255, 255));
             drawLine(birdEyeViewWithPoints,rightLine,cv::Scalar(0, 0, 255));
-            laptopTCP.sendFrame(birdEyeViewWithPoints);
+            //laptopTCP.sendFrame(birdEyeViewWithPoints);
 
-            perspectiveChangeLineMinv(leftLine);
-            perspectiveChangeLineMinv(rightLine);
-            for (int i = 1; i < leftLine.size(); i++) {
-                std::cout << "leftLine x: " << leftLine[i].x << " y:" << leftLine[i].y << std::endl;
-            }
-            for (int i = 1; i < rightLine.size(); i++)  {
-                std::cout << "rightLine x: " << rightLine[i].x << " y:" << rightLine[i].y << std::endl;
-            }
+            perspectiveChangeLine(leftLine, MatrixInverseBirdsEyeView);
+            perspectiveChangeLine(rightLine, MatrixInverseBirdsEyeView);
+            perspectiveChangeLine(allMidpoints, MatrixInverseBirdsEyeView);
 
-            allMidpoints = findMiddle(leftLine,rightLine,frameWidth,frameHeight);
-
+            //allMidpoints = findMiddle(leftLine,rightLine,frameWidth,frameHeight);
+            #endif
             outputImage = cv::Mat::zeros(frame.size(),CV_8UC3);
 
-            drawPoints(outputImage, leftLine, cv::Scalar(100, 100, 200));
-            drawPoints(outputImage, rightLine, cv::Scalar(200, 200, 100));
+            drawPoints2f(outputImage, srcPoints, cv::Scalar(0, 255, 255));
+            #if 1 != ENABLE_CALIBRATE_CAMERA 
+            drawPoints(outputImage, leftLine, cv::Scalar(0, 255, 0));
+            drawPoints(outputImage, rightLine, cv::Scalar(0, 0, 255));
             drawLine(outputImage,leftLine,cv::Scalar(0, 255, 0));
             drawLine(outputImage,allMidpoints,cv::Scalar(255, 255, 255));
             drawLine(outputImage,rightLine,cv::Scalar(0, 0, 255));
-            laptopTCP.sendFrame(outputImage);
-            
+            #endif
+
+            //laptopTCP.sendFrame(outputImage);
+            cv::cvtColor(frame, frame, cv::COLOR_GRAY2BGR);
+
+            // Add the visualization (outputImage) on top of the original frame
+            cv::Mat overlayedImage;
+            cv::addWeighted(frame, 1.0, outputImage, 1.0, 0, overlayedImage);
+            laptopTCP.sendFrame(overlayedImage);
+           
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (cv::waitKey(1) == 'q') {
                 running = false;
@@ -195,11 +218,11 @@ void process_frame() {
 
 int main() {
     
-    #if ENABLE_STREAMING == 1
+    #if 1 == ENABLE_STREAMING
         // Get the camera index from the shell script
         std::string cameraIndexStr = getCameraIndex();
         int cameraIndex = std::stoi(cameraIndexStr);
-
+        std::cout << "cameraIndex:" << cameraIndex << std::endl;
         cv::VideoCapture cap(cameraIndex);
 
         cap.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
@@ -210,8 +233,7 @@ int main() {
             std::cerr << "Error: Could not open video device" << std::endl;
             return -1;
         }
-    #endif
-    #if ENABLE_READING_FROM_JPG == 1
+    #else
         cv::VideoCapture cap;
     #endif
 

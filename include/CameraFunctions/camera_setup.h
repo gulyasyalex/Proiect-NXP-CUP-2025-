@@ -9,12 +9,27 @@
 #include <vector>
 #include <fstream>
 
+/*
+interpolated_points/txt
+53 20
+-20 130
+224 20
+285 130
+
+63 20
+-13 140
+233 20
+306 140
+
+*/
 
 void printWorkingDirectory();
 std::string getCameraIndex();
 cv::Mat refineEdgesPerspective(const cv::Mat& frame);
 void initPerspectiveVariables();
-cv::Mat perspectiveChange(const cv::Mat& frame, float cutHeight);
+cv::Mat perspectiveChange(const cv::Mat& frame, float cutHeight);                           // No need for now
+void perspectiveChangePoint(cv::Point& point, const cv::Mat& transformMatrix);
+void perspectiveChangeLine(std::vector<cv::Point>& line, const cv::Mat& transformMatrix);
 void writePointsToTxt(const std::vector<cv::Point>& points, const std::string& filename);
 std::vector<cv::Point> readPointsFromTxt(const std::string& filename);
 
@@ -82,19 +97,14 @@ cv::Mat refineEdgesPerspective(const cv::Mat& frame) {
 void initPerspectiveVariables(){
     auto loadedPoints = readPointsFromTxt("interpolated_points.txt");
 
-    // Display loaded points
-    std::cout << "Loaded Points:\n";
-    for (const auto& point : loadedPoints) {
-        std::cout << "(" << point.x << ", " << point.y << ")\n";
-    }
     srcPoints = {
         cv::Point2f(loadedPoints[0].x, loadedPoints[0].y - cutHeight),  // Example top-left corner
         cv::Point2f(loadedPoints[1].x, loadedPoints[1].y - cutHeight), // Example bottom-left corner
         cv::Point2f(loadedPoints[2].x, loadedPoints[2].y - cutHeight), // Example top-right corner
         cv::Point2f(loadedPoints[3].x, loadedPoints[3].y - cutHeight) // Example bottom-right corner
     };
-    widthDstPoints = 200;
-    heightDstPoints = 160;
+    widthDstPoints = widthBirdsEyeView * 0.45f;
+    heightDstPoints = widthBirdsEyeView * 0.45f;
 
     // Destination points for the bird's-eye view
     dstPoints = {
@@ -104,7 +114,7 @@ void initPerspectiveVariables(){
         ), // Top-left corner
         cv::Point2f(
         static_cast<float>(widthBirdsEyeView) / 2 - static_cast<float>(widthDstPoints) / 2,
-        static_cast<float>(heightBirdsEyeView) - 10.0f 
+        static_cast<float>(heightBirdsEyeView) - 20.0f
         ), // Bottom-left corner
         cv::Point2f(
             static_cast<float>(widthBirdsEyeView) / 2 + static_cast<float>(widthDstPoints) / 2,
@@ -112,12 +122,12 @@ void initPerspectiveVariables(){
         ), // Top-right corner
         cv::Point2f(
             static_cast<float>(widthBirdsEyeView) / 2 + static_cast<float>(widthDstPoints) / 2,
-            static_cast<float>(heightBirdsEyeView) - 10.0f 
+            static_cast<float>(heightBirdsEyeView) - 20.0f
         ) // Bottom-right corner
     };
 
-    M = cv::getPerspectiveTransform(srcPoints, dstPoints);
-    M_inv = M.inv();
+    MatrixBirdsEyeView = cv::getPerspectiveTransform(srcPoints, dstPoints);
+    MatrixInverseBirdsEyeView = MatrixBirdsEyeView.inv();
 }
 cv::Mat perspectiveChange(const cv::Mat& frame){
 
@@ -161,41 +171,30 @@ cv::Mat perspectiveChange(const cv::Mat& frame){
     return birdEyeViewWithPoints;
 }
 
-void perspectiveChangeLineM(std::vector<cv::Point>& line) {
-    if (M.empty()) {
+void perspectiveChangePoint(cv::Point& point, const cv::Mat& transformMatrix) {
+    // Initialize perspective variables if needed
+    if (transformMatrix.empty()) {
         initPerspectiveVariables();
     }
 
-    // Convert input points to float
-    std::vector<cv::Point2f> floatLine(line.begin(), line.end());
+    // Convert the input point to float
+    cv::Point2f floatPoint(static_cast<float>(point.x), static_cast<float>(point.y));
 
-    // Transform the points
-    std::vector<cv::Point2f> transformedPoints;
-    cv::perspectiveTransform(floatLine, transformedPoints, M);
+    // Transform the point
+    std::vector<cv::Point2f> src = {floatPoint};
+    std::vector<cv::Point2f> dst;
+    cv::perspectiveTransform(src, dst, transformMatrix);
 
-    // Convert transformed points back to integer if needed
-    line.clear();
-    for (const auto& pt : transformedPoints) {
-        line.emplace_back(cv::Point(static_cast<int>(pt.x), static_cast<int>(pt.y)));
-    }
+    // Update the original point directly
+    point.x = static_cast<int>(dst[0].x);
+    point.y = static_cast<int>(dst[0].y);
 }
 
-void perspectiveChangeLineMinv(std::vector<cv::Point>& line) {
-    if (M_inv.empty()) {
-        initPerspectiveVariables();
-    }
 
-    // Convert input points to float
-    std::vector<cv::Point2f> floatLine(line.begin(), line.end());
-
-    // Transform the points
-    std::vector<cv::Point2f> transformedPoints;
-    cv::perspectiveTransform(floatLine, transformedPoints, M_inv);
-
-    // Convert transformed points back to integer if needed
-    line.clear();
-    for (const auto& pt : transformedPoints) {
-        line.emplace_back(cv::Point(static_cast<int>(pt.x), static_cast<int>(pt.y)));
+void perspectiveChangeLine(std::vector<cv::Point>& line, const cv::Mat& transformMatrix) {
+    // Transform each point in the line
+    for (auto& point : line) {
+        perspectiveChangePoint(point, transformMatrix);
     }
 }
 

@@ -10,8 +10,6 @@ cv::Mat skeletonizeFrame(const cv::Mat& thresholdedImage);
 cv::Mat segmentEdges(const cv::Mat& frame);
 cv::Mat cropFrameTop(const cv::Mat& frame, int cutHeight);
 cv::Mat resizeImage(const cv::Mat& src, int width, int height);
-//cv::Mat adaptiveGuassianThreshold(const cv::Mat& frame);
-//cv::Mat otsuThresholding(const cv::Mat& frame);
 
 // Function returns a skeletonized frame
 cv::Mat skeletonizeFrame(const cv::Mat& thresholdedImage){
@@ -36,9 +34,10 @@ cv::Mat skeletonizeFrame(const cv::Mat& thresholdedImage){
 }
 cv::Mat segmentEdges(const cv::Mat& frame) {
 
-    cv::threshold(frame, frame, 90, 255, cv::THRESH_BINARY); //fara LED 25
-    //cv::bitwise_not(edges, edges);
-    cv::Mat skeleton = skeletonizeFrame(frame);
+    cv::Mat thresholdFrame;
+    cv::threshold(frame, thresholdFrame, thresholdValue, 255, cv::THRESH_BINARY);    
+    cv::bitwise_not(thresholdFrame, thresholdFrame);
+    cv::Mat skeleton = skeletonizeFrame(thresholdFrame);
     return skeleton;
 }
 
@@ -70,41 +69,4 @@ cv::Mat resizeImage(const cv::Mat& src, int width, int height){
     cv::resize(src, resized, cv::Size(width, height));
     return resized;
 }
-
-/*cv::Mat adaptiveGuassianThreshold(const cv::Mat& frame){
-    
-    // Apply Gaussian blur
-    cv::Mat blur;
-    cv::GaussianBlur(frame, blur, cv::Size(blurBlockSize, blurBlockSize), 0);
-
-     // Apply adaptive threshold
-    cv::Mat adaptiveThreshold;
-    cv::adaptiveThreshold(blur, adaptiveThreshold, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY_INV, AdaptGaussBlockSize, AdaptGaussConstant);
-    
-    /* Visualize
-    cv::Mat outputImage = adaptiveThreshold.clone();   
-    outputImage = resizeImage(outputImage, frameWidth/1.6, frameHeight/1.6);
-    // Display the image with lines colored
-    cv::imshow("AdativeGaussianThreshold", outputImage);
-    
-    return adaptiveThreshold;
-}*/
-
-/*// OtsuThreshold
-cv::Mat otsuThresholding(const cv::Mat& frame){
-    
-     // Apply Gaussian blur
-    cv::Mat blur;
-    cv::GaussianBlur(frame, blur, cv::Size(5, 5), 2);
-    cv::Mat otsuThresh;
-    double otsuThreshold = cv::threshold(blur, otsuThresh, 10, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
-
-    // Display the results
-    //std::cout << "Otsu's threshold value: " << otsuThreshold << std::endl;
-
-
-    return otsuThresh;
-}
-*/
-
-#endif 
+#endif

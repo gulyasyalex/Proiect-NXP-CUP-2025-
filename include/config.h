@@ -4,48 +4,45 @@
 
 #define ENABLE_CALIBRATE_CAMERA 0
 #define ENABLE_STREAMING 0
-#define ENABLE_READING_FROM_JPG 1
 
 // Global values
-    int cutHeight = 0;
-    int frameWidth = 320; //160; //320;
-    int frameHeight = 180; //90; //180;
+    static int cutHeight = 0;
+    static const int frameWidth = 320; //160; //320;
+    static const int frameHeight = 180; //90; //180;
 
 // Used in camera_setup.h
     // Used in perspectiveChange()
     // Size of new perspective box
-    int heightBirdsEyeView = 400 - cutHeight*2;
-    int widthBirdsEyeView = 370;
+    static const int heightBirdsEyeView = 400 - cutHeight*2;
+    static const int widthBirdsEyeView = 370;
     // dstPoints Box size in pixels
     // (This box is placed in the middle bottom part of the perspective box)
-    int heightDstPoints;
-    int widthDstPoints;
-    int trackLaneWidthInPixel = 200;
-    std::vector<cv::Point2f> srcPoints;
-    std::vector<cv::Point2f> dstPoints;
+    int heightDstPoints;        // This are initialized in initPerspectiveVariables()
+    int widthDstPoints;         // This are initialized in initPerspectiveVariables()
+    static int trackLaneWidthInPixel = 200;                        // Important
+    static std::vector<cv::Point2f> srcPoints;
+    static std::vector<cv::Point2f> dstPoints;
     // Perspective transform matrix
-    cv::Mat M;
-    cv::Mat M_inv;
+    static cv::Mat MatrixBirdsEyeView;
+    static cv::Mat MatrixInverseBirdsEyeView;
 
     
 // Used in segmentation.h
-    // Used in adaptiveGuassianThreshold()
-    int blurBlockSize = 25;
-    int AdaptGaussConstant = 2;
-    int AdaptGaussBlockSize = 25;
+    static const int thresholdValue = 90;
 
 // Used in line_detection.h
     // Used in fitPolinomial()
-    int windowSize = 25;  
-    double epsilon = 7.0;  // Epsilon value for curve approximation
+    static const int windowSize = 35;  
+    static double epsilon = 7.0;  // Epsilon value for curve approximation
     // Used in findMiddle()
     // Number of points to sample the curve(High number equals more complexity)
-    int num_points = 15;  
+    static const int num_points = 12;  
     // Used in are2PointsHorizontal()
-    double slopeThreshold = 0.6;
+    static const double slopeThreshold = 1;
     // Used in customConnectedComponentsWithThreshold()
-    double rowThresholdCutOff = 0.4;
+    static const int minPixelCount = 10;                            // Defines how many pixel can make a line (removes noise)
+    static const double rowThresholdCutOff = 0.4;
     // Used in removeHorizontalIf90Turn()
-    double removeAngleMin = 80;
-    double removeAngleMax = 100;
+    static const double removeAngleMin = 70;
+    static const double removeAngleMax = 110;
 #endif
