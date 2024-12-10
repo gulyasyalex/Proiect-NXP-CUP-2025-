@@ -3,13 +3,14 @@
 
 
 #define ENABLE_CALIBRATE_CAMERA 0
-#define ENABLE_STREAMING 0
+#define ENABLE_STREAMING 1
 
 // Global values
     static int cutHeight = 0;
     static const int frameWidth = 320; //160; //320;
     static const int frameHeight = 180; //90; //180;
-
+    static cv::Point2f carInFramePosition;
+    static cv::Point2f carInFramePositionBirdsEye;
 // Used in camera_setup.h
     // Used in perspectiveChange()
     // Size of new perspective box
@@ -19,7 +20,7 @@
     // (This box is placed in the middle bottom part of the perspective box)
     int heightDstPoints;        // This are initialized in initPerspectiveVariables()
     int widthDstPoints;         // This are initialized in initPerspectiveVariables()
-    static int trackLaneWidthInPixel = 200;                        // Important
+    static int trackLaneWidthInPixel;                        // Important
     static std::vector<cv::Point2f> srcPoints;
     static std::vector<cv::Point2f> dstPoints;
     // Perspective transform matrix
@@ -33,7 +34,7 @@
 // Used in line_detection.h
     // Used in fitPolinomial()
     static const int windowSize = 35;  
-    static double epsilon = 7.0;  // Epsilon value for curve approximation
+    static double epsilon = 9.0;  // Epsilon value for curve approximation
     // Used in findMiddle()
     // Number of points to sample the curve(High number equals more complexity)
     static const int num_points = 12;  
