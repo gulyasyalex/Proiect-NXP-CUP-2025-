@@ -9,7 +9,7 @@
 cv::Mat skeletonizeFrame(const cv::Mat& thresholdedImage);
 cv::Mat segmentEdges(const cv::Mat& frame);
 cv::Mat cropFrameTop(const cv::Mat& frame, int cutHeight);
-cv::Mat resizeImage(const cv::Mat& src, int width, int height);
+cv::Mat resizeImage(const cv::Mat& frame, int width, int height);
 
 // Function returns a skeletonized frame
 cv::Mat skeletonizeFrame(const cv::Mat& thresholdedImage){
@@ -62,11 +62,11 @@ cv::Mat cropFrameTop(const cv::Mat& frame, int cutHeight) {
     return croppedImage;
 }
 
-cv::Mat resizeImage(const cv::Mat& src, int width, int height){
+cv::Mat resizeImage(const cv::Mat& frame, int width, int height){
     
     // Resize the image to the specified width and height
     cv::Mat resized;
-    cv::resize(src, resized, cv::Size(width, height));
+    cv::resize(frame, resized, cv::Size(width, height));
     return resized;
 }
 #endif

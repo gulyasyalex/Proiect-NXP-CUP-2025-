@@ -394,6 +394,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   ../include/config.h \
   ../include/CameraFunctions/segmentation.h \
   ../include/CameraFunctions/line_detection.h \
+  ../include/math_functions.h \
+  ../include/config.h \
   ../include/CameraFunctions/thinning.h \
   ../include/CameraFunctions/camera_setup.h \
   /usr/include/unistd.h \
@@ -409,6 +411,7 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/aarch64-linux-gnu/c++/11/bits/c++io.h \
   /usr/include/c++/11/bits/fstream.tcc \
   ../include/CameraFunctions/camera_setup.h \
+  ../include/PurePursuit/pure_pursuit.h \
   ../include/tcp_connect.h \
   /usr/include/boost/asio.hpp \
   /usr/include/boost/asio/associated_allocator.hpp \
@@ -1670,6 +1673,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/ip/detail/endpoint.hpp:
 
+/usr/include/boost/asio/ip/basic_endpoint.hpp:
+
 /usr/include/boost/asio/prefer.hpp:
 
 /usr/include/boost/asio/detail/non_const_lvalue.hpp:
@@ -2566,6 +2571,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/bits/stl_algobase.h:
 
+../include/math_functions.h:
+
 /usr/include/c++/11/cwchar:
 
 /usr/include/boost/asio/traits/static_query.hpp:
@@ -2641,10 +2648,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/aarch64-linux-gnu/bits/errno.h:
 
 /usr/include/boost/mpl/aux_/config/forwarding.hpp:
-
-/usr/include/boost/asio/traits/static_require.hpp:
-
-/usr/include/c++/11/type_traits:
 
 /usr/include/boost/asio/traits/set_value_member.hpp:
 
@@ -3050,6 +3053,10 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/bits/stl_deque.h:
 
+/usr/include/c++/11/type_traits:
+
+/usr/include/boost/asio/traits/static_require.hpp:
+
 /usr/include/boost/current_function.hpp:
 
 /usr/include/boost/asio/execution/blocking_adaptation.hpp:
@@ -3409,6 +3416,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/aarch64-linux-gnu/sys/select.h:
 
 /usr/include/boost/asio/detail/reactive_socket_service.hpp:
+
+../include/PurePursuit/pure_pursuit.h:
 
 /usr/include/boost/asio/buffer.hpp:
 
@@ -4033,5 +4042,3 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/c++/11/cassert:
 
 /usr/include/boost/asio/ip/impl/network_v4.hpp:
-
-/usr/include/boost/asio/ip/basic_endpoint.hpp:

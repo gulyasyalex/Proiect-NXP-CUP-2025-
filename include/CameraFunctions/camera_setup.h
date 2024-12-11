@@ -4,6 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
 #include "config.h"
+#include "math_functions.h"
 #include <unistd.h>
 #include <iostream>
 #include <vector>
@@ -21,6 +22,11 @@ interpolated_points/txt
 233 20
 306 140
 
+69 20
+-60 140
+200 20
+314 140
+
 */
 
 void printWorkingDirectory();
@@ -28,10 +34,10 @@ std::string getCameraIndex();
 cv::Mat refineEdgesPerspective(const cv::Mat& frame);
 void initPerspectiveVariables();
 cv::Mat perspectiveChange(const cv::Mat& frame, float cutHeight);                           // No need for now
-void perspectiveChangePoint(cv::Point& point, const cv::Mat& transformMatrix);
-void perspectiveChangeLine(std::vector<cv::Point>& line, const cv::Mat& transformMatrix);
-void writePointsToTxt(const std::vector<cv::Point>& points, const std::string& filename);
-std::vector<cv::Point> readPointsFromTxt(const std::string& filename);
+cv::Point2f perspectiveChangePoint(const cv::Point2f& point, const cv::Mat& transformMatrix);
+std::vector<cv::Point2f> perspectiveChangeLine(const std::vector<cv::Point2f>& line, const cv::Mat& transformMatrix);
+void writePointsToTxt(const std::vector<cv::Point2f>& points, const std::string& filename);
+std::vector<cv::Point2f> readPointsFromTxt(const std::string& filename);
 
 void printWorkingDirectory() {
     char cwd[1024];
@@ -125,9 +131,13 @@ void initPerspectiveVariables(){
             static_cast<float>(heightBirdsEyeView) - 20.0f
         ) // Bottom-right corner
     };
+    
+    trackLaneWidthInPixel = euclideanDistance(dstPoints[3], dstPoints[1]);
 
     MatrixBirdsEyeView = cv::getPerspectiveTransform(srcPoints, dstPoints);
     MatrixInverseBirdsEyeView = MatrixBirdsEyeView.inv();
+    carInFramePosition = cv::Point2f(loadedPoints[4].x,loadedPoints[4].y);
+    carInFramePositionBirdsEye = perspectiveChangePoint(carInFramePosition, MatrixBirdsEyeView);
 }
 cv::Mat perspectiveChange(const cv::Mat& frame){
 
@@ -171,12 +181,12 @@ cv::Mat perspectiveChange(const cv::Mat& frame){
     return birdEyeViewWithPoints;
 }
 
-void perspectiveChangePoint(cv::Point& point, const cv::Mat& transformMatrix) {
+cv::Point2f perspectiveChangePoint(const cv::Point2f& point, const cv::Mat& transformMatrix) {
     // Initialize perspective variables if needed
     if (transformMatrix.empty()) {
         initPerspectiveVariables();
     }
-
+    cv::Point2f result;
     // Convert the input point to float
     cv::Point2f floatPoint(static_cast<float>(point.x), static_cast<float>(point.y));
 
@@ -186,21 +196,27 @@ void perspectiveChangePoint(cv::Point& point, const cv::Mat& transformMatrix) {
     cv::perspectiveTransform(src, dst, transformMatrix);
 
     // Update the original point directly
-    point.x = static_cast<int>(dst[0].x);
-    point.y = static_cast<int>(dst[0].y);
+    result.x = static_cast<int>(dst[0].x);
+    result.y = static_cast<int>(dst[0].y);
+
+    return result;
 }
 
 
-void perspectiveChangeLine(std::vector<cv::Point>& line, const cv::Mat& transformMatrix) {
+std::vector<cv::Point2f> perspectiveChangeLine(const std::vector<cv::Point2f>& line, const cv::Mat& transformMatrix) {
     // Transform each point in the line
+    std::vector<cv::Point2f> result;
+    result.reserve(line.size());
+
     for (auto& point : line) {
-        perspectiveChangePoint(point, transformMatrix);
+        result.push_back(perspectiveChangePoint(point, transformMatrix));
     }
+    return result;
 }
 
 
 // Function to write points to a TXT file
-void writePointsToTxt(const std::vector<cv::Point>& points, const std::string& filename) {
+void writePointsToTxt(const std::vector<cv::Point2f>& points, const std::string& filename) {
     std::ofstream file(filename);
     if (file.is_open()) {
         for (const auto& point : points) {
@@ -213,8 +229,8 @@ void writePointsToTxt(const std::vector<cv::Point>& points, const std::string& f
 }
 
 // Function to read points from a TXT file
-std::vector<cv::Point> readPointsFromTxt(const std::string& filename) {
-    std::vector<cv::Point> points;
+std::vector<cv::Point2f> readPointsFromTxt(const std::string& filename) {
+    std::vector<cv::Point2f> points;
     std::ifstream file(filename);
     if (file.is_open()) {
         int x, y;

@@ -330,6 +330,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: \
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/config.h \
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/segmentation.h \
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/line_detection.h \
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/math_functions.h \
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/config.h \
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/thinning.h \
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/camera_setup.h \
  /usr/include/unistd.h /usr/include/aarch64-linux-gnu/bits/posix_opt.h \
@@ -343,6 +345,7 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: \
  /usr/include/aarch64-linux-gnu/c++/11/bits/c++io.h \
  /usr/include/c++/11/bits/fstream.tcc \
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/camera_setup.h \
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/PurePursuit/pure_pursuit.h \
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/tcp_connect.h \
  /usr/include/boost/asio.hpp \
  /usr/include/boost/asio/associated_allocator.hpp \
