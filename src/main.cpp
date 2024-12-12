@@ -48,7 +48,7 @@ void capture_frames(cv::VideoCapture& cap) {
                 //std::string imagePath = "imagineSala4.jpg";
                 //std::string imagePath = "lines4.jpeg";
                 //std::string imagePath = "lines5.jpeg";
-                //std::string imagePath = "imagine12022024_02.jpg";
+                std::string imagePath = "imagine12022024_02.jpg";
                 //std::string imagePath = "imagine12022024_03.jpg";
                 //std::string imagePath = "imagineThreshold_01.jpg";
                 //std::string imagePath = "imagineThreshold_02.jpg";
@@ -57,11 +57,10 @@ void capture_frames(cv::VideoCapture& cap) {
                 //std::string imagePath = "imagine08122024_01.jpg";
                 //std::string imagePath = "imagine08122024_02.jpg";
                 //std::string imagePath = "imagine08122024_03.jpg";
-                //std::string imagePath = "imagine08122024_04.jpg";
                 //std::string imagePath = "imagine08122024_05.jpg";
                 //std::string imagePath = "imagine08122024_06.jpg";
                 //std::string imagePath = "imagine08122024_07.jpg";
-                std::string imagePath = "imagine08122024_08.jpg";
+                //std::string imagePath = "imagine08122024_08.jpg";
 
                 cv::Mat frame = cv::imread(imagePath, cv::IMREAD_COLOR);
             #endif
@@ -187,8 +186,10 @@ void process_frame() {
 
                 #else    
 
-                float circleRadius = 100.0f;
-
+                radiusIncrease(circleRadius);                
+                pointMoveAcrossFrame(carInFramePositionBirdsEye);
+                double tempCircleRadius = shortestDistanceToCurve(allMidpoints, carInFramePositionBirdsEye, circleRadius);
+                std::cout << "tempCircleRadius: " << tempCircleRadius << "\n";
                 // Create a frame of the desired size
                 cv::Size frameSize(widthBirdsEyeView, heightBirdsEyeView);
 
@@ -196,10 +197,10 @@ void process_frame() {
                 cv::Mat birdEyeViewWithPoints = cv::Mat::zeros(frameSize, CV_8UC3); // 3 channels (color)
 
                 // Find intersections
-                cv::Point2f intersection = findHighestIntersection(carInFramePositionBirdsEye, circleRadius, allMidpoints);
+                cv::Point2f intersection = findHighestIntersection(allMidpoints, carInFramePositionBirdsEye, tempCircleRadius);
              
                 cv::circle(birdEyeViewWithPoints, intersection, 5, cv::Scalar(254, 34, 169), -1);
-                drawCircle(birdEyeViewWithPoints, carInFramePositionBirdsEye, circleRadius, cv::Scalar(254, 34, 169));
+                drawCircle(birdEyeViewWithPoints, carInFramePositionBirdsEye, tempCircleRadius, cv::Scalar(254, 34, 169));
                 cv::circle(birdEyeViewWithPoints, carInFramePositionBirdsEye, 5, cv::Scalar(254, 34, 169), -1);
                 drawPoints2f(birdEyeViewWithPoints, dstPoints, cv::Scalar(0, 255, 255));
                 drawLine(birdEyeViewWithPoints,leftLine,cv::Scalar(0, 255, 0));
@@ -222,7 +223,6 @@ void process_frame() {
                 horizontalLine.push_back(srcPoints[1]);
                 horizontalLine.push_back(srcPoints[3]);
                 
-                drawCircle(outputImage, carInFramePosition, circleRadius, cv::Scalar(254, 34, 169));
                 cv::circle(outputImage, carInFramePosition, 5, cv::Scalar(254, 34, 169), -1);
                 drawLine(outputImage,horizontalLine,cv::Scalar(0, 255, 255));
                 #if 1 != ENABLE_CALIBRATE_CAMERA 

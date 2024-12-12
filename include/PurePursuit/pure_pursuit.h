@@ -7,68 +7,48 @@
 #include <iostream>
 #include "math_functions.h"
 
-cv::Point2f findHighestIntersection(const cv::Point2f& circleCenter, double circleRadius,const std::vector<cv::Point2f>& curve);
 
-cv::Point2f findHighestIntersection(
-    const cv::Point2f& circleCenter, double circleRadius, const std::vector<cv::Point2f>& curve) {
+cv::Point2f findHighestIntersection(const std::vector<cv::Point2f>& curve, const cv::Point2f& circleCenter, double circleRadius) {
     std::vector<cv::Point2f> intersections;
-
-    double tolerance = 1e-4; // Increased tolerance for floating-point precision
 
     for (size_t i = 0; i < curve.size() - 1; ++i) {
         cv::Point2f p1 = curve[i];
         cv::Point2f p2 = curve[i + 1];
+        cv::Point2f segmentVector = p2 - p1;
 
-        // Skip degenerate segments
-        if (euclideanDistance2f(p1, p2) < tolerance) {
-            continue;
+        double dx = segmentVector.x;
+        double dy = segmentVector.y;
+
+        // Coefficients for quadratic equation a*t^2 + b*t + c = 0
+        double a = dx * dx + dy * dy;
+        double b = 2 * (dx * (p1.x - circleCenter.x) + dy * (p1.y - circleCenter.y));
+        double c = (p1.x - circleCenter.x) * (p1.x - circleCenter.x) +
+                   (p1.y - circleCenter.y) * (p1.y - circleCenter.y) - 
+                   circleRadius * circleRadius;
+
+        // Compute discriminant
+        double discriminant = b * b - 4 * a * c;
+
+        if (discriminant < 0) {
+            continue; // No intersection
         }
 
-        cv::Point2f segmentVector = p2 - p1;
-        cv::Point2f centerToP1 = circleCenter - p1;
+        // Solve quadratic equation for t
+        double sqrtDiscriminant = std::sqrt(discriminant);
+        for (int sign : {-1, 1}) {
+            double t = (-b + sign * sqrtDiscriminant) / (2 * a);
 
-        double segmentLengthSquared = segmentVector.x * segmentVector.x + segmentVector.y * segmentVector.y;
-
-        double t = (centerToP1.x * segmentVector.x + centerToP1.y * segmentVector.y) / segmentLengthSquared;
-        t = std::max(0.0, std::min(1.0, t)); // Clamp t to [0, 1]
-
-        cv::Point2f closestPoint = p1 + t * segmentVector;
-
-        double distanceToClosestPoint = euclideanDistance2f(circleCenter, closestPoint);
-
-        if (distanceToClosestPoint <= circleRadius + tolerance) {
-            double offsetDistance = std::sqrt(circleRadius * circleRadius - distanceToClosestPoint * distanceToClosestPoint);
-            cv::Point2f unitVector = segmentVector / std::sqrt(segmentLengthSquared);
-
-            // Calculate intersection points
-            cv::Point2f intersection1 = closestPoint + offsetDistance * unitVector;
-            cv::Point2f intersection2 = closestPoint - offsetDistance * unitVector;
-
-            // Validate that intersections lie on the segment and within the circle
-            auto isValidIntersection = [&](const cv::Point2f& point) {
-                return (std::min(p1.x, p2.x) - tolerance <= point.x && point.x <= std::max(p1.x, p2.x) + tolerance) &&
-                    (std::min(p1.y, p2.y) - tolerance <= point.y && point.y <= std::max(p1.y, p2.y) + tolerance) &&
-                    (std::pow(point.x - circleCenter.x, 2) + std::pow(point.y - circleCenter.y, 2) <= std::pow(circleRadius, 2) + tolerance);
-            };
-
-            intersections.push_back(intersection1);
-            intersections.push_back(intersection2);
+            // Check if t is within [0, 1]
+            if (t >= 0.0 && t <= 1.0) {
+                cv::Point2f intersection = p1 + t * segmentVector;
+                intersections.push_back(intersection);
+            }
         }
     }
 
-    // Filter intersections to ensure they lie within the circle's boundary
-    intersections.erase(
-        std::remove_if(intersections.begin(), intersections.end(), [&](const cv::Point2f& pt) {
-            double dx = pt.x - circleCenter.x;
-            double dy = pt.y - circleCenter.y;
-            return (dx * dx + dy * dy > circleRadius * circleRadius + tolerance);
-        }),
-        intersections.end()
-    );
-
-     if (intersections.empty()) {
-        // Return a default value to keep straight steering
-        return cv::Point2f(widthBirdsEyeView, heightBirdsEyeView - 20);
+    // If no intersections found, return empty vector
+    if (intersections.empty()) {
+        return undefinedPoint;
     }
 
     cv::Point2f lowestYPoint = intersections[0];
@@ -80,10 +60,79 @@ cv::Point2f findHighestIntersection(
     }
 
     return lowestYPoint;
-
 }
 
+// Function to calculate the shortest distance from a point to a polyline
+double shortestDistanceToCurve(const std::vector<cv::Point2f>& curve, const cv::Point2f& point, double circleRadius) {
+    double minDistance = std::numeric_limits<double>::max();
+    double maxDistance = std::numeric_limits<double>::min();
+    double tolerance = 1; // Adding 1px tolerance 
 
+    for (size_t i = 0; i < curve.size() - 1; ++i) {
+        cv::Point2f p1 = curve[i];
+        cv::Point2f p2 = curve[i + 1];
 
+        // Vector from p1 to p2
+        cv::Point2f lineVec = p2 - p1;
+        // Vector from p1 to the given point
+        cv::Point2f pointVec = point - p1;
+
+        // Project pointVec onto lineVec, normalize by the length squared of lineVec
+        float t = lineVec.dot(pointVec) / lineVec.dot(lineVec);
+
+        cv::Point2f closestPoint;
+        if (t < 0.0f) {
+            // Closest point is p1
+            closestPoint = p1;
+        } else if (t > 1.0f) {
+            // Closest point is p2
+            closestPoint = p2;
+        } else {
+            // Closest point is within the segment
+            closestPoint = p1 + t * lineVec;
+        }
+
+        // Compute Euclidean distance using your function
+        double dist = euclideanDistance(point, closestPoint);
+        minDistance = std::min(minDistance, dist);
+        maxDistance = std::max(maxDistance, dist);
+    }
+
+    maxDistance = std::min(maxDistance, circleRadius);
+    minDistance = std::max(minDistance, maxDistance);
+
+    minDistance = minDistance + tolerance;
+    return minDistance;
+}
+
+void radiusIncrease(double& radius){
+
+    static bool direction = true;
+
+    if(radius >= 350)
+        direction = false;
+    else if (radius <= 0)
+        direction = true;    
+    
+    if(direction)
+        radius++;
+    else if(!direction)
+        radius--;
+}
+
+void pointMoveAcrossFrame(cv::Point2f& point){
+
+    static bool direction = true;
+
+    if(point.x >= widthBirdsEyeView)
+        direction = false;
+    else if (point.x < 0)
+        direction = true;
+
+    if(direction)
+        point.x++;
+    else if(!direction)
+        point.x--;
+}
 
 #endif

@@ -27,6 +27,11 @@ interpolated_points/txt
 200 20
 314 140
 
+62 45
+-77 170
+247 45
+360 170
+158 175
 */
 
 void printWorkingDirectory();

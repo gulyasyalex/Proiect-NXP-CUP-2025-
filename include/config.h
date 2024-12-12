@@ -3,7 +3,7 @@
 
 
 #define ENABLE_CALIBRATE_CAMERA 0
-#define ENABLE_STREAMING 1
+#define ENABLE_STREAMING 0
 
 // Global values
     static int cutHeight = 0;
@@ -11,6 +11,8 @@
     static const int frameHeight = 180; //90; //180;
     static cv::Point2f carInFramePosition;
     static cv::Point2f carInFramePositionBirdsEye;
+    cv::Point2f undefinedPoint = cv::Point2f(1000,0);
+    double circleRadius = 100.0f;
 // Used in camera_setup.h
     // Used in perspectiveChange()
     // Size of new perspective box
@@ -46,4 +48,8 @@
     // Used in removeHorizontalIf90Turn()
     static const double removeAngleMin = 70;
     static const double removeAngleMax = 110;
+    // Used in getLeftRightLines()
+    cv::Point2f firstPointLeftLine = undefinedPoint;
+    cv::Point2f firstPointRightLine = undefinedPoint;
+    cv::Point2f firstPointSingleLine = undefinedPoint;
 #endif

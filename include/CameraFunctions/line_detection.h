@@ -16,11 +16,6 @@
     Falls to the left (bottom-left):    m<0 (negative slope)
 */
 
-cv::Point2f undefinedPoint = cv::Point2f(1000,0);
-cv::Point2f firstPointLeftLine = undefinedPoint;
-cv::Point2f firstPointRightLine = undefinedPoint;
-cv::Point2f firstPointSingleLine = undefinedPoint;
-
 int customConnectedComponentsWithThreshold(const cv::Mat& binaryImage, cv::Mat& labelImage, int radius, std::vector<std::vector<cv::Point2f>>& lines);
 
 void extendLineToEdges(std::vector<cv::Point2f>& line, int providedFrameWidth, int providedFrameHeight);
@@ -470,8 +465,8 @@ void getLeftRightLines(const std::vector<std::vector<cv::Point2f>>& lines, std::
             cv::Point2f pointBack(lines[0].back().x,lines[0].back().y);
             cv::Point2f pointFront(lines[0][0].x,lines[0][0].y);
 
-            perspectiveChangePoint(pointBack, MatrixInverseBirdsEyeView);
-            perspectiveChangePoint(pointFront, MatrixInverseBirdsEyeView);
+            pointBack = perspectiveChangePoint(pointBack, MatrixInverseBirdsEyeView);
+            pointFront = perspectiveChangePoint(pointFront, MatrixInverseBirdsEyeView);
 
             double deltaX = pointBack.x - pointFront.x;
             double deltaY = pointBack.y - pointFront.y;
