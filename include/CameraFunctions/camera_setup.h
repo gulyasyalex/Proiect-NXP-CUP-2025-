@@ -114,26 +114,26 @@ void initPerspectiveVariables(){
         cv::Point2f(loadedPoints[2].x, loadedPoints[2].y - cutHeight), // Example top-right corner
         cv::Point2f(loadedPoints[3].x, loadedPoints[3].y - cutHeight) // Example bottom-right corner
     };
-    widthDstPoints = widthBirdsEyeView * 0.45f;
-    heightDstPoints = widthBirdsEyeView * 0.45f;
+    widthDstPoints = birdsEyeViewWidth * 0.45f;
+    heightDstPoints = birdsEyeViewWidth * 0.45f;
 
     // Destination points for the bird's-eye view
     dstPoints = {
         cv::Point2f(
-            static_cast<float>(widthBirdsEyeView) / 2 - static_cast<float>(widthDstPoints) / 2,
-            static_cast<float>(heightBirdsEyeView) - 10.0f - static_cast<float>(heightDstPoints) 
+            static_cast<float>(birdsEyeViewWidth) / 2 - static_cast<float>(widthDstPoints) / 2,
+            static_cast<float>(birdsEyeViewHeight) - 10.0f - static_cast<float>(heightDstPoints) 
         ), // Top-left corner
         cv::Point2f(
-        static_cast<float>(widthBirdsEyeView) / 2 - static_cast<float>(widthDstPoints) / 2,
-        static_cast<float>(heightBirdsEyeView) - 20.0f
+        static_cast<float>(birdsEyeViewWidth) / 2 - static_cast<float>(widthDstPoints) / 2,
+        static_cast<float>(birdsEyeViewHeight) - 20.0f
         ), // Bottom-left corner
         cv::Point2f(
-            static_cast<float>(widthBirdsEyeView) / 2 + static_cast<float>(widthDstPoints) / 2,
-            static_cast<float>(heightBirdsEyeView) - 10.0f - static_cast<float>(heightDstPoints) 
+            static_cast<float>(birdsEyeViewWidth) / 2 + static_cast<float>(widthDstPoints) / 2,
+            static_cast<float>(birdsEyeViewHeight) - 10.0f - static_cast<float>(heightDstPoints) 
         ), // Top-right corner
         cv::Point2f(
-            static_cast<float>(widthBirdsEyeView) / 2 + static_cast<float>(widthDstPoints) / 2,
-            static_cast<float>(heightBirdsEyeView) - 20.0f
+            static_cast<float>(birdsEyeViewWidth) / 2 + static_cast<float>(widthDstPoints) / 2,
+            static_cast<float>(birdsEyeViewHeight) - 20.0f
         ) // Bottom-right corner
     };
     
@@ -143,6 +143,7 @@ void initPerspectiveVariables(){
     MatrixInverseBirdsEyeView = MatrixBirdsEyeView.inv();
     carInFramePosition = cv::Point2f(loadedPoints[4].x,loadedPoints[4].y);
     carInFramePositionBirdsEye = perspectiveChangePoint(carInFramePosition, MatrixBirdsEyeView);
+    carTopPoint = cv::Point2f(carInFramePositionBirdsEye.x, 0.0);
 }
 cv::Mat perspectiveChange(const cv::Mat& frame){
 
@@ -155,7 +156,7 @@ cv::Mat perspectiveChange(const cv::Mat& frame){
 
     // Apply the perspective transform
     cv::Mat birdEyeView;
-    cv::warpPerspective(frame, birdEyeView, M, cv::Size(widthBirdsEyeView, heightBirdsEyeView));
+    cv::warpPerspective(frame, birdEyeView, M, cv::Size(birdsEyeViewWidth, birdsEyeViewHeight));
 
     // Make distorted lines, caused by perpectiveWrap, white again
     //birdEyeView = refineEdgesPerspective(birdEyeView);

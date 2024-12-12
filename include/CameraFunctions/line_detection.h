@@ -31,7 +31,7 @@ cv::Point2f interpolateClosestPoints(const std::vector<cv::Point2f>& points, int
 
 void drawPoints2f(cv::Mat& frame, const std::vector<cv::Point2f>& points, const cv::Scalar& color);
 void drawPoints(cv::Mat& frame, const std::vector<cv::Point2f>& points, const cv::Scalar& color);
-void drawLine(cv::Mat& frame, const std::vector<cv::Point2f>& points, const cv::Scalar& color);
+void drawLineVector(cv::Mat& frame, const std::vector<cv::Point2f>& points, const cv::Scalar& color);
 void drawLines(cv::Mat& frame, const std::vector<std::vector<cv::Point2f>> lines, const cv::Scalar& color);
 
 
@@ -347,7 +347,7 @@ bool removeHorizontalIf90Turn(std::vector<cv::Point2f>& line) {
     // Check for 90-degree turns along the line
     for (int i = 1; i < line.size() - 1; ++i) 
     {
-        double angle = calculateAngle(line[i - 1], line[i], line[i + 1]);
+        double angle = std::abs(calculateSignedAngle(line[i - 1], line[i], line[i + 1]));
         if (angle > removeAngleMin && angle < removeAngleMax) // Close to 90 degrees
         {  
             has90DegreeTurn = true;
@@ -499,7 +499,10 @@ void getLeftRightLines(const std::vector<std::vector<cv::Point2f>>& lines, std::
     }else{
         firstPointLeftLine = undefinedPoint;
         firstPointRightLine = undefinedPoint;
-        // TBD NO LINES, STOP CAR
+
+        if(!isIntersection){
+            // TBD NO LINES, STOP CAR
+        }
     }
 }
 
@@ -571,7 +574,7 @@ void drawPoints2f(cv::Mat& frame, const std::vector<cv::Point2f>& points, const 
     }
 }
 // Function to draw the line on the frame
-void drawLine(cv::Mat& frame, const std::vector<cv::Point2f>& line, const cv::Scalar& color) {
+void drawLineVector(cv::Mat& frame, const std::vector<cv::Point2f>& line, const cv::Scalar& color) {
     for (int i = 1; i < line.size(); i++) {
         cv::line(frame, line[i-1], line[i], color, 2);  // Green
     }

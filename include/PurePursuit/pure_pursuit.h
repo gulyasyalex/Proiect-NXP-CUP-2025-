@@ -120,19 +120,25 @@ void radiusIncrease(double& radius){
         radius--;
 }
 
-void pointMoveAcrossFrame(cv::Point2f& point){
+void pointMoveAcrossFrame(cv::Point2f& point, cv::Point2f& topPoint){
 
     static bool direction = true;
 
-    if(point.x >= widthBirdsEyeView)
+    if(point.x >= birdsEyeViewWidth)
         direction = false;
     else if (point.x < 0)
         direction = true;
 
     if(direction)
+    {
         point.x++;
+        topPoint.x = point.x;
+    }
     else if(!direction)
+    {
         point.x--;
+        topPoint.x = point.x;
+    }
 }
 
 #endif

@@ -8,7 +8,7 @@
 double lineLength(const cv::Vec4i& line);
 double euclideanDistance(cv::Point2f p1, cv::Point2f p2);
 double euclideanDistanceCoord(int x1, int y1, int x2, int y2);
-double calculateAngle(cv::Point2f p1, cv::Point2f p2, cv::Point2f p3);
+double calculateSignedAngle(cv::Point2f p1, cv::Point2f p2, cv::Point2f p3);
 cv::Point2f calculateMidpoint(const cv::Point2f& p1, const cv::Point2f& p2);
 cv::Point2f calculateCentroid(const std::vector<cv::Point2f>& line);
 std::vector<cv::Point2f> generateNeighborhood(int radius);
@@ -29,15 +29,17 @@ double euclideanDistance2f(cv::Point2f p1, cv::Point2f p2) {
 double euclideanDistanceCoord(int x1, int y1, int x2, int y2) {
     return std::hypot(x1 - x2, y1 - y2);
 }
-// Function to calculate the angle between three points used in removeHorizontalIf90Turn
-double calculateAngle(cv::Point2f p1, cv::Point2f p2, cv::Point2f p3) {
-    cv::Point2f vec1 = p1 - p2;
-    cv::Point2f vec2 = p3 - p2;
+
+// Function to calculate the signed angle between three points 
+double calculateSignedAngle(cv::Point2f p1, cv::Point2f p2, cv::Point2f p3) {
+    cv::Point2f vec1 = p1 - p2; // Vector de la p2 la p1
+    cv::Point2f vec2 = p3 - p2; // Vector de la p2 la p3
     double dotProduct = vec1.x * vec2.x + vec1.y * vec2.y;
-    double mag1 = std::sqrt(vec1.x * vec1.x + vec1.y * vec1.y);
-    double mag2 = std::sqrt(vec2.x * vec2.x + vec2.y * vec2.y);
-    return std::acos(dotProduct / (mag1 * mag2)) * 180.0 / CV_PI;
+    double crossProduct = vec1.x * vec2.y - vec1.y * vec2.x;
+    double angle = std::atan2(crossProduct, dotProduct) * 180.0 / CV_PI;
+    return angle;
 }
+
 // Function to calculate the midpoint between two points
 cv::Point2f calculateMidpoint(const cv::Point2f& p1, const cv::Point2f& p2) {
     return cv::Point2f((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);

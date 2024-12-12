@@ -391,6 +391,10 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/opencv4/opencv2/video.hpp \
   /usr/include/opencv4/opencv2/video/tracking.hpp \
   /usr/include/opencv4/opencv2/video/background_segm.hpp \
+  /usr/include/c++/11/thread \
+  /usr/include/c++/11/bits/std_thread.h \
+  /usr/include/c++/11/bits/this_thread_sleep.h \
+  /usr/include/c++/11/atomic \
   ../include/config.h \
   ../include/CameraFunctions/segmentation.h \
   ../include/CameraFunctions/line_detection.h \
@@ -438,7 +442,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/boost/asio/execution/execute.hpp \
   /usr/include/boost/asio/execution/detail/as_invocable.hpp \
   /usr/include/boost/asio/detail/atomic_count.hpp \
-  /usr/include/c++/11/atomic \
   /usr/include/boost/asio/detail/memory.hpp \
   /usr/include/boost/asio/execution/receiver_invocation_error.hpp \
   /usr/include/boost/asio/execution/impl/receiver_invocation_error.ipp \
@@ -1158,7 +1161,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/c++/11/future \
   /usr/include/c++/11/condition_variable \
   /usr/include/c++/11/bits/atomic_futex.h \
-  /usr/include/c++/11/bits/std_thread.h \
   /usr/include/boost/asio/placeholders.hpp \
   /usr/include/boost/bind/arg.hpp \
   /usr/include/boost/is_placeholder.hpp \
@@ -1350,14 +1352,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/boost/asio/windows/random_access_handle.hpp \
   /usr/include/boost/asio/windows/stream_handle.hpp \
   /usr/include/boost/asio/write_at.hpp \
-  /usr/include/boost/asio/impl/write_at.hpp \
-  /usr/include/c++/11/thread \
-  /usr/include/c++/11/bits/this_thread_sleep.h
+  /usr/include/boost/asio/impl/write_at.hpp
 
-
-/usr/include/c++/11/bits/this_thread_sleep.h:
-
-/usr/include/c++/11/thread:
 
 /usr/include/boost/asio/write_at.hpp:
 
@@ -1613,8 +1609,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/bind/arg.hpp:
 
-/usr/include/c++/11/bits/std_thread.h:
-
 /usr/include/boost/asio/signal_set.hpp:
 
 /usr/include/c++/11/bits/atomic_futex.h:
@@ -1674,6 +1668,10 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/boost/asio/ip/detail/endpoint.hpp:
 
 /usr/include/boost/asio/ip/basic_endpoint.hpp:
+
+/usr/include/boost/asio/ip/network_v6.hpp:
+
+/usr/include/boost/asio/ip/impl/network_v4.ipp:
 
 /usr/include/boost/asio/prefer.hpp:
 
@@ -1821,10 +1819,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/detail/memory.hpp:
 
-/usr/include/c++/11/atomic:
-
-/usr/include/asm-generic/int-ll64.h:
-
 /usr/include/boost/asio/redirect_error.hpp:
 
 /usr/include/aarch64-linux-gnu/bits/types/struct_osockaddr.h:
@@ -1856,6 +1850,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/boost/config/detail/select_stdlib_config.hpp:
 
 /usr/include/boost/mpl/equal_to.hpp:
+
+/usr/include/c++/11/thread:
 
 /usr/include/boost/asio/detail/wrapped_handler.hpp:
 
@@ -1896,6 +1892,10 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/c++/11/cfloat:
 
 ../include/CameraFunctions/segmentation.h:
+
+/usr/include/c++/11/atomic:
+
+/usr/include/asm-generic/int-ll64.h:
 
 /usr/include/opencv4/opencv2/video/background_segm.hpp:
 
@@ -2307,6 +2307,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/traits/execute_free.hpp:
 
+/usr/include/c++/11/bits/std_thread.h:
+
 /usr/include/c++/11/bits/stl_multimap.h:
 
 /usr/include/c++/11/bits/stl_set.h:
@@ -2447,6 +2449,10 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/preprocessor/tuple/detail/is_single_return.hpp:
 
+/usr/include/c++/11/bits/this_thread_sleep.h:
+
+/usr/include/boost/asio/basic_socket_streambuf.hpp:
+
 /usr/include/c++/11/bits/locale_facets.tcc:
 
 /usr/include/boost/regex/v4/match_flags.hpp:
@@ -2460,10 +2466,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/c++/11/bits/locale_facets_nonio.h:
 
 /usr/lib/gcc/aarch64-linux-gnu/11/include/arm_neon.h:
-
-/usr/include/boost/asio/traits/prefer_free.hpp:
-
-/usr/include/boost/asio/detail/strand_service.hpp:
 
 /usr/include/c++/11/bits/alloc_traits.h:
 
@@ -2895,8 +2897,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/detail/variadic_templates.hpp:
 
-/usr/include/boost/asio/ip/impl/network_v4.ipp:
-
 /usr/include/boost/predef/os/bsd/open.h:
 
 /usr/include/aarch64-linux-gnu/bits/sched.h:
@@ -3052,6 +3052,10 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/boost/numeric/conversion/detail/converter.hpp:
 
 /usr/include/c++/11/bits/stl_deque.h:
+
+/usr/include/boost/asio/traits/prefer_free.hpp:
+
+/usr/include/boost/asio/detail/strand_service.hpp:
 
 /usr/include/c++/11/type_traits:
 
@@ -3741,8 +3745,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/preprocessor/repetition/repeat.hpp:
 
-/usr/include/boost/asio/ip/network_v6.hpp:
-
 /usr/include/boost/preprocessor/debug/error.hpp:
 
 /usr/include/c++/11/bits/sstream.tcc:
@@ -3803,9 +3805,9 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/preprocessor/arithmetic/sub.hpp:
 
-/usr/include/boost/asio/detail/impl/service_registry.ipp:
-
 /usr/include/boost/asio/ip/impl/network_v6.hpp:
+
+/usr/include/boost/asio/detail/impl/service_registry.ipp:
 
 /usr/include/boost/mpl/aux_/config/overload_resolution.hpp:
 
@@ -3974,8 +3976,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/c++/11/bits/exception_ptr.h:
 
 /usr/include/boost/asio/basic_socket_acceptor.hpp:
-
-/usr/include/boost/asio/basic_socket_streambuf.hpp:
 
 /usr/include/boost/asio/basic_waitable_timer.hpp:
 

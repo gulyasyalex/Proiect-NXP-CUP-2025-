@@ -3,6 +3,9 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
+#include <thread>
+#include <atomic>
+#include <mutex>
 #include <cmath>
 #include "config.h"
 #include "CameraFunctions/segmentation.h"
@@ -13,18 +16,6 @@
 //#include "include/camera_setup.h"
 //#include "include/color_segmentation.h"
 
-#include <thread>
-#include <atomic>
-#include <mutex>
-
-std::atomic<bool> running(true); // Flag to control the capture loop
-cv::Mat latest_frame; // Shared frame variable
-std::mutex frame_mutex; // Mutex for synchronizing access to the frame
-
-float fps_capture_frames;
-float fps_process_frame;
-std::vector<cv::Point2f> leftLine;
-std::vector<cv::Point2f> rightLine;
 
 void capture_frames(cv::VideoCapture& cap) {
     
@@ -146,25 +137,44 @@ void process_frame() {
                 laptopTCP.sendFrame(outputImage);
 
                 #if 1 != ENABLE_CALIBRATE_CAMERA 
-                bool has90degreeTurn = false;
                 for (int i = 0; i < lines.size(); i++){
-                    lines[i] = perspectiveChangeLine(lines[i], MatrixBirdsEyeView);
-                    has90degreeTurn = removeHorizontalIf90Turn(lines[i]);
-                    extendLineToEdges(lines[i], widthBirdsEyeView, heightBirdsEyeView);
-                    lines[i] = evenlySpacePoints(lines[i], num_points);
-                    if (has90degreeTurn) {
-                        std::vector<cv::Point2f> temp;
-                        temp = lines[i]; 
-                        lines.clear();
-                        lines.emplace_back(temp); 
+                    if(isIntersection && lines[i][0].y >= frameHeight * lineStartPointY){
+                        isPastIntersection = true;
+                        isIntersection = false;
+                    }
+                    if(!isIntersection){
+                        lines[i] = perspectiveChangeLine(lines[i], MatrixBirdsEyeView);
+                        isIntersection = removeHorizontalIf90Turn(lines[i]);
+                        extendLineToEdges(lines[i], birdsEyeViewWidth, birdsEyeViewHeight);
+                        lines[i] = evenlySpacePoints(lines[i], num_points);
+                        if (isIntersection) {
+                            std::vector<cv::Point2f> temp;
+                            temp = lines[i]; 
+                            lines.clear();
+                            lines.emplace_back(temp); 
+                            break;
+                        }
                     }
 
                 }
                 #endif
 
-                getLeftRightLines(lines,leftLine,rightLine);
-                std::vector<cv::Point2f> allMidpoints = findMiddle(leftLine,rightLine,widthBirdsEyeView,heightBirdsEyeView);
-                
+                /*
+                    If car finds intersection it looks for the middle line 
+                    and keeps middle till it goes past intersection.
+                    Assigns middle line only once!
+                */
+               
+                if (isPastIntersection){
+                    getLeftRightLines(lines,leftLine,rightLine);
+                    allMidPoints = findMiddle(leftLine,rightLine,birdsEyeViewWidth,birdsEyeViewHeight);
+                    std::cout << "Was here\n";
+                    // Used to handle the case when no point is found in the middle of the intersection
+                    if (isIntersection)
+                            isPastIntersection = false;
+                    
+                }
+                std::cout << "allMidPoints.size(): "<< allMidPoints.size() << "\n";
                 #if 1 == ENABLE_CALIBRATE_CAMERA 
                     // TO CALIBRATE CAMERA
                     cv::Point2f result;
@@ -175,43 +185,43 @@ void process_frame() {
                         interpolatedPoints.push_back(interpolateClosestPoints(leftLine, 170));
                         interpolatedPoints.push_back(interpolateClosestPoints(rightLine, 45));
                         interpolatedPoints.push_back(interpolateClosestPoints(rightLine, 170));
-                        interpolatedPoints.push_back(interpolateClosestPoints(allMidpoints, frameHeight - 5));
+                        interpolatedPoints.push_back(interpolateClosestPoints(allMidPoints, frameHeight - 5));
                         // Write interpolated points to a TXT file
                         writePointsToTxt(interpolatedPoints, "interpolated_points.txt");
                         initPerspectiveVariables();
                         laptopTCP.sendFrame(outputImage);
 
                 #else    
-
-                radiusIncrease(lookAheadDistance);                
-                pointMoveAcrossFrame(carInFramePositionBirdsEye);
-                double tempLookAheadDistance = shortestDistanceToCurve(allMidpoints, carInFramePositionBirdsEye, lookAheadDistance);
+                
+                //radiusIncrease(lookAheadDistance);                
+                //pointMoveAcrossFrame(carInFramePositionBirdsEye, carTopPoint);
+                double tempLookAheadDistance = shortestDistanceToCurve(allMidPoints, carInFramePositionBirdsEye, lookAheadDistance);
                
                 // Create a frame of the desired size
-                cv::Size frameSize(widthBirdsEyeView, heightBirdsEyeView);
+                cv::Size frameSize(birdsEyeViewWidth, birdsEyeViewHeight);
 
                 // Initialize an empty image (black by default)
                 cv::Mat birdEyeViewWithPoints = cv::Mat::zeros(frameSize, CV_8UC3); // 3 channels (color)
 
                 // Find intersections
-                cv::Point2f lookAheadPoint = findHighestIntersection(allMidpoints, carInFramePositionBirdsEye, tempLookAheadDistance);
+                cv::Point2f lookAheadPoint = findHighestIntersection(allMidPoints, carInFramePositionBirdsEye, tempLookAheadDistance);
              
+                cv::line(birdEyeViewWithPoints, carInFramePositionBirdsEye, lookAheadPoint, cv::Scalar(123, 10, 255), 2); 
+                cv::line(birdEyeViewWithPoints, carInFramePositionBirdsEye, carTopPoint, cv::Scalar(123, 10, 255), 2);  
+                
                 cv::circle(birdEyeViewWithPoints, lookAheadPoint, 5, cv::Scalar(254, 34, 169), -1);
                 drawCircle(birdEyeViewWithPoints, carInFramePositionBirdsEye, tempLookAheadDistance, cv::Scalar(254, 34, 169));
                 cv::circle(birdEyeViewWithPoints, carInFramePositionBirdsEye, 5, cv::Scalar(254, 34, 169), -1);
                 drawPoints2f(birdEyeViewWithPoints, dstPoints, cv::Scalar(0, 255, 255));
-                drawLine(birdEyeViewWithPoints,leftLine,cv::Scalar(0, 255, 0));
-                drawLine(birdEyeViewWithPoints,allMidpoints,cv::Scalar(255, 255, 255));
-                drawLine(birdEyeViewWithPoints,rightLine,cv::Scalar(0, 0, 255));
+                drawLineVector(birdEyeViewWithPoints,leftLine,cv::Scalar(0, 255, 0));
+                drawLineVector(birdEyeViewWithPoints,allMidPoints,cv::Scalar(255, 255, 255));
+                drawLineVector(birdEyeViewWithPoints,rightLine,cv::Scalar(0, 0, 255));
                 laptopTCP.sendFrame(birdEyeViewWithPoints);
 
-               
-
-
-                leftLine = perspectiveChangeLine(leftLine, MatrixInverseBirdsEyeView);
-                rightLine = perspectiveChangeLine(rightLine, MatrixInverseBirdsEyeView);
-                allMidpoints = perspectiveChangeLine(allMidpoints, MatrixInverseBirdsEyeView);
-                lookAheadPoint = perspectiveChangePoint(lookAheadPoint, MatrixInverseBirdsEyeView);
+                std::vector<cv::Point2f> l_leftLine = perspectiveChangeLine(leftLine, MatrixInverseBirdsEyeView);
+                std::vector<cv::Point2f> l_rightLine = perspectiveChangeLine(rightLine, MatrixInverseBirdsEyeView);
+                std::vector<cv::Point2f> l_allMidPoints = perspectiveChangeLine(allMidPoints, MatrixInverseBirdsEyeView);
+                cv::Point2f l_lookAheadPoint = perspectiveChangePoint(lookAheadPoint, MatrixInverseBirdsEyeView);
 
                 #endif
                 outputImage = cv::Mat::zeros(frame.size(),CV_8UC3);
@@ -221,15 +231,15 @@ void process_frame() {
                 horizontalLine.push_back(srcPoints[1]);
                 horizontalLine.push_back(srcPoints[3]);
                 
-                cv::circle(outputImage, lookAheadPoint, 5, cv::Scalar(254, 34, 169), -1);
+                cv::circle(outputImage, l_lookAheadPoint, 5, cv::Scalar(254, 34, 169), -1);
                 cv::circle(outputImage, carInFramePosition, 5, cv::Scalar(254, 34, 169), -1);
-                drawLine(outputImage,horizontalLine,cv::Scalar(0, 255, 255));
+                drawLineVector(outputImage,horizontalLine,cv::Scalar(0, 255, 255));
                 #if 1 != ENABLE_CALIBRATE_CAMERA 
-                drawPoints(outputImage, leftLine, cv::Scalar(0, 255, 0));
-                drawPoints(outputImage, rightLine, cv::Scalar(0, 0, 255));
-                drawLine(outputImage,leftLine,cv::Scalar(0, 255, 0));
-                drawLine(outputImage,allMidpoints,cv::Scalar(255, 255, 255));
-                drawLine(outputImage,rightLine,cv::Scalar(0, 0, 255));
+                drawPoints(outputImage, l_leftLine, cv::Scalar(0, 255, 0));
+                drawPoints(outputImage, l_rightLine, cv::Scalar(0, 0, 255));
+                drawLineVector(outputImage,l_leftLine,cv::Scalar(0, 255, 0));
+                drawLineVector(outputImage,l_allMidPoints,cv::Scalar(255, 255, 255));
+                drawLineVector(outputImage,l_rightLine,cv::Scalar(0, 0, 255));
                 #endif
 
                 //laptopTCP.sendFrame(outputImage);
@@ -239,6 +249,9 @@ void process_frame() {
                 cv::Mat overlayedImage;
                 cv::addWeighted(frame, 1.0, outputImage, 1.0, 0, overlayedImage);
                 laptopTCP.sendFrame(overlayedImage);
+
+                double angle = calculateSignedAngle(carTopPoint, carInFramePositionBirdsEye, lookAheadPoint);
+                std::cout << "Steering Angle: " << angle << std::endl;
             
                 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 if (cv::waitKey(1) == 'q') {

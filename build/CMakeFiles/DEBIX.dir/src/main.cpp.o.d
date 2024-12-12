@@ -327,6 +327,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: \
  /usr/include/opencv4/opencv2/video.hpp \
  /usr/include/opencv4/opencv2/video/tracking.hpp \
  /usr/include/opencv4/opencv2/video/background_segm.hpp \
+ /usr/include/c++/11/thread /usr/include/c++/11/bits/std_thread.h \
+ /usr/include/c++/11/bits/this_thread_sleep.h /usr/include/c++/11/atomic \
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/config.h \
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/segmentation.h \
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/line_detection.h \
@@ -370,7 +372,7 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: \
  /usr/include/boost/asio/execution/execute.hpp \
  /usr/include/boost/asio/execution/detail/as_invocable.hpp \
  /usr/include/boost/asio/detail/atomic_count.hpp \
- /usr/include/c++/11/atomic /usr/include/boost/asio/detail/memory.hpp \
+ /usr/include/boost/asio/detail/memory.hpp \
  /usr/include/boost/asio/execution/receiver_invocation_error.hpp \
  /usr/include/boost/asio/execution/impl/receiver_invocation_error.ipp \
  /usr/include/boost/asio/execution/set_done.hpp \
@@ -1057,7 +1059,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: \
  /usr/include/boost/asio/detail/future.hpp /usr/include/c++/11/future \
  /usr/include/c++/11/condition_variable \
  /usr/include/c++/11/bits/atomic_futex.h \
- /usr/include/c++/11/bits/std_thread.h \
  /usr/include/boost/asio/placeholders.hpp /usr/include/boost/bind/arg.hpp \
  /usr/include/boost/is_placeholder.hpp \
  /usr/include/boost/asio/posix/basic_descriptor.hpp \
@@ -1237,5 +1238,4 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: \
  /usr/include/boost/asio/windows/random_access_handle.hpp \
  /usr/include/boost/asio/windows/stream_handle.hpp \
  /usr/include/boost/asio/write_at.hpp \
- /usr/include/boost/asio/impl/write_at.hpp /usr/include/c++/11/thread \
- /usr/include/c++/11/bits/this_thread_sleep.h
+ /usr/include/boost/asio/impl/write_at.hpp

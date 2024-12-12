@@ -6,18 +6,32 @@
 #define ENABLE_STREAMING 0
 
 // Global values
+    std::atomic<bool> running(true); // Flag to control the capture loop
+    cv::Mat latest_frame; // Shared frame variable
+    std::mutex frame_mutex; // Mutex for synchronizing access to the frame
+
+    float fps_capture_frames;
+    float fps_process_frame;
+    std::vector<cv::Point2f> leftLine;
+    std::vector<cv::Point2f> rightLine;
+    std::vector<cv::Point2f> allMidPoints;
+    
     static int cutHeight = 0;
     static const int frameWidth = 320; //160; //320;
     static const int frameHeight = 180; //90; //180;
     static cv::Point2f carInFramePosition;
     static cv::Point2f carInFramePositionBirdsEye;
+    static cv::Point2f carTopPoint;
     cv::Point2f undefinedPoint = cv::Point2f(1000,0);
-    double lookAheadDistance = 100.0f;  // It's the radius of the circle starting from carInFramePositionBirdsEye
+    double lookAheadDistance = 150.0f;  // It's the radius of the circle starting from carInFramePositionBirdsEye
+    bool isIntersection = false;    // Used to check if we have an intersection on the racetrack, a crosspath
+    bool isPastIntersection = true;    // Used to keep same middle line till we cross intersection
+    double lineStartPointY = 0.8;       // birdsEyeViewHeight * lineStartPointY = Y threshold for isPastIntersection
 // Used in camera_setup.h
     // Used in perspectiveChange()
     // Size of new perspective box
-    static const int heightBirdsEyeView = 400 - cutHeight*2;
-    static const int widthBirdsEyeView = 370;
+    static const int birdsEyeViewHeight = 400 - cutHeight*2;
+    static const int birdsEyeViewWidth = 370;
     // dstPoints Box size in pixels
     // (This box is placed in the middle bottom part of the perspective box)
     int heightDstPoints;        // This are initialized in initPerspectiveVariables()
