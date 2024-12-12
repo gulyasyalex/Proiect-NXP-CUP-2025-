@@ -6,59 +6,39 @@
 #include <opencv2/imgproc.hpp>
 #include "config.h"
 
+cv::Mat skeletonizeFrame(const cv::Mat& thresholdedImage);
 cv::Mat segmentEdges(const cv::Mat& frame);
 cv::Mat cropFrameTop(const cv::Mat& frame, int cutHeight);
-cv::Mat resizeImage(const cv::Mat& src, int width, int height);
-//cv::Mat adaptiveGuassianThreshold(const cv::Mat& frame);
-//cv::Mat otsuThresholding(const cv::Mat& frame);
+cv::Mat resizeImage(const cv::Mat& frame, int width, int height);
 
+// Function returns a skeletonized frame
+cv::Mat skeletonizeFrame(const cv::Mat& thresholdedImage){
 
-cv::Mat segmentEdges(const cv::Mat& gray) {
+    cv::Mat skeleton(cv::Mat::zeros(thresholdedImage.size(), CV_8UC1));
+    cv::Mat temp, eroded;
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(3, 3));
 
-    /* Visualize
-    cv::Mat outputImage = frame.clone();   
-    outputImage = resizeImage(outputImage, frameWidth/1.6, frameHeight/1.6);
-    // Display the image with lines colored
-    cv::imshow("Initial", outputImage)*/;
+    while (true) {
+        cv::erode(thresholdedImage, eroded, element);
+        cv::dilate(eroded, temp, element);
+        cv::subtract(thresholdedImage, temp, temp);
+        cv::bitwise_or(skeleton, temp, skeleton);
+        eroded.copyTo(thresholdedImage);
 
-    
-    cv::Mat noiseImage;
-    //noiseImage = adaptiveGuassianThreshold(gray);
-
-    cv::threshold(gray, noiseImage, 90, 255, cv::THRESH_BINARY); //fara LED 25
-    cv::bitwise_not(noiseImage, noiseImage);
-
-    // At this point image is full of noise yet Lines are clearly visible
-    std::vector<std::vector<cv::Point>> contours;
-    cv::findContours(noiseImage, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-
-    cv::Mat cleaned = cv::Mat::zeros(noiseImage.size(), CV_8UC1);
-
-    /*// Filter and draw contours based on area
-    double areaThreshold = 150.0; 
-    for (int i = 0; i < contours.size(); i++) {
-        double area = cv::contourArea(contours[i]);
-        if (area > areaThreshold) {
-            cv::drawContours(cleaned, contours, i, cv::Scalar(255), cv::FILLED);
-        }
-    }*/
-    // Filter and draw contours based on area
-    double areaThresholdMin = 300.0; 
-    double areaThresholdMax = 4000.0; 
-    for (int i = 0; i < contours.size(); i++) {
-        double area = cv::contourArea(contours[i]);
-        if (area > areaThresholdMin && area < areaThresholdMax) {
-            cv::drawContours(cleaned, contours, i, cv::Scalar(255), cv::FILLED);
+        if (cv::countNonZero(thresholdedImage) == 0) {
+            break;
         }
     }
     
-    // Visualize
-    /*cv::Mat outputImage = cleaned.clone();
-    outputImage = resizeImage(outputImage, frameWidth/1.6, frameHeight/1.6);
-    // Display the image with lines colored
-    cv::imshow("Contours", outputImage);*/
+    return skeleton;
+}
+cv::Mat segmentEdges(const cv::Mat& frame) {
 
-    return cleaned;
+    cv::Mat thresholdFrame;
+    cv::threshold(frame, thresholdFrame, thresholdValue, 255, cv::THRESH_BINARY);    
+    cv::bitwise_not(thresholdFrame, thresholdFrame);
+    cv::Mat skeleton = skeletonizeFrame(thresholdFrame);
+    return skeleton;
 }
 
 // Cuts pixel rows from image's top part 
@@ -75,15 +55,6 @@ cv::Mat cropFrameTop(const cv::Mat& frame, int cutHeight) {
         throw std::invalid_argument("Cut Height must be between 0 and " + frameHeight);
     }
 
-    // Create a copy of the original frame to draw the line
-    /*cv::Mat frameWithLine = frame.clone();
-
-    // Draw a horizontal line at the cutHeight
-    cv::line(frameWithLine, cv::Point(0, cutHeight), cv::Point(frameWidth, cutHeight), cv::Scalar(0, 255, 255), 2);
-
-    // Display the frame with the line
-    cv::imshow("FrameWithCutLine", frameWithLine);*/
-
     // Define the region of interest (ROI) to crop the top part
     cv::Rect roi(0, cutHeight, frameWidth, frameHeight - cutHeight);
     cv::Mat croppedImage = frame(roi);
@@ -91,48 +62,11 @@ cv::Mat cropFrameTop(const cv::Mat& frame, int cutHeight) {
     return croppedImage;
 }
 
-cv::Mat resizeImage(const cv::Mat& src, int width, int height){
+cv::Mat resizeImage(const cv::Mat& frame, int width, int height){
     
     // Resize the image to the specified width and height
     cv::Mat resized;
-    cv::resize(src, resized, cv::Size(width, height));
+    cv::resize(frame, resized, cv::Size(width, height));
     return resized;
 }
-
-/*cv::Mat adaptiveGuassianThreshold(const cv::Mat& frame){
-    
-    // Apply Gaussian blur
-    cv::Mat blur;
-    cv::GaussianBlur(frame, blur, cv::Size(blurBlockSize, blurBlockSize), 0);
-
-     // Apply adaptive threshold
-    cv::Mat adaptiveThreshold;
-    cv::adaptiveThreshold(blur, adaptiveThreshold, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY_INV, AdaptGaussBlockSize, AdaptGaussConstant);
-    
-    /* Visualize
-    cv::Mat outputImage = adaptiveThreshold.clone();   
-    outputImage = resizeImage(outputImage, frameWidth/1.6, frameHeight/1.6);
-    // Display the image with lines colored
-    cv::imshow("AdativeGaussianThreshold", outputImage);
-    
-    return adaptiveThreshold;
-}*/
-
-/*// OtsuThreshold
-cv::Mat otsuThresholding(const cv::Mat& frame){
-    
-     // Apply Gaussian blur
-    cv::Mat blur;
-    cv::GaussianBlur(frame, blur, cv::Size(5, 5), 2);
-    cv::Mat otsuThresh;
-    double otsuThreshold = cv::threshold(blur, otsuThresh, 10, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
-
-    // Display the results
-    //std::cout << "Otsu's threshold value: " << otsuThreshold << std::endl;
-
-
-    return otsuThresh;
-}
-*/
-
-#endif 
+#endif

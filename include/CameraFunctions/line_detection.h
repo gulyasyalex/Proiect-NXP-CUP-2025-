@@ -2,74 +2,71 @@
 #define LINE_DETECTION_H
 
 #include <opencv2/opencv.hpp>
+#include <cmath>
+#include "math_functions.h"
 #include "config.h"
 #include "thinning.h"
+#include "camera_setup.h"
 
-cv::Point referencePoint(frameWidth / 2, frameHeight);
 
-double lineLength(const cv::Vec4i& line);
-double euclidianDistance(cv::Point p1, cv::Point p2);
-cv::Point calculateMidpoint(const cv::Point& p1, const cv::Point& p2);
-cv::Point calculateCentroid(const std::vector<cv::Point>& line);
-cv::Mat skeletonizeFrame(const cv::Mat& thresholdedImage);
-void drawPoints(cv::Mat& image, const std::vector<cv::Point2f>& points, const cv::Scalar& color);
-void extendLineToEdges(std::vector<cv::Point>& middleLine);
-std::vector<std::vector<cv::Point>> findLines(const cv::Mat& thresholdedImage);
-std::vector<cv::Point> smoothPoints(const std::vector<cv::Point>& points, int windowSize);
-std::vector<std::vector<cv::Point>> fitPolinomial(const cv::Mat& frame, std::vector<std::vector<cv::Point>> &lines);
-std::vector<cv::Point> evenlySpacePoints(const std::vector<cv::Point>& line, int num_points);
-std::vector<cv::Point> findMiddle(std::vector<cv::Point>& leftFitted, std::vector<cv::Point>& rightFitted);
+/*
+    Rises to the right (top-right):     m<0 (negative slope)
+    Falls to the right (bottom-right):  m>0 (positive slope)
+    Rises to the left (top-left):       m>0 (positive slope)
+    Falls to the left (bottom-left):    m<0 (negative slope)
+*/
 
-// Function to calculate the length of a line
-double lineLength(const cv::Vec4i& line) {
-    int x1 = line[0], y1 = line[1], x2 = line[2], y2 = line[3];
-    return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-}
-// Function to calculate the Euclidean distance between two points
-double euclidianDistance(cv::Point p1, cv::Point p2) {
-    return sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2));
-}
-// Function to calculate the angle between three points
-double calculateAngle(cv::Point2f p1, cv::Point2f p2, cv::Point2f p3) {
-    cv::Point2f vec1 = p1 - p2;
-    cv::Point2f vec2 = p3 - p2;
-    double dotProduct = vec1.x * vec2.x + vec1.y * vec2.y;
-    double mag1 = std::sqrt(vec1.x * vec1.x + vec1.y * vec1.y);
-    double mag2 = std::sqrt(vec2.x * vec2.x + vec2.y * vec2.y);
-    return std::acos(dotProduct / (mag1 * mag2)) * 180.0 / CV_PI;
-}
-// Function to calculate the midpoint between two points
-cv::Point calculateMidpoint(const cv::Point& p1, const cv::Point& p2) {
-    return cv::Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
-}
-// Function to calculate the centroid of a line (average of the points)
-cv::Point calculateCentroid(const std::vector<cv::Point>& line) {
-    cv::Point centroid(0, 0);
-    for (const auto& point : line) {
-        centroid.x += point.x;
-        centroid.y += point.y;
+int customConnectedComponentsWithThreshold(const cv::Mat& binaryImage, cv::Mat& labelImage, int radius, std::vector<std::vector<cv::Point2f>>& lines);
+
+void extendLineToEdges(std::vector<cv::Point2f>& line, int providedFrameWidth, int providedFrameHeight);
+std::vector<std::vector<cv::Point2f>> findLines(const cv::Mat& thresholdedImage);
+std::vector<cv::Point2f> smoothPoints(const std::vector<cv::Point2f>& points, int windowSize);
+std::vector<std::vector<cv::Point2f>> fitPolinomial(const cv::Mat& frame, std::vector<std::vector<cv::Point2f>> &lines);
+std::vector<cv::Point2f> evenlySpacePoints(const std::vector<cv::Point2f>& line, int num_points);
+bool are2PointsHorizontal(const cv::Point2f& p1, const cv::Point2f& p2, double slopeThreshold);
+bool removeHorizontalIf90Turn(std::vector<cv::Point2f>& line);
+void getLeftRightLines(const std::vector<std::vector<cv::Point2f>>& lines, std::vector<cv::Point2f>& leftLine, std::vector<cv::Point2f>& rightLine);
+std::vector<cv::Point2f> findMiddle(std::vector<cv::Point2f>& leftFitted, std::vector<cv::Point2f>& rightFitted);
+cv::Point2f interpolateClosestPoints(const std::vector<cv::Point2f>& points, int targetY);
+
+void drawPoints2f(cv::Mat& frame, const std::vector<cv::Point2f>& points, const cv::Scalar& color);
+void drawPoints(cv::Mat& frame, const std::vector<cv::Point2f>& points, const cv::Scalar& color);
+void drawLine(cv::Mat& frame, const std::vector<cv::Point2f>& points, const cv::Scalar& color);
+void drawLines(cv::Mat& frame, const std::vector<std::vector<cv::Point2f>> lines, const cv::Scalar& color);
+
+
+// Function to sort the points sequentially, starting from the lowest point
+std::vector<cv::Point2f> sortLinePoints(const std::vector<cv::Point2f>& points) {
+    if (points.empty()) return {};
+
+    // Find the starting point (lowest y value, ties broken by smallest x)
+    auto startPoint = *std::min_element(points.begin(), points.end(),
+                                        [](const cv::Point2f& a, const cv::Point2f& b) {
+                                            return (a.y > b.y) || (a.y == b.y && a.x < b.x);
+                                        });
+
+    std::vector<cv::Point2f> sortedPoints;
+    sortedPoints.push_back(startPoint);
+
+    // Remaining points to process
+    std::vector<cv::Point2f> remainingPoints = points;
+    remainingPoints.erase(std::remove(remainingPoints.begin(), remainingPoints.end(), startPoint), remainingPoints.end());
+
+    // Sort points based on proximity to the last added point
+    while (!remainingPoints.empty()) {
+        auto closest = std::min_element(remainingPoints.begin(), remainingPoints.end(),
+                                        [&sortedPoints](const cv::Point2f& a, const cv::Point2f& b) {
+                                            return euclideanDistance(sortedPoints.back(), a) < euclideanDistance(sortedPoints.back(), b);
+                                        });
+
+        sortedPoints.push_back(*closest);
+        remainingPoints.erase(closest);
     }
-    centroid.x /= line.size();
-    centroid.y /= line.size();
-    return centroid;
-}
-// Function to calculate Euclidean distance
-double euclideanDistanceCoord(int x1, int y1, int x2, int y2) {
-    return std::sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-}
-std::vector<cv::Point> generateNeighborhood(int radius) {
-    std::vector<cv::Point> neighbors;
-    for (int dy = -radius; dy <= radius; ++dy) {
-        for (int dx = -radius; dx <= radius; ++dx) {
-            if (std::sqrt(dx * dx + dy * dy) <= radius) { // Ensure point lies within the circle
-                neighbors.emplace_back(dx, dy);
-            }
-        }
-    }
-    return neighbors;
-}
 
-int customConnectedComponentsWithThreshold(const cv::Mat& binaryImage, cv::Mat& labelImage, int radius, std::vector<std::vector<cv::Point>>& lines) {
+    return sortedPoints;
+}
+// Returns lines found in image based on some requirements
+int customConnectedComponentsWithThreshold(const cv::Mat& binaryImage, cv::Mat& labelImage, int radius, std::vector<std::vector<cv::Point2f>>& lines) {
     
     // This algorithm start from bottom left
 
@@ -78,9 +75,10 @@ int customConnectedComponentsWithThreshold(const cv::Mat& binaryImage, cv::Mat& 
     lines.clear(); // Clear any existing lines
 
     int label = 1; // Start labeling from 1
-    const int minPixelCount = 10;
-    const int rowThreshold = static_cast<int>(binaryImage.rows * 0.4); // Top 40% cutoff
-    std::vector<cv::Point> neighborhood = generateNeighborhood(radius); // Generate dynamic neighborhood
+    const int rowThreshold = static_cast<int>(binaryImage.rows * rowThresholdCutOff); // Top 40% cutoff to mitigate Far View error
+    std::vector<cv::Point2f> neighborhood = generateNeighborhood(radius); // Generate dynamic neighborhood
+
+    int pixelCount;  
 
     // Start iterating from the bottom-left corner
     for (int y = binaryImage.rows - 1; y >= 0; --y) { // Bottom to top
@@ -92,19 +90,19 @@ int customConnectedComponentsWithThreshold(const cv::Mat& binaryImage, cv::Mat& 
                 }
 
                 // Start a new connected component
-                std::queue<cv::Point> queue;
-                queue.push(cv::Point(x, y));
+                std::queue<cv::Point2f> queue;
+                queue.push(cv::Point2f(x, y));
                 labelImage.at<int>(y, x) = label;
 
-                int pixelCount = 0; // Initialize pixel count for this label
-                std::vector<cv::Point> componentPixels; // Store pixel locations for this component
+                pixelCount = 0; // Initialize pixel count for this label
+                std::vector<cv::Point2f> componentPixels; // Store pixel locations for this component
 
                 while (!queue.empty()) {
-                    cv::Point p = queue.front();
+                    cv::Point2f p = queue.front();
                     queue.pop();
                     pixelCount++;
                     componentPixels.push_back(p);
-
+                    
                     for (const auto& offset : neighborhood) {
                         int nx = p.x + offset.x;
                         int ny = p.y + offset.y;
@@ -112,19 +110,19 @@ int customConnectedComponentsWithThreshold(const cv::Mat& binaryImage, cv::Mat& 
                         if (nx >= 0 && ny >= 0 && nx < binaryImage.cols && ny < binaryImage.rows) {
                             if (binaryImage.at<uchar>(ny, nx) == 255 && labelImage.at<int>(ny, nx) == 0) {
                                 labelImage.at<int>(ny, nx) = label;
-                                queue.push(cv::Point(nx, ny));
+                                queue.push(cv::Point2f(nx, ny));
                             }
                         }
                     }
                 }
-
+                //componentPixels = sortLinePoints(componentPixels);
                 // If the component is too small, discard it
                 if (pixelCount < minPixelCount) {
                     for (const auto& p : componentPixels) {
                         labelImage.at<int>(p.y, p.x) = 0; // Reset to background
                     }
                 } else {
-                    lines.push_back(std::move(componentPixels)); // Add valid component to lines
+                    lines.push_back(std::move(componentPixels)); 
                     label++; // Increment label for the next valid connected component
                 }
             }
@@ -134,32 +132,16 @@ int customConnectedComponentsWithThreshold(const cv::Mat& binaryImage, cv::Mat& 
     return label - 1; // Return the number of valid labels
 }
 
-
-
-// Function to draw the points on the image
-void drawPoints(cv::Mat& image, const std::vector<cv::Point2f>& points, const cv::Scalar& color) {
-    for (const auto& point : points) {
-        cv::circle(image, point, 3, color, -1);  // Draw each point as a small circle
-    }
-}
-
-/*// Lambda function to sort based on distance to the reference point
-auto distanceComparator = [&](const std::vector<cv::Point>& line1, const std::vector<cv::Point>& line2) {
-    cv::Point centroid1 = calculateCentroid(line1);
-    cv::Point centroid2 = calculateCentroid(line2);
-    double distance1 = euclidianDistance(centroid1, referencePoint);
-    double distance2 = euclidianDistance(centroid2, referencePoint);
-    return distance1 < distance2;  // Sort in ascending order of distance
-};*/
-auto distanceToBottomComparator = [](const std::vector<cv::Point>& line1, const std::vector<cv::Point>& line2) {
+// Function used in findLines to sort line based on distance from bottom
+auto distanceToBottomComparator = [](const std::vector<cv::Point2f>& line1, const std::vector<cv::Point2f>& line2) {
    
     // Get the start and end points of both lines
-    cv::Point line1Start = line1.front();
-    cv::Point line1End = line1.back();
-    cv::Point line2Start = line2.front();
-    cv::Point line2End = line2.back();
+    cv::Point2f line1Start = line1.front();
+    cv::Point2f line1End = line1.back();
+    cv::Point2f line2Start = line2.front();
+    cv::Point2f line2End = line2.back();
 
-    // Calculate the vertical distances (y-distance) from the start and end points to the bottom of the image
+    // Calculate the vertical distances (y-distance) from the start and end points to the bottom of the frame
     int distance1Start = frameHeight - line1Start.y;
     int distance1End = frameHeight - line1End.y;
     int distance2Start = frameHeight - line2Start.y;
@@ -169,42 +151,17 @@ auto distanceToBottomComparator = [](const std::vector<cv::Point>& line1, const 
     int minDistance1 = std::min(distance1Start, distance1End);
     int minDistance2 = std::min(distance2Start, distance2End);
 
-    // Sort based on the minimum distance to the bottom of the image
+    // Sort based on the minimum distance to the bottom of the frame
     return minDistance1 < minDistance2;  // Sort in ascending order of minimum distance to the bottom
 };
 
-cv::Mat skeletonizeFrame(const cv::Mat& thresholdedImage){
-    cv::Mat skeleton(cv::Mat::zeros(thresholdedImage.size(), CV_8UC1));
-    cv::Mat temp, eroded;
-    cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(3, 3));
+// Function to find lines in a skeletonized frame
+std::vector<std::vector<cv::Point2f>> findLines(const cv::Mat& thresholdedImage){
 
-    while (true) {
-        cv::erode(thresholdedImage, eroded, element);
-        cv::dilate(eroded, temp, element);
-        cv::subtract(thresholdedImage, temp, temp);
-        cv::bitwise_or(skeleton, temp, skeleton);
-        eroded.copyTo(thresholdedImage);
-
-        if (cv::countNonZero(thresholdedImage) == 0) {
-            break;
-        }
-    }
-
-    /*// Visualize
-    cv::Mat outputImage = skeleton.clone();
-    // Display the image with lines colored
-    cv::imshow("skeleton", outputImage);*/
-    
-    return skeleton;
-}
-// Function to find lines in a thinned image
-std::vector<std::vector<cv::Point>> findLines(const cv::Mat& thresholdedImage){
-
-    //cv::Mat skeleton = skeletonizeFrame(thresholdedImage);
     // Perform connected component analysis
     cv::Mat labels;
     //int numLabels = cv::connectedComponents(thresholdedImage, labels, 8, CV_32S);
-    std::vector<std::vector<cv::Point>> lines;
+    std::vector<std::vector<cv::Point2f>> lines;
     int numLabels = customConnectedComponentsWithThreshold(thresholdedImage, labels, 6,lines);
 
     // Sort the lines based on their distance to the reference point
@@ -217,11 +174,10 @@ std::vector<std::vector<cv::Point>> findLines(const cv::Mat& thresholdedImage){
     
     return lines;
 }
-
-// Function to smooth a vector of points using a moving average filter
-std::vector<cv::Point> smoothPoints(const std::vector<cv::Point>& points, int windowSize) {
+// Function to smooth a vector of points using a moving average filter used in fitPolinomial
+std::vector<cv::Point2f> smoothPoints(const std::vector<cv::Point2f>& points, int windowSize) {
     
-    std::vector<cv::Point> smoothedPoints;
+    std::vector<cv::Point2f> smoothedPoints;
 
     if (windowSize < 1) {
         std::cerr << "Window size must be greater than or equal to 1." << std::endl;
@@ -245,60 +201,118 @@ std::vector<cv::Point> smoothPoints(const std::vector<cv::Point>& points, int wi
         }
 
         if (count > 0) {
-            smoothedPoints.push_back(cv::Point(sumX / count, sumY / count));
+            smoothedPoints.push_back(cv::Point2f(sumX / count, sumY / count));
         }
     }
 
     return smoothedPoints;
 }
+void extendLineToEdges(std::vector<cv::Point2f>& line, int providedFrameWidth, int providedFrameHeight) {
+    // Ensure the line has at least two points
+    if (line.size() < 2) {
+        std::cerr << "Line must have at least two points to extend." << std::endl;
+        return;
+    }
+    cv::Point2f firstBottomPoint;
+    cv::Point2f secondBottomPoint;
+    cv::Point2f firstTopPoint;
+    cv::Point2f secondTopPoint;
+    
 
+    // Get the second-to-last and last points to calculate the slope at the top end
+    firstTopPoint = line.back();
+    secondTopPoint = line[line.size() - 2];
+    // Get the first and second points to calculate the slope at the bottom end
+    firstBottomPoint = line[0];
+    secondBottomPoint = line[1];
+    
+
+    // Calculate the slope for extending the line at the bottom end
+    double deltaXBottom = secondBottomPoint.x - firstBottomPoint.x;
+    double deltaYBottom = secondBottomPoint.y - firstBottomPoint.y;
+    
+    // Handle vertical lines (deltaX == 0)
+    if (deltaXBottom == 0) {
+        deltaXBottom = 1e-6f; // Avoid division by zero
+    }
+    double slopeBottom = deltaYBottom / deltaXBottom;
+
+    // Extend the line to the bottom of the frame (y = providedFrameHeight)
+    double xBottom = firstBottomPoint.x + ((providedFrameHeight - firstBottomPoint.y) / slopeBottom);
+    if (xBottom < 0 - providedFrameWidth) xBottom = -providedFrameWidth; // Manually constrain to 2 times the left edge in case line is too long
+    if (xBottom >= 2 * providedFrameWidth) xBottom = 2*providedFrameWidth; // Manually constrain to 2 times the right edge in case line is too long
+    cv::Point2f extendedBottom(static_cast<int>(xBottom), providedFrameHeight);
+
+    // Add the extended point to the line
+    line.insert(line.begin(), extendedBottom); // Add to the beginning
+    
+
+    double deltaXTop = firstTopPoint.x - secondTopPoint.x;
+    double deltaYTop = firstTopPoint.y - secondTopPoint.y;
+    
+    // Handle vertical lines (deltaX == 0)
+    if (deltaXTop == 0) {
+        deltaXTop = 1e-6f; // Avoid division by zero
+    }
+    double slopeTop = deltaYTop / deltaXTop;
+    
+    if(slopeTop > 0.15 || slopeTop  < -0.15){
+        
+        // Extend the line to the top of the frame (y = 0)
+        double xTop = firstTopPoint.x - (firstTopPoint.y / slopeTop);
+        if (xTop < 0 - providedFrameWidth) xTop = -providedFrameWidth; // Manually constrain to 2 times the left edge
+        if (xTop >= 2 * providedFrameWidth) xTop = 2*providedFrameWidth; // Manually constrain to 2 times the right edge
+        cv::Point2f extendedTop(static_cast<int>(xTop), 0);
+        // Add the extended points to the line
+        line.push_back(extendedTop);                    // Add to the end
+    }
+}
 // Function to fit a polynomial to a set of points and return interpolated points
-std::vector<cv::Point> fitPolinomial(const std::vector<cv::Point>& line, bool isMiddleLine) {
+std::vector<cv::Point2f> fitPolinomial(const std::vector<cv::Point2f>& line, bool isMiddleLine) {
 
-    std::vector<cv::Point> smoothedLine;
+    std::vector<cv::Point2f> smoothedLine;
 
+    if(2 == line.size()){
+        return line;
+    }
+    
     if(!isMiddleLine){
         // Smooth the points of the current line using the moving average filter
         smoothedLine = smoothPoints(line, windowSize);
     }else{
         smoothedLine = line;
     }
-
     // Approximate the contours to further smooth them
     cv::approxPolyDP(smoothedLine, smoothedLine, epsilon, false);  // false = open curve  
-    
-    //extendLineToEdges(smoothedLine);
     return smoothedLine;
-
 }
-
 // Function to evenly space points along the curve based on arc length
-std::vector<cv::Point> evenlySpacePoints(const std::vector<cv::Point>& line, int num_points) {
-    std::vector<cv::Point> spacedPoints;
+std::vector<cv::Point2f> evenlySpacePoints(const std::vector<cv::Point2f>& line, int num_points) {
+    std::vector<cv::Point2f> spacedPoints;
     
     // Step 1: Calculate the total arc length of the contour
-    std::vector<float> arcLengths(line.size(), 0.0f);
+    std::vector<double> arcLengths(line.size(), 0.0f);
     for (int i = 1; i < line.size(); ++i) {
-        arcLengths[i] = arcLengths[i - 1] + static_cast<float>(euclidianDistance(line[i - 1], line[i]));
+        arcLengths[i] = arcLengths[i - 1] + static_cast<double>(euclideanDistance(line[i - 1], line[i]));
     }
-    float totalArcLength = arcLengths.back();
+    double totalArcLength = arcLengths.back();
 
     // Step 2: Define the target spacing between points
-    float spacing = totalArcLength / (num_points - 1);
+    double spacing = totalArcLength / (num_points - 1);
 
     // Step 3: Interpolate points based on arc length
     spacedPoints.push_back(line.front());  // Add the first point
-    float currentArcLength = spacing;
+    double currentArcLength = spacing;
 
     for (int i = 1; i < num_points - 1; ++i) {
         // Find where the currentArcLength falls in the original contour
         for (int j = 1; j < line.size(); ++j) {
             if (arcLengths[j] >= currentArcLength) {
                 // Linear interpolation between points j-1 and j
-                float ratio = (currentArcLength - arcLengths[j - 1]) / (arcLengths[j] - arcLengths[j - 1]);
-                float x = line[j - 1].x + ratio * (line[j].x - line[j - 1].x);
-                float y = line[j - 1].y + ratio * (line[j].y - line[j - 1].y);
-                spacedPoints.push_back(cv::Point(x, y));
+                double ratio = (currentArcLength - arcLengths[j - 1]) / (arcLengths[j] - arcLengths[j - 1]);
+                double x = line[j - 1].x + ratio * (line[j].x - line[j - 1].x);
+                double y = line[j - 1].y + ratio * (line[j].y - line[j - 1].y);
+                spacedPoints.push_back(cv::Point2f(x, y));
                 break;
             }
         }
@@ -310,61 +324,190 @@ std::vector<cv::Point> evenlySpacePoints(const std::vector<cv::Point>& line, int
     return spacedPoints;
 }
 
-void extendLineToEdges(std::vector<cv::Point>& middleLine) {
-    // Ensure the line has at least two points
-    if (middleLine.size() < 2) {
-        std::cerr << "Line must have at least two points to extend." << std::endl;
-        return;
+bool are2PointsHorizontal(const cv::Point2f& p1, const cv::Point2f& p2, double slopeThreshold = 1) {
+    
+    double deltaX = p2.x - p1.x;
+    double deltaY = p2.y - p1.y;
+
+    // Avoid division by zero (in case of vertical lines)
+    if (deltaX == 0) {
+        return false;  // It's a vertical line
     }
 
-    // Get the first and second points to calculate the slope at the bottom end
-    cv::Point firstPoint = middleLine[0];
-    cv::Point secondPoint = middleLine[1];
+    // Calculate the slope
+    double slope = deltaY / deltaX;
+    // Check if the slope is close to zero (indicating a horizontal line)
+    return std::abs(slope) <= slopeThreshold;
+}
+// Function to remove horizontal sections if a 90-degree turn is detected
+bool removeHorizontalIf90Turn(std::vector<cv::Point2f>& line) {
+    bool has90DegreeTurn = false;
+    std::vector<cv::Point2f> result;
 
-    // Calculate the slope for extending the line at the bottom end
-    float deltaXBottom = secondPoint.x - firstPoint.x;
-    float deltaYBottom = secondPoint.y - firstPoint.y;
-
-    // Handle vertical lines (deltaX == 0)
-    if (deltaXBottom == 0) {
-        deltaXBottom = 1e-6f; // Avoid division by zero
+    // Check for 90-degree turns along the line
+    for (int i = 1; i < line.size() - 1; ++i) 
+    {
+        double angle = calculateAngle(line[i - 1], line[i], line[i + 1]);
+        if (angle > removeAngleMin && angle < removeAngleMax) // Close to 90 degrees
+        {  
+            has90DegreeTurn = true;
+            std::cout << "Angle(has90DegreeTurn): " << angle << std::endl;
+            break;
+        }
     }
-    float slopeBottom = deltaYBottom / deltaXBottom;
 
-    // Extend the line to the bottom of the frame (y = frameHeight)
-    float xBottom = firstPoint.x + ((frameHeight - firstPoint.y) / slopeBottom);
-     if (xBottom < 0 - frameWidth) xBottom = -frameWidth; // Manually constrain to 2 times the left edge
-    if (xBottom >= 2 * frameWidth) xBottom = 2*frameWidth; // Manually constrain to 2 times the right edge
-    cv::Point extendedBottom(static_cast<int>(xBottom), frameHeight);
+    // If there is a 90-degree turn, remove the horizontal parts
+    if (has90DegreeTurn) 
+    {
+        
+        for (int i = 1; i < line.size(); ++i) 
+        {
+            if (!are2PointsHorizontal(line[i - 1], line[i], slopeThreshold)) 
+            {
+                // Add the starting point of the non-horizontal segment
+                if (result.empty() || result.back() != line[i - 1]) 
+                {
+                    result.push_back(line[i - 1]);
+                }
 
-    // Get the second-to-last and last points to calculate the slope at the top end
-    cv::Point lastPoint = middleLine.back();
-    cv::Point secondLastPoint = middleLine[middleLine.size() - 2];
+                // Add the endpoint of the non-horizontal segment
+                if (result.empty() || result.back() != line[i]) 
+                {
+                    result.push_back(line[i]);
+                }
+            }
+        }
 
-    float deltaXTop = lastPoint.x - secondLastPoint.x;
-    float deltaYTop = lastPoint.y - secondLastPoint.y;
+        std::cout << "Line has 90DegreeTurn" << std::endl;
 
-    // Handle vertical lines (deltaX == 0)
-    if (deltaXTop == 0) {
-        deltaXTop = 1e-6f; // Avoid division by zero
+        // Assign new line
+        line = result;
     }
-    float slopeTop = deltaYTop / deltaXTop;
+    else
+    {
+        std::cout << "Line is Normal" << std::endl;
+    }
+    
+    return has90DegreeTurn;
 
-    // Extend the line to the top of the frame (y = 0)
-    float xTop = lastPoint.x - (lastPoint.y / slopeTop);
-    if (xTop < 0 - frameWidth) xTop = -frameWidth; // Manually constrain to 2 times the left edge
-    if (xTop >= 2 * frameWidth) xTop = 2*frameWidth; // Manually constrain to 2 times the right edge
-    cv::Point extendedTop(static_cast<int>(xTop), 0);
+}
+// Function that handles 2 Lines, 1 Line and No line cases
+void getLeftRightLines(const std::vector<std::vector<cv::Point2f>>& lines, std::vector<cv::Point2f>& leftFitted, std::vector<cv::Point2f>& rightFitted){
 
-    // Add the extended points to the line
-    middleLine.insert(middleLine.begin(), extendedBottom); // Add to the beginning
-    middleLine.push_back(extendedTop);                    // Add to the end
+    cv::Point2f firstPointLineA = undefinedPoint;
+    cv::Point2f firstPointLineB = undefinedPoint;
+    cv::Point2f shiftedPoint;
+    double deltaX;
+    double deltaY;
+    double slope;
+
+    /*
+        If we have 2 line it looks to see which one's X value is smaller
+        because the frame start from 0,0 and it get's extended to the right
+        then the smaller value of X is the left line
+
+        firstPointLineA at first is choosed randomly but after it is set to left line first point
+    */
+    if(lines.size() >= 2)
+    {
+        firstPointLineA = lines[0][0];
+        firstPointLineB = lines[1][0];
+
+        if( firstPointLineA.x < firstPointLineB.x )
+        {
+            leftFitted = lines[0];
+            firstPointLeftLine = firstPointLineA;
+            rightFitted = lines[1];            
+            firstPointRightLine = firstPointLineB;
+        }
+        else
+        {
+            leftFitted = lines[1];
+            firstPointLeftLine = firstPointLineB;
+            rightFitted = lines[0];
+            firstPointRightLine = firstPointLineA;
+        }
+        
+    }
+    /*
+        If we have one line and history then decide to which starting point is closer:
+            - If it is to the left then duplicate a line to it's left and lower
+            - If it is to the right then duplicat a line to it's right and lower
+
+        If we have one line and no history then decide based on slope (corner case)
+    */
+    else if (1 == lines.size())
+    {
+        
+        firstPointSingleLine = lines[0][0];
+        
+        if (euclideanDistance(firstPointSingleLine,firstPointLeftLine) <  euclideanDistance(firstPointSingleLine,firstPointRightLine))
+        {
+            leftFitted = lines[0];
+            rightFitted.clear();
+            for (const auto& point : leftFitted) {
+                shiftedPoint = cv::Point2f(point.x + trackLaneWidthInPixel, point.y);
+                rightFitted.push_back(shiftedPoint);
+            }
+        }
+        else if(euclideanDistance(firstPointSingleLine,firstPointLeftLine) >  euclideanDistance(firstPointSingleLine,firstPointRightLine))
+        {
+            rightFitted = lines[0];
+            leftFitted.clear();
+            for (const auto& point : rightFitted) {
+                shiftedPoint = cv::Point2f(point.x - trackLaneWidthInPixel, point.y);
+                leftFitted.push_back(shiftedPoint);
+            }
+        }
+        else if( firstPointLeftLine == undefinedPoint || firstPointRightLine == undefinedPoint){
+            // Compare to based on slope of first and last points
+            // If it has an orientation to the left it is left otherwise rightv
+            cv::Point2f pointBack(lines[0].back().x,lines[0].back().y);
+            cv::Point2f pointFront(lines[0][0].x,lines[0][0].y);
+
+            pointBack = perspectiveChangePoint(pointBack, MatrixInverseBirdsEyeView);
+            pointFront = perspectiveChangePoint(pointFront, MatrixInverseBirdsEyeView);
+
+            double deltaX = pointBack.x - pointFront.x;
+            double deltaY = pointBack.y - pointFront.y;
+            // Handle vertical lines (deltaX == 0)
+            if (deltaX == 0) {
+                deltaX = 1e-6f; // Avoid division by zero
+            }
+            double slope = deltaY / deltaX;
+        
+            // If slope rises to the right (top-right) then we have left line
+            if(slope < 0)
+            {
+                leftFitted = lines[0];
+                rightFitted.clear();
+                for (const auto& point : leftFitted) {
+                    shiftedPoint = cv::Point2f(point.x + trackLaneWidthInPixel, point.y);
+                    rightFitted.push_back(shiftedPoint);
+                }
+            } 
+            else
+            {
+                rightFitted = lines[0];
+                leftFitted.clear();
+                for (const auto& point : rightFitted) {
+                    shiftedPoint = cv::Point2f(point.x - trackLaneWidthInPixel, point.y);
+                    leftFitted.push_back(shiftedPoint);
+                }
+            }            
+        }
+    }else{
+        firstPointLeftLine = undefinedPoint;
+        firstPointRightLine = undefinedPoint;
+        // TBD NO LINES, STOP CAR
+    }
 }
 
 // Function to find the middle line between two lines
-std::vector<cv::Point> findMiddle(std::vector<cv::Point>& leftFitted, std::vector<cv::Point>& rightFitted){
+std::vector<cv::Point2f> findMiddle(std::vector<cv::Point2f>& leftFitted, std::vector<cv::Point2f>& rightFitted,
+ int providedFrameWidth, int providedFrameHeight){
     
-    std::vector<cv::Point> allMidpoints;
+    std::vector<cv::Point2f> allMidpoints;
 
     for (int i = 1; i < leftFitted.size() && i < rightFitted.size(); i++) {
         // Calculate the midpoint between the corresponding points on the fitted curves
@@ -380,53 +523,68 @@ std::vector<cv::Point> findMiddle(std::vector<cv::Point>& leftFitted, std::vecto
         allMidpoints.push_back(lastMidpoint);
     }
     
-    //allMidpoints = fitPolinomial(allMidpoints,true);
-    extendLineToEdges(allMidpoints);
+    extendLineToEdges(allMidpoints, providedFrameWidth, providedFrameHeight);
     return allMidpoints;
 }
 
-bool are2PointsHorizontal(const cv::Point2f& p1, const cv::Point2f& p2, double slopeThreshold = 0.3) {
-    float deltaX = p2.x - p1.x;
-    float deltaY = p2.y - p1.y;
-
-    // Avoid division by zero (in case of vertical lines)
-    if (deltaX == 0) {
-        return false;  // It's a vertical line
+cv::Point2f interpolateClosestPoints(const std::vector<cv::Point2f>& points, int targetY) {
+    if (points.size() < 2) {
+        throw std::invalid_argument("Not enough points to interpolate");
     }
 
-    // Calculate the slope
-    float slope = deltaY / deltaX;
+    // Initialize variables to track the closest points
+    cv::Point2f lower, upper;
+    bool lowerFound = false, upperFound = false;
 
-    // Check if the slope is close to zero (indicating a horizontal line)
-    return std::abs(slope) <= slopeThreshold;
-}
-
-// Function to remove horizontal sections if a 90-degree turn is detected
-std::vector<cv::Point> removeHorizontalIf90Turn(const cv::Mat& frame,const std::vector<cv::Point>& line) {
-    bool has90DegreeTurn = false;
-    std::vector<cv::Point> result;
-
-    // Check for 90-degree turns along the line
-    for (int i = 1; i < line.size() - 1; ++i) {
-        double angle = calculateAngle(line[i - 1], line[i], line[i + 1]);
-        if (angle > 65 && angle < 115) {  // Close to 90 degrees
-            has90DegreeTurn = true;
-            break;
-        }
-    }
-
-    // If there is a 90-degree turn, remove the horizontal parts
-    if (has90DegreeTurn) {
-        for (int i = 1; i < line.size(); ++i) {
-            if (!are2PointsHorizontal(line[i - 1], line[i],slopeThreshold)) {
-                result.push_back(line[i - 1]);  // Keep only non-horizontal parts
+    for (const auto& point : points) {
+        if (point.y <= targetY) {
+            if (!lowerFound || point.y > lower.y) {
+                lower = point;
+                lowerFound = true;
             }
         }
-    } else {
-        result = line;  // No turn, keep the entire line
+        if (point.y >= targetY) {
+            if (!upperFound || point.y < upper.y) {
+                upper = point;
+                upperFound = true;
+            }
+        }
     }
 
-    return result;
-}
+    // Ensure we found bounding points
+    if (!lowerFound || !upperFound) {
+        throw std::invalid_argument("Target Y is out of bounds of the given points");
+    }
 
+    // Linear interpolation to find x
+    int interpolatedX = lower.x + (targetY - lower.y) * (upper.x - lower.x) / (upper.y - lower.y);
+    return cv::Point2f(interpolatedX, targetY);
+}
+// Function to draw the points on the frame
+void drawPoints2f(cv::Mat& frame, const std::vector<cv::Point2f>& points, const cv::Scalar& color) {
+    for (const auto& point : points) {
+        cv::circle(frame, point, 5, color, -1);
+    }
+}void drawPoints(cv::Mat& frame, const std::vector<cv::Point2f>& points, const cv::Scalar& color) {
+    for (const auto& point : points) {
+        cv::circle(frame, point, 5, color, -1);
+    }
+}
+// Function to draw the line on the frame
+void drawLine(cv::Mat& frame, const std::vector<cv::Point2f>& line, const cv::Scalar& color) {
+    for (int i = 1; i < line.size(); i++) {
+        cv::line(frame, line[i-1], line[i], color, 2);  // Green
+    }
+}
+// Function to draw the line on the frame
+void drawLines(cv::Mat& frame, const std::vector<std::vector<cv::Point2f>> lines, const cv::Scalar& color) {
+    for (int i = 0; i < lines.size(); ++i) {
+        for (int j = 0; j < lines[i].size() - 1; ++j) {
+            cv::line(frame, lines[i][j], lines[i][j + 1], color, 2);
+        }
+    }
+}
+void drawCircle(cv::Mat& image, const cv::Point2f& center, int radius, const cv::Scalar& color, int thickness = 1) {
+    cv::circle(image, center, radius, color, thickness);
+}
 #endif 
