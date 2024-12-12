@@ -12,7 +12,7 @@
     static cv::Point2f carInFramePosition;
     static cv::Point2f carInFramePositionBirdsEye;
     cv::Point2f undefinedPoint = cv::Point2f(1000,0);
-    double circleRadius = 100.0f;
+    double lookAheadDistance = 100.0f;  // It's the radius of the circle starting from carInFramePositionBirdsEye
 // Used in camera_setup.h
     // Used in perspectiveChange()
     // Size of new perspective box

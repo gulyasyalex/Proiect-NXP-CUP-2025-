@@ -141,7 +141,6 @@ void process_frame() {
 
                 for (int i = 0; i < lines.size(); i++){
                     lines[i] = fitPolinomial(lines[i],false);
-                    std::cout << "fitPolinomial lines[i].size():" << lines[i].size() << std::endl;
                 }
                 drawLines(outputImage,lines,cv::Scalar(0, 0, 255));
                 laptopTCP.sendFrame(outputImage);
@@ -151,10 +150,8 @@ void process_frame() {
                 for (int i = 0; i < lines.size(); i++){
                     lines[i] = perspectiveChangeLine(lines[i], MatrixBirdsEyeView);
                     has90degreeTurn = removeHorizontalIf90Turn(lines[i]);
-                    std::cout << "removeHorizontalIf90Turn lines[i].size():" << lines[i].size() << std::endl;
                     extendLineToEdges(lines[i], widthBirdsEyeView, heightBirdsEyeView);
                     lines[i] = evenlySpacePoints(lines[i], num_points);
-                    std::cout << "evenlySpacePoints lines[i].size():" << lines[i].size() << std::endl;
                     if (has90degreeTurn) {
                         std::vector<cv::Point2f> temp;
                         temp = lines[i]; 
@@ -186,10 +183,10 @@ void process_frame() {
 
                 #else    
 
-                radiusIncrease(circleRadius);                
+                radiusIncrease(lookAheadDistance);                
                 pointMoveAcrossFrame(carInFramePositionBirdsEye);
-                double tempCircleRadius = shortestDistanceToCurve(allMidpoints, carInFramePositionBirdsEye, circleRadius);
-                std::cout << "tempCircleRadius: " << tempCircleRadius << "\n";
+                double tempLookAheadDistance = shortestDistanceToCurve(allMidpoints, carInFramePositionBirdsEye, lookAheadDistance);
+               
                 // Create a frame of the desired size
                 cv::Size frameSize(widthBirdsEyeView, heightBirdsEyeView);
 
@@ -197,10 +194,10 @@ void process_frame() {
                 cv::Mat birdEyeViewWithPoints = cv::Mat::zeros(frameSize, CV_8UC3); // 3 channels (color)
 
                 // Find intersections
-                cv::Point2f intersection = findHighestIntersection(allMidpoints, carInFramePositionBirdsEye, tempCircleRadius);
+                cv::Point2f lookAheadPoint = findHighestIntersection(allMidpoints, carInFramePositionBirdsEye, tempLookAheadDistance);
              
-                cv::circle(birdEyeViewWithPoints, intersection, 5, cv::Scalar(254, 34, 169), -1);
-                drawCircle(birdEyeViewWithPoints, carInFramePositionBirdsEye, tempCircleRadius, cv::Scalar(254, 34, 169));
+                cv::circle(birdEyeViewWithPoints, lookAheadPoint, 5, cv::Scalar(254, 34, 169), -1);
+                drawCircle(birdEyeViewWithPoints, carInFramePositionBirdsEye, tempLookAheadDistance, cv::Scalar(254, 34, 169));
                 cv::circle(birdEyeViewWithPoints, carInFramePositionBirdsEye, 5, cv::Scalar(254, 34, 169), -1);
                 drawPoints2f(birdEyeViewWithPoints, dstPoints, cv::Scalar(0, 255, 255));
                 drawLine(birdEyeViewWithPoints,leftLine,cv::Scalar(0, 255, 0));
@@ -214,6 +211,7 @@ void process_frame() {
                 leftLine = perspectiveChangeLine(leftLine, MatrixInverseBirdsEyeView);
                 rightLine = perspectiveChangeLine(rightLine, MatrixInverseBirdsEyeView);
                 allMidpoints = perspectiveChangeLine(allMidpoints, MatrixInverseBirdsEyeView);
+                lookAheadPoint = perspectiveChangePoint(lookAheadPoint, MatrixInverseBirdsEyeView);
 
                 #endif
                 outputImage = cv::Mat::zeros(frame.size(),CV_8UC3);
@@ -223,6 +221,7 @@ void process_frame() {
                 horizontalLine.push_back(srcPoints[1]);
                 horizontalLine.push_back(srcPoints[3]);
                 
+                cv::circle(outputImage, lookAheadPoint, 5, cv::Scalar(254, 34, 169), -1);
                 cv::circle(outputImage, carInFramePosition, 5, cv::Scalar(254, 34, 169), -1);
                 drawLine(outputImage,horizontalLine,cv::Scalar(0, 255, 255));
                 #if 1 != ENABLE_CALIBRATE_CAMERA 
