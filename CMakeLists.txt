@@ -33,6 +33,6 @@ add_executable(DEBIX ${SRC_FILES})
 find_package(CURL REQUIRED)
 link_directories(${LIBUSB_LIBRARY_DIRS})
 
-target_link_libraries(DEBIX ${LIBUSB_LIBRARIES} ${OpenCV_LIBS} ${CURL_LIBRARIES})
+target_link_libraries(DEBIX ${LIBUSB_LIBRARIES} ${OpenCV_LIBS} ${CURL_LIBRARIES} serial)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

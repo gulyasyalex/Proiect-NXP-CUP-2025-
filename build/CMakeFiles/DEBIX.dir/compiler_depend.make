@@ -178,21 +178,122 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/c++/11/bits/ostream.tcc \
   /usr/include/c++/11/istream \
   /usr/include/c++/11/bits/istream.tcc \
+  /usr/include/c++/11/thread \
+  /usr/include/c++/11/bits/std_thread.h \
+  /usr/include/c++/11/tuple \
+  /usr/include/c++/11/utility \
+  /usr/include/c++/11/bits/stl_relops.h \
+  /usr/include/c++/11/array \
+  /usr/include/c++/11/bits/uses_allocator.h \
+  /usr/include/c++/11/bits/invoke.h \
+  /usr/include/c++/11/bits/refwrap.h \
+  /usr/include/c++/11/bits/unique_ptr.h \
+  /usr/include/c++/11/bits/this_thread_sleep.h \
+  /usr/include/c++/11/chrono \
+  /usr/include/c++/11/ratio \
+  /usr/include/c++/11/limits \
+  /usr/include/c++/11/ctime \
+  /usr/include/c++/11/bits/parse_numbers.h \
+  /usr/include/c++/11/vector \
+  /usr/include/c++/11/bits/stl_uninitialized.h \
+  /usr/include/c++/11/bits/stl_vector.h \
+  /usr/include/c++/11/bits/stl_bvector.h \
+  /usr/include/c++/11/bits/vector.tcc \
+  /usr/include/c++/11/memory \
+  /usr/include/c++/11/bits/stl_tempbuf.h \
+  /usr/include/c++/11/bits/stl_raw_storage_iter.h \
+  /usr/include/c++/11/bits/align.h \
+  /usr/include/c++/11/bit \
+  /usr/include/c++/11/bits/shared_ptr.h \
+  /usr/include/c++/11/bits/shared_ptr_base.h \
+  /usr/include/c++/11/bits/allocated_ptr.h \
+  /usr/include/c++/11/ext/aligned_buffer.h \
+  /usr/include/c++/11/ext/concurrence.h \
+  /usr/include/c++/11/bits/shared_ptr_atomic.h \
+  /usr/include/c++/11/bits/atomic_base.h \
+  /usr/include/c++/11/bits/atomic_lockfree_defines.h \
+  /usr/include/c++/11/backward/auto_ptr.h \
+  /usr/include/c++/11/csignal \
+  /usr/include/signal.h \
+  /usr/include/aarch64-linux-gnu/bits/signum-generic.h \
+  /usr/include/aarch64-linux-gnu/bits/signum-arch.h \
+  /usr/include/aarch64-linux-gnu/bits/types/sig_atomic_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/siginfo_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__sigval_t.h \
+  /usr/include/aarch64-linux-gnu/bits/siginfo-arch.h \
+  /usr/include/aarch64-linux-gnu/bits/siginfo-consts.h \
+  /usr/include/aarch64-linux-gnu/bits/siginfo-consts-arch.h \
+  /usr/include/aarch64-linux-gnu/bits/types/sigval_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/sigevent_t.h \
+  /usr/include/aarch64-linux-gnu/bits/sigevent-consts.h \
+  /usr/include/aarch64-linux-gnu/bits/sigaction.h \
+  /usr/include/aarch64-linux-gnu/bits/sigcontext.h \
+  /usr/include/aarch64-linux-gnu/asm/sigcontext.h \
+  /usr/include/linux/types.h \
+  /usr/include/aarch64-linux-gnu/asm/types.h \
+  /usr/include/asm-generic/types.h \
+  /usr/include/asm-generic/int-ll64.h \
+  /usr/include/aarch64-linux-gnu/asm/bitsperlong.h \
+  /usr/include/asm-generic/bitsperlong.h \
+  /usr/include/linux/posix_types.h \
+  /usr/include/linux/stddef.h \
+  /usr/include/aarch64-linux-gnu/asm/posix_types.h \
+  /usr/include/asm-generic/posix_types.h \
+  /usr/include/aarch64-linux-gnu/asm/sve_context.h \
+  /usr/include/aarch64-linux-gnu/bits/types/stack_t.h \
+  /usr/include/aarch64-linux-gnu/sys/ucontext.h \
+  /usr/include/aarch64-linux-gnu/sys/procfs.h \
+  /usr/include/aarch64-linux-gnu/sys/time.h \
+  /usr/include/aarch64-linux-gnu/sys/user.h \
+  /usr/include/aarch64-linux-gnu/bits/procfs.h \
+  /usr/include/aarch64-linux-gnu/bits/procfs-id.h \
+  /usr/include/aarch64-linux-gnu/bits/procfs-prregset.h \
+  /usr/include/aarch64-linux-gnu/bits/procfs-extra.h \
+  /usr/include/aarch64-linux-gnu/bits/sigstack.h \
+  /usr/include/aarch64-linux-gnu/bits/sigstksz.h \
+  /usr/include/unistd.h \
+  /usr/include/aarch64-linux-gnu/bits/posix_opt.h \
+  /usr/include/aarch64-linux-gnu/bits/environments.h \
+  /usr/include/aarch64-linux-gnu/bits/confname.h \
+  /usr/include/aarch64-linux-gnu/bits/getopt_posix.h \
+  /usr/include/aarch64-linux-gnu/bits/getopt_core.h \
+  /usr/include/aarch64-linux-gnu/bits/unistd_ext.h \
+  /usr/include/linux/close_range.h \
+  /usr/include/aarch64-linux-gnu/bits/ss_flags.h \
+  /usr/include/aarch64-linux-gnu/bits/types/struct_sigstack.h \
+  /usr/include/aarch64-linux-gnu/bits/sigthread.h \
+  /usr/include/aarch64-linux-gnu/bits/signal_ext.h \
+  ../include/SerialPortFunctions/SerialPort.hpp \
+  /usr/include/libserial/SerialPort.h \
+  /usr/include/libserial/SerialPortConstants.h \
+  /usr/include/termios.h \
+  /usr/include/aarch64-linux-gnu/bits/termios.h \
+  /usr/include/aarch64-linux-gnu/bits/termios-struct.h \
+  /usr/include/aarch64-linux-gnu/bits/termios-c_cc.h \
+  /usr/include/aarch64-linux-gnu/bits/termios-c_iflag.h \
+  /usr/include/aarch64-linux-gnu/bits/termios-c_oflag.h \
+  /usr/include/aarch64-linux-gnu/bits/termios-baud.h \
+  /usr/include/aarch64-linux-gnu/bits/termios-c_cflag.h \
+  /usr/include/aarch64-linux-gnu/bits/termios-c_lflag.h \
+  /usr/include/aarch64-linux-gnu/bits/termios-tcflow.h \
+  /usr/include/aarch64-linux-gnu/bits/termios-misc.h \
+  /usr/include/aarch64-linux-gnu/sys/ttydefaults.h \
+  /usr/include/c++/11/atomic \
+  /usr/include/c++/11/mutex \
+  /usr/include/c++/11/bits/std_mutex.h \
+  /usr/include/c++/11/bits/unique_lock.h \
+  ../include/CameraFunctions/CameraProcessing.hpp \
   /usr/include/opencv4/opencv2/opencv.hpp \
   /usr/include/opencv4/opencv2/opencv_modules.hpp \
   /usr/include/opencv4/opencv2/core.hpp \
   /usr/include/opencv4/opencv2/core/cvdef.h \
   /usr/include/opencv4/opencv2/core/version.hpp \
-  /usr/include/c++/11/limits \
   /usr/include/opencv4/opencv2/core/hal/interface.h \
   /usr/include/c++/11/cstddef \
   /usr/include/opencv4/opencv2/core/cv_cpu_dispatch.h \
   /usr/lib/gcc/aarch64-linux-gnu/11/include/arm_neon.h \
   /usr/lib/gcc/aarch64-linux-gnu/11/include/arm_fp16.h \
   /usr/lib/gcc/aarch64-linux-gnu/11/include/arm_bf16.h \
-  /usr/include/c++/11/array \
-  /usr/include/c++/11/utility \
-  /usr/include/c++/11/bits/stl_relops.h \
   /usr/include/opencv4/opencv2/core/base.hpp \
   /usr/include/c++/11/climits \
   /usr/lib/gcc/aarch64-linux-gnu/11/include/limits.h \
@@ -208,7 +309,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/c++/11/bits/stl_algo.h \
   /usr/include/c++/11/bits/algorithmfwd.h \
   /usr/include/c++/11/bits/stl_heap.h \
-  /usr/include/c++/11/bits/stl_tempbuf.h \
   /usr/include/c++/11/bits/uniform_int_dist.h \
   /usr/include/opencv4/opencv2/core/cvstd.hpp \
   /usr/include/c++/11/cstring \
@@ -226,25 +326,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/aarch64-linux-gnu/bits/mathcalls-narrow.h \
   /usr/include/aarch64-linux-gnu/bits/iscanonical.h \
   /usr/include/opencv4/opencv2/core/cvstd_wrapper.hpp \
-  /usr/include/c++/11/memory \
-  /usr/include/c++/11/bits/stl_uninitialized.h \
-  /usr/include/c++/11/bits/stl_raw_storage_iter.h \
-  /usr/include/c++/11/bits/align.h \
-  /usr/include/c++/11/bit \
-  /usr/include/c++/11/bits/uses_allocator.h \
-  /usr/include/c++/11/bits/unique_ptr.h \
-  /usr/include/c++/11/tuple \
-  /usr/include/c++/11/bits/invoke.h \
-  /usr/include/c++/11/bits/shared_ptr.h \
-  /usr/include/c++/11/bits/shared_ptr_base.h \
-  /usr/include/c++/11/bits/allocated_ptr.h \
-  /usr/include/c++/11/bits/refwrap.h \
-  /usr/include/c++/11/ext/aligned_buffer.h \
-  /usr/include/c++/11/ext/concurrence.h \
-  /usr/include/c++/11/bits/shared_ptr_atomic.h \
-  /usr/include/c++/11/bits/atomic_base.h \
-  /usr/include/c++/11/bits/atomic_lockfree_defines.h \
-  /usr/include/c++/11/backward/auto_ptr.h \
   /usr/include/opencv4/opencv2/core/neon_utils.hpp \
   /usr/include/opencv4/opencv2/core/vsx_utils.hpp \
   /usr/include/assert.h \
@@ -256,10 +337,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/opencv4/opencv2/core/types.hpp \
   /usr/include/c++/11/cfloat \
   /usr/lib/gcc/aarch64-linux-gnu/11/include/float.h \
-  /usr/include/c++/11/vector \
-  /usr/include/c++/11/bits/stl_vector.h \
-  /usr/include/c++/11/bits/stl_bvector.h \
-  /usr/include/c++/11/bits/vector.tcc \
   /usr/include/opencv4/opencv2/core/mat.hpp \
   /usr/include/opencv4/opencv2/core/bufferpool.hpp \
   /usr/include/opencv4/opencv2/core/mat.inl.hpp \
@@ -272,13 +349,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/opencv4/opencv2/core/utility.hpp \
   /usr/include/c++/11/functional \
   /usr/include/c++/11/bits/std_function.h \
-  /usr/include/c++/11/mutex \
-  /usr/include/c++/11/chrono \
-  /usr/include/c++/11/ratio \
-  /usr/include/c++/11/ctime \
-  /usr/include/c++/11/bits/parse_numbers.h \
-  /usr/include/c++/11/bits/std_mutex.h \
-  /usr/include/c++/11/bits/unique_lock.h \
   /usr/include/opencv4/opencv2/core/optim.hpp \
   /usr/include/opencv4/opencv2/core/ovx.hpp \
   /usr/include/opencv4/opencv2/core/cvdef.h \
@@ -391,28 +461,16 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/opencv4/opencv2/video.hpp \
   /usr/include/opencv4/opencv2/video/tracking.hpp \
   /usr/include/opencv4/opencv2/video/background_segm.hpp \
-  ../include/config.h \
-  ../include/CameraFunctions/segmentation.h \
-  ../include/CameraFunctions/line_detection.h \
-  ../include/math_functions.h \
-  ../include/config.h \
-  ../include/CameraFunctions/thinning.h \
-  ../include/CameraFunctions/camera_setup.h \
-  /usr/include/unistd.h \
-  /usr/include/aarch64-linux-gnu/bits/posix_opt.h \
-  /usr/include/aarch64-linux-gnu/bits/environments.h \
-  /usr/include/aarch64-linux-gnu/bits/confname.h \
-  /usr/include/aarch64-linux-gnu/bits/getopt_posix.h \
-  /usr/include/aarch64-linux-gnu/bits/getopt_core.h \
-  /usr/include/aarch64-linux-gnu/bits/unistd_ext.h \
-  /usr/include/linux/close_range.h \
   /usr/include/c++/11/fstream \
   /usr/include/aarch64-linux-gnu/c++/11/bits/basic_file.h \
   /usr/include/aarch64-linux-gnu/c++/11/bits/c++io.h \
   /usr/include/c++/11/bits/fstream.tcc \
-  ../include/CameraFunctions/camera_setup.h \
-  ../include/PurePursuit/pure_pursuit.h \
-  ../include/tcp_connect.h \
+  ../include/config.h \
+  ../include/SerialPortFunctions/SerialPort.hpp \
+  ../include/mathFunctions.h \
+  ../include/config.h \
+  ../include/CameraFunctions/thinning.h \
+  ../include/TcpConnection.hpp \
   /usr/include/boost/asio.hpp \
   /usr/include/boost/asio/associated_allocator.hpp \
   /usr/include/boost/asio/detail/config.hpp \
@@ -438,7 +496,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/boost/asio/execution/execute.hpp \
   /usr/include/boost/asio/execution/detail/as_invocable.hpp \
   /usr/include/boost/asio/detail/atomic_count.hpp \
-  /usr/include/c++/11/atomic \
   /usr/include/boost/asio/detail/memory.hpp \
   /usr/include/boost/asio/execution/receiver_invocation_error.hpp \
   /usr/include/boost/asio/execution/impl/receiver_invocation_error.ipp \
@@ -521,19 +578,11 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/aarch64-linux-gnu/bits/sockaddr.h \
   /usr/include/aarch64-linux-gnu/asm/socket.h \
   /usr/include/asm-generic/socket.h \
-  /usr/include/linux/posix_types.h \
-  /usr/include/linux/stddef.h \
-  /usr/include/aarch64-linux-gnu/asm/posix_types.h \
-  /usr/include/asm-generic/posix_types.h \
-  /usr/include/aarch64-linux-gnu/asm/bitsperlong.h \
-  /usr/include/asm-generic/bitsperlong.h \
   /usr/include/aarch64-linux-gnu/asm/sockios.h \
   /usr/include/asm-generic/sockios.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_osockaddr.h \
   /usr/include/aarch64-linux-gnu/bits/in.h \
   /usr/include/rpc/netdb.h \
-  /usr/include/aarch64-linux-gnu/bits/types/sigevent_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__sigval_t.h \
   /usr/include/aarch64-linux-gnu/bits/netdb.h \
   /usr/include/boost/asio/impl/error.ipp \
   /usr/include/boost/asio/detail/thread_info_base.hpp \
@@ -627,10 +676,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/aarch64-linux-gnu/bits/struct_stat.h \
   /usr/include/aarch64-linux-gnu/bits/statx.h \
   /usr/include/linux/stat.h \
-  /usr/include/linux/types.h \
-  /usr/include/aarch64-linux-gnu/asm/types.h \
-  /usr/include/asm-generic/types.h \
-  /usr/include/asm-generic/int-ll64.h \
   /usr/include/aarch64-linux-gnu/bits/statx-generic.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h \
   /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h \
@@ -650,7 +695,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/aarch64-linux-gnu/asm/ioctl.h \
   /usr/include/asm-generic/ioctl.h \
   /usr/include/aarch64-linux-gnu/bits/ioctl-types.h \
-  /usr/include/aarch64-linux-gnu/sys/ttydefaults.h \
   /usr/include/poll.h \
   /usr/include/aarch64-linux-gnu/sys/poll.h \
   /usr/include/aarch64-linux-gnu/bits/poll.h \
@@ -673,36 +717,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/boost/asio/detail/scheduler_thread_info.hpp \
   /usr/include/boost/asio/detail/signal_blocker.hpp \
   /usr/include/boost/asio/detail/posix_signal_blocker.hpp \
-  /usr/include/c++/11/csignal \
-  /usr/include/signal.h \
-  /usr/include/aarch64-linux-gnu/bits/signum-generic.h \
-  /usr/include/aarch64-linux-gnu/bits/signum-arch.h \
-  /usr/include/aarch64-linux-gnu/bits/types/sig_atomic_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/siginfo_t.h \
-  /usr/include/aarch64-linux-gnu/bits/siginfo-arch.h \
-  /usr/include/aarch64-linux-gnu/bits/siginfo-consts.h \
-  /usr/include/aarch64-linux-gnu/bits/siginfo-consts-arch.h \
-  /usr/include/aarch64-linux-gnu/bits/types/sigval_t.h \
-  /usr/include/aarch64-linux-gnu/bits/sigevent-consts.h \
-  /usr/include/aarch64-linux-gnu/bits/sigaction.h \
-  /usr/include/aarch64-linux-gnu/bits/sigcontext.h \
-  /usr/include/aarch64-linux-gnu/asm/sigcontext.h \
-  /usr/include/aarch64-linux-gnu/asm/sve_context.h \
-  /usr/include/aarch64-linux-gnu/bits/types/stack_t.h \
-  /usr/include/aarch64-linux-gnu/sys/ucontext.h \
-  /usr/include/aarch64-linux-gnu/sys/procfs.h \
-  /usr/include/aarch64-linux-gnu/sys/time.h \
-  /usr/include/aarch64-linux-gnu/sys/user.h \
-  /usr/include/aarch64-linux-gnu/bits/procfs.h \
-  /usr/include/aarch64-linux-gnu/bits/procfs-id.h \
-  /usr/include/aarch64-linux-gnu/bits/procfs-prregset.h \
-  /usr/include/aarch64-linux-gnu/bits/procfs-extra.h \
-  /usr/include/aarch64-linux-gnu/bits/sigstack.h \
-  /usr/include/aarch64-linux-gnu/bits/sigstksz.h \
-  /usr/include/aarch64-linux-gnu/bits/ss_flags.h \
-  /usr/include/aarch64-linux-gnu/bits/types/struct_sigstack.h \
-  /usr/include/aarch64-linux-gnu/bits/sigthread.h \
-  /usr/include/aarch64-linux-gnu/bits/signal_ext.h \
   /usr/include/boost/asio/detail/thread_group.hpp \
   /usr/include/boost/asio/impl/system_context.hpp \
   /usr/include/boost/asio/impl/system_context.ipp \
@@ -1009,17 +1023,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/boost/asio/basic_seq_packet_socket.hpp \
   /usr/include/boost/asio/basic_serial_port.hpp \
   /usr/include/boost/asio/serial_port_base.hpp \
-  /usr/include/termios.h \
-  /usr/include/aarch64-linux-gnu/bits/termios.h \
-  /usr/include/aarch64-linux-gnu/bits/termios-struct.h \
-  /usr/include/aarch64-linux-gnu/bits/termios-c_cc.h \
-  /usr/include/aarch64-linux-gnu/bits/termios-c_iflag.h \
-  /usr/include/aarch64-linux-gnu/bits/termios-c_oflag.h \
-  /usr/include/aarch64-linux-gnu/bits/termios-baud.h \
-  /usr/include/aarch64-linux-gnu/bits/termios-c_cflag.h \
-  /usr/include/aarch64-linux-gnu/bits/termios-c_lflag.h \
-  /usr/include/aarch64-linux-gnu/bits/termios-tcflow.h \
-  /usr/include/aarch64-linux-gnu/bits/termios-misc.h \
   /usr/include/boost/asio/impl/serial_port_base.hpp \
   /usr/include/boost/asio/impl/serial_port_base.ipp \
   /usr/include/boost/asio/detail/reactive_serial_port_service.hpp \
@@ -1158,7 +1161,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/c++/11/future \
   /usr/include/c++/11/condition_variable \
   /usr/include/c++/11/bits/atomic_futex.h \
-  /usr/include/c++/11/bits/std_thread.h \
   /usr/include/boost/asio/placeholders.hpp \
   /usr/include/boost/bind/arg.hpp \
   /usr/include/boost/is_placeholder.hpp \
@@ -1351,13 +1353,11 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/boost/asio/windows/stream_handle.hpp \
   /usr/include/boost/asio/write_at.hpp \
   /usr/include/boost/asio/impl/write_at.hpp \
-  /usr/include/c++/11/thread \
-  /usr/include/c++/11/bits/this_thread_sleep.h
+  ../include/PurePursuit/purePursuit.h \
+  ../include/CameraFunctions/cameraSetup.h
 
 
-/usr/include/c++/11/bits/this_thread_sleep.h:
-
-/usr/include/c++/11/thread:
+../include/PurePursuit/purePursuit.h:
 
 /usr/include/boost/asio/write_at.hpp:
 
@@ -1489,6 +1489,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/predef/library/c/vms.h:
 
+../include/CameraFunctions/cameraSetup.h:
+
 /usr/include/boost/predef/library/c/uc.h:
 
 /usr/include/boost/predef/os/hpux.h:
@@ -1613,8 +1615,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/bind/arg.hpp:
 
-/usr/include/c++/11/bits/std_thread.h:
-
 /usr/include/boost/asio/signal_set.hpp:
 
 /usr/include/c++/11/bits/atomic_futex.h:
@@ -1675,69 +1675,9 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/ip/basic_endpoint.hpp:
 
-/usr/include/boost/asio/prefer.hpp:
+/usr/include/boost/asio/ip/network_v6.hpp:
 
-/usr/include/boost/asio/detail/non_const_lvalue.hpp:
-
-/usr/include/opencv4/opencv2/stitching/detail/warpers.hpp:
-
-/usr/include/boost/asio/impl/post.hpp:
-
-/usr/include/boost/predef/compiler/watcom.h:
-
-/usr/include/boost/asio/handler_alloc_hook.hpp:
-
-/usr/include/boost/asio/impl/error.ipp:
-
-/usr/include/aarch64-linux-gnu/bits/netdb.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/__sigval_t.h:
-
-/usr/include/boost/asio/version.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/types/sigevent_t.h:
-
-/usr/include/boost/version.hpp:
-
-/usr/include/rpc/netdb.h:
-
-/usr/include/boost/predef/platform/windows_runtime.h:
-
-/usr/include/aarch64-linux-gnu/bits/in.h:
-
-/usr/include/c++/11/bits/stl_tempbuf.h:
-
-/usr/include/boost/asio/detail/posix_static_mutex.hpp:
-
-/usr/include/boost/predef/compiler/digitalmars.h:
-
-/usr/include/aarch64-linux-gnu/sys/socket.h:
-
-/usr/include/boost/cerrno.hpp:
-
-/usr/include/netinet/in.h:
-
-/usr/include/boost/asio/detail/scoped_lock.hpp:
-
-/usr/include/boost/asio/error.hpp:
-
-/usr/include/asm-generic/errno-base.h:
-
-/usr/include/boost/exception/exception.hpp:
-
-/usr/include/boost/asio/detail/conditionally_enabled_event.hpp:
-
-/usr/include/boost/throw_exception.hpp:
-
-/usr/include/boost/asio/detail/impl/throw_error.ipp:
-
-/usr/include/boost/mpl/aux_/include_preprocessed.hpp:
-
-/usr/include/boost/core/enable_if.hpp:
-
-/usr/include/boost/system/error_code.hpp:
-
-/usr/include/boost/asio/impl/serial_port_base.ipp:
+/usr/include/boost/asio/ip/impl/network_v4.ipp:
 
 /usr/include/boost/asio/detail/posix_tss_ptr.hpp:
 
@@ -1746,8 +1686,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/boost/asio/detail/tss_ptr.hpp:
 
 /usr/include/aarch64-linux-gnu/sys/uio.h:
-
-/usr/include/boost/asio/detail/call_stack.hpp:
 
 /usr/include/boost/asio/detail/handler_alloc_helpers.hpp:
 
@@ -1760,8 +1698,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/boost/config/stdlib/libstdcpp3.hpp:
 
 /usr/include/boost/asio/is_applicable_property.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/sockaddr.h:
 
 /usr/include/boost/asio/traits/connect_member.hpp:
 
@@ -1779,19 +1715,21 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/utility:
 
-/usr/include/boost/asio/system_executor.hpp:
-
 /usr/include/boost/asio/detail/is_executor.hpp:
 
 /usr/include/boost/asio/execution/schedule.hpp:
 
-/usr/include/c++/11/bits/vector.tcc:
-
 /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h:
+
+/usr/include/c++/11/bits/vector.tcc:
 
 /usr/include/boost/type_traits/detail/config.hpp:
 
 /usr/include/boost/asio/socket_base.hpp:
+
+/usr/include/boost/exception/exception.hpp:
+
+/usr/include/boost/asio/detail/conditionally_enabled_event.hpp:
 
 /usr/include/boost/asio/traits/set_value_free.hpp:
 
@@ -1809,25 +1747,13 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/bits/stl_heap.h:
 
-/usr/include/boost/asio/execution/impl/receiver_invocation_error.ipp:
-
-/usr/include/boost/predef/compiler/gcc_xml.h:
-
-/usr/include/boost/system/detail/generic_category.hpp:
-
 /usr/include/boost/asio/execution/receiver_invocation_error.hpp:
 
 /usr/include/boost/asio/detail/atomic_count.hpp:
 
+../include/mathFunctions.h:
+
 /usr/include/boost/asio/detail/memory.hpp:
-
-/usr/include/c++/11/atomic:
-
-/usr/include/asm-generic/int-ll64.h:
-
-/usr/include/boost/asio/redirect_error.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/types/struct_osockaddr.h:
 
 /usr/include/boost/predef/library/std/_prefix.h:
 
@@ -1839,23 +1765,21 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/detail/pop_options.hpp:
 
-../include/CameraFunctions/camera_setup.h:
-
 /usr/include/boost/asio/detail/type_traits.hpp:
 
-/usr/include/c++/11/ctime:
+/usr/include/boost/version.hpp:
 
-/usr/include/boost/config/detail/select_platform_config.hpp:
+/usr/include/boost/asio/version.hpp:
 
-/usr/include/boost/asio/basic_socket.hpp:
-
-/usr/include/boost/asio/detail/impl/timer_queue_ptime.ipp:
+/usr/include/aarch64-linux-gnu/bits/types/sigevent_t.h:
 
 /usr/include/boost/asio/execution/scheduler.hpp:
 
 /usr/include/boost/config/detail/select_stdlib_config.hpp:
 
 /usr/include/boost/mpl/equal_to.hpp:
+
+/usr/include/c++/11/thread:
 
 /usr/include/boost/asio/detail/wrapped_handler.hpp:
 
@@ -1877,29 +1801,11 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/type_traits/is_base_of.hpp:
 
-../include/tcp_connect.h:
+../include/TcpConnection.hpp:
 
-/usr/include/boost/mpl/void.hpp:
-
-/usr/include/boost/asio/traits/require_free.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/eventfd.h:
-
-/usr/include/linux/close_range.h:
-
-/usr/include/boost/asio/execution/detail/as_receiver.hpp:
-
-/usr/include/boost/asio/detail/thread_context.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/getopt_posix.h:
-
-/usr/include/c++/11/cfloat:
-
-../include/CameraFunctions/segmentation.h:
+/usr/include/opencv4/opencv2/flann/composite_index.h:
 
 /usr/include/opencv4/opencv2/video/background_segm.hpp:
-
-/usr/include/opencv4/opencv2/core/types.hpp:
 
 /usr/include/opencv4/opencv2/video.hpp:
 
@@ -1935,9 +1841,9 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/list:
 
-/usr/include/aarch64-linux-gnu/bits/cpu-set.h:
+../include/CameraFunctions/CameraProcessing.hpp:
 
-/usr/include/opencv4/opencv2/stitching/detail/matchers.hpp:
+/usr/include/aarch64-linux-gnu/bits/cpu-set.h:
 
 /usr/include/boost/asio/buffered_write_stream.hpp:
 
@@ -1947,9 +1853,9 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/opencv4/opencv2/ml/ml.inl.hpp:
 
-/usr/include/aarch64-linux-gnu/sys/cdefs.h:
-
 /usr/lib/gcc/aarch64-linux-gnu/11/include/syslimits.h:
+
+/usr/include/aarch64-linux-gnu/sys/cdefs.h:
 
 /usr/include/boost/predef/version.h:
 
@@ -1971,16 +1877,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/math.h:
 
-/usr/include/boost/config/platform/linux.hpp:
-
-/usr/include/boost/smart_ptr/detail/sp_convertible.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/posix_opt.h:
-
-/usr/include/c++/11/bits/locale_conv.h:
-
-/usr/include/boost/asio/execution/bulk_execute.hpp:
-
 /usr/include/opencv4/opencv2/stitching/detail/exposure_compensate.hpp:
 
 /usr/include/boost/asio/detail/reactor.hpp:
@@ -1995,20 +1891,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/date_time/gregorian/gregorian_types.hpp:
 
-/usr/include/opencv4/opencv2/flann/composite_index.h:
-
-/usr/include/boost/asio/detail/throw_error.hpp:
-
-/usr/include/boost/system/system_error.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/getopt_core.h:
-
-/usr/include/boost/numeric/conversion/conversion_traits.hpp:
-
-/usr/include/opencv4/opencv2/flann/logger.h:
-
-/usr/include/aarch64-linux-gnu/sys/epoll.h:
-
 /usr/include/boost/date_time/posix_time/posix_time_types.hpp:
 
 /usr/include/opencv4/opencv2/flann/kdtree_single_index.h:
@@ -2017,29 +1899,7 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/detail/impl/descriptor_ops.ipp:
 
-/usr/include/opencv4/opencv2/flann/allocator.h:
-
-/usr/include/opencv4/opencv2/imgcodecs.hpp:
-
-/usr/include/c++/11/bits/unordered_map.h:
-
-/usr/include/boost/type_traits/is_arithmetic.hpp:
-
-/usr/include/boost/asio/local/datagram_protocol.hpp:
-
-/usr/include/boost/date_time/posix_time/posix_time_duration.hpp:
-
 /usr/include/c++/11/bits/hashtable_policy.h:
-
-/usr/include/boost/predef/library/std/cxx.h:
-
-/usr/include/boost/preprocessor/logical/and.hpp:
-
-/usr/include/boost/asio/impl/multiple_exceptions.ipp:
-
-/usr/include/boost/regex/config.hpp:
-
-/usr/include/boost/preprocessor/control/detail/while.hpp:
 
 /usr/include/boost/asio/detail/recycling_allocator.hpp:
 
@@ -2065,21 +1925,9 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/generic/seq_packet_protocol.hpp:
 
-/usr/include/opencv4/opencv2/flann/all_indices.h:
-
-/usr/include/boost/asio/detail/eventfd_select_interrupter.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/timesize.h:
-
-/usr/include/boost/asio/detail/array_fwd.hpp:
-
 /usr/include/aarch64-linux-gnu/bits/types/struct_timeval.h:
 
 /usr/include/opencv4/opencv2/flann/nn_index.h:
-
-/usr/include/aarch64-linux-gnu/bits/time.h:
-
-/usr/include/aarch64-linux-gnu/bits/uintn-identity.h:
 
 /usr/include/opencv4/opencv2/flann/params.h:
 
@@ -2103,9 +1951,11 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/detail/impl/timer_queue_set.ipp:
 
-/usr/include/netdb.h:
-
 /usr/include/opencv4/opencv2/dnn.hpp:
+
+/usr/include/boost/asio/execution/detail/as_receiver.hpp:
+
+/usr/include/boost/asio/detail/thread_context.hpp:
 
 /usr/include/opencv4/opencv2/features2d.hpp:
 
@@ -2125,20 +1975,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/mpl/aux_/has_apply.hpp:
 
-/usr/include/aarch64-linux-gnu/bits/libc-header-start.h:
-
-/usr/include/c++/11/ratio:
-
-/usr/include/c++/11/chrono:
-
-/usr/include/boost/config/detail/posix_features.hpp:
-
-/usr/include/c++/11/iterator:
-
-/usr/include/boost/preprocessor/arithmetic/add.hpp:
-
-/usr/include/boost/asio/detail/epoll_reactor.hpp:
-
 /usr/include/aarch64-linux-gnu/gnu/stubs-lp64.h:
 
 /usr/include/boost/preprocessor/list/adt.hpp:
@@ -2153,15 +1989,145 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/numeric/conversion/numeric_cast_traits.hpp:
 
-/usr/include/boost/asio/detail/future.hpp:
-
-/usr/include/aarch64-linux-gnu/sys/ucontext.h:
-
 /usr/include/opencv4/opencv2/video/tracking.hpp:
 
 /usr/include/opencv4/opencv2/core/operations.hpp:
 
 /usr/include/boost/mpl/bool_fwd.hpp:
+
+/usr/lib/gcc/aarch64-linux-gnu/11/include/float.h:
+
+/usr/include/boost/mpl/aux_/type_wrapper.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/wchar.h:
+
+/usr/include/c++/11/cfloat:
+
+/usr/include/c++/11/bits/stl_deque.h:
+
+/usr/include/opencv4/opencv2/core/types.hpp:
+
+/usr/include/boost/asio/traits/execute_member.hpp:
+
+/usr/include/boost/predef/architecture/sys370.h:
+
+/usr/include/opencv4/opencv2/core/saturate.hpp:
+
+/usr/include/boost/asio/execution/detail/as_invocable.hpp:
+
+/usr/include/opencv4/opencv2/core/matx.hpp:
+
+/usr/include/boost/asio/require.hpp:
+
+/usr/include/opencv4/opencv2/core/traits.hpp:
+
+/usr/include/opencv4/opencv2/core/check.hpp:
+
+/usr/include/boost/asio/execution.hpp:
+
+/usr/include/c++/11/bits/allocated_ptr.h:
+
+/usr/include/opencv4/opencv2/core/vsx_utils.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/time.h:
+
+/usr/include/aarch64-linux-gnu/bits/uintn-identity.h:
+
+/usr/include/c++/11/bits/enable_special_members.h:
+
+/usr/include/boost/asio/detail/impl/posix_event.ipp:
+
+/usr/include/boost/preprocessor/control/iif.hpp:
+
+/usr/include/boost/mpl/aux_/largest_int.hpp:
+
+/usr/include/boost/asio/basic_stream_socket.hpp:
+
+/usr/include/math.h:
+
+/usr/include/opencv4/opencv2/flann/flann_base.hpp:
+
+/usr/include/c++/11/bits/charconv.h:
+
+/usr/include/c++/11/cstring:
+
+/usr/include/c++/11/bits/basic_string.tcc:
+
+/usr/include/c++/11/bits/algorithmfwd.h:
+
+/usr/include/aarch64-linux-gnu/bits/mathcalls-narrow.h:
+
+/usr/include/c++/11/bits/cxxabi_forced.h:
+
+/usr/include/c++/11/algorithm:
+
+/usr/include/aarch64-linux-gnu/bits/xopen_lim.h:
+
+/usr/include/boost/mpl/bool.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/posix2_lim.h:
+
+/usr/include/aarch64-linux-gnu/bits/local_lim.h:
+
+/usr/include/boost/asio/traits/schedule_free.hpp:
+
+/usr/include/opencv4/opencv2/core/cvstd.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/termios.h:
+
+/usr/include/c++/11/backward/auto_ptr.h:
+
+/usr/include/opencv4/opencv2/dnn/utils/inference_engine.hpp:
+
+/usr/include/aarch64-linux-gnu/sys/stat.h:
+
+/usr/include/opencv4/opencv2/core/base.hpp:
+
+/usr/include/boost/preprocessor/detail/check.hpp:
+
+/usr/lib/gcc/aarch64-linux-gnu/11/include/arm_bf16.h:
+
+/usr/include/boost/predef/library.h:
+
+/usr/include/aarch64-linux-gnu/bits/types/sigset_t.h:
+
+/usr/lib/gcc/aarch64-linux-gnu/11/include/arm_fp16.h:
+
+/usr/include/c++/11/bits/locale_facets_nonio.h:
+
+/usr/lib/gcc/aarch64-linux-gnu/11/include/arm_neon.h:
+
+/usr/include/opencv4/opencv2/core/cv_cpu_dispatch.h:
+
+/usr/include/boost/asio/handler_invoke_hook.hpp:
+
+/usr/include/opencv4/opencv2/core.hpp:
+
+/usr/include/boost/asio/impl/buffered_write_stream.hpp:
+
+/usr/include/opencv4/opencv2/opencv.hpp:
+
+/usr/include/boost/asio/ip/address_v4_range.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/libc-header-start.h:
+
+/usr/include/boost/config/detail/posix_features.hpp:
+
+/usr/include/c++/11/iterator:
+
+/usr/include/boost/preprocessor/arithmetic/add.hpp:
+
+/usr/include/boost/asio/detail/epoll_reactor.hpp:
+
+/usr/include/c++/11/atomic:
+
+/usr/include/asm-generic/int-ll64.h:
+
+/usr/include/boost/predef/library/std/roguewave.h:
+
+/usr/include/aarch64-linux-gnu/bits/termios-tcflow.h:
+
+/usr/include/aarch64-linux-gnu/asm/bitsperlong.h:
 
 /usr/include/boost/asio/execution/detail/void_receiver.hpp:
 
@@ -2169,9 +2135,75 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/ip/impl/address.ipp:
 
-/usr/include/c++/11/bits/stl_bvector.h:
+/usr/include/aarch64-linux-gnu/bits/termios-c_lflag.h:
+
+/usr/include/boost/asio/detail/call_stack.hpp:
+
+/usr/include/c++/11/bits/ptr_traits.h:
+
+/usr/include/boost/asio/ip/v6_only.hpp:
+
+/usr/include/aarch64-linux-gnu/asm/ioctls.h:
+
+/usr/include/aarch64-linux-gnu/bits/termios-baud.h:
+
+/usr/include/aarch64-linux-gnu/bits/uio_lim.h:
+
+/usr/include/aarch64-linux-gnu/bits/termios-c_cc.h:
+
+/usr/include/boost/asio/detail/std_fenced_block.hpp:
+
+/usr/include/boost/mpl/aux_/static_cast.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/termios-struct.h:
+
+/usr/include/boost/asio/ip/impl/address.hpp:
+
+/usr/include/libserial/SerialPortConstants.h:
+
+/usr/include/boost/asio/execution/impl/receiver_invocation_error.ipp:
+
+/usr/include/boost/predef/compiler/gcc_xml.h:
+
+/usr/include/boost/system/detail/generic_category.hpp:
+
+/usr/include/libserial/SerialPort.h:
+
+/usr/include/opencv4/opencv2/imgcodecs.hpp:
+
+/usr/include/c++/11/bits/unordered_map.h:
+
+/usr/include/boost/type_traits/is_arithmetic.hpp:
+
+../include/SerialPortFunctions/SerialPort.hpp:
+
+/usr/include/opencv4/opencv2/flann/allocator.h:
+
+/usr/include/boost/regex/config/cwchar.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/sigthread.h:
+
+/usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:
+
+/usr/include/boost/predef/platform/mingw32.h:
+
+/usr/include/boost/predef/library/c/gnu.h:
+
+/usr/include/aarch64-linux-gnu/bits/types/struct_sigstack.h:
+
+/usr/include/boost/asio/detail/impl/strand_service.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/ss_flags.h:
+
+/usr/include/linux/close_range.h:
+
+/usr/include/opencv4/opencv2/core/version.hpp:
 
 /usr/include/c++/11/bits/stl_iterator_base_types.h:
+
+/usr/lib/gcc/aarch64-linux-gnu/11/include/limits.h:
+
+/usr/include/boost/config/pragma_message.hpp:
 
 /usr/include/opencv4/opencv2/flann.hpp:
 
@@ -2185,17 +2217,7 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/completion_condition.hpp:
 
-/usr/include/boost/asio/execution.hpp:
-
-/usr/include/c++/11/bits/allocated_ptr.h:
-
-/usr/include/asm-generic/sockios.h:
-
-/usr/include/opencv4/opencv2/flann/miniflann.hpp:
-
 /usr/include/boost/asio/detail/impl/service_registry.hpp:
-
-/usr/include/opencv4/opencv2/core/traits.hpp:
 
 /usr/include/opencv4/opencv2/dnn/dnn.inl.hpp:
 
@@ -2203,13 +2225,23 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/backward/binders.h:
 
-/usr/include/c++/11/bits/basic_string.tcc:
-
-/usr/include/c++/11/bits/algorithmfwd.h:
-
 /usr/include/aarch64-linux-gnu/bits/mathcalls.h:
 
-/usr/include/c++/11/algorithm:
+/usr/include/boost/config/platform/linux.hpp:
+
+/usr/include/boost/smart_ptr/detail/sp_convertible.hpp:
+
+/usr/include/c++/11/bits/locale_conv.h:
+
+/usr/include/boost/asio/execution/bulk_execute.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/posix_opt.h:
+
+/usr/include/c++/11/cmath:
+
+/usr/include/boost/predef/language.h:
+
+/usr/include/boost/operators.hpp:
 
 /usr/include/boost/asio/detail/reactive_descriptor_service.hpp:
 
@@ -2219,63 +2251,21 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/detail/timer_queue_base.hpp:
 
-/usr/include/opencv4/opencv2/core/matx.hpp:
-
-/usr/include/boost/asio/require.hpp:
-
 /usr/include/aarch64-linux-gnu/bits/types/struct___jmp_buf_tag.h:
 
 /usr/include/aarch64-linux-gnu/bits/types/__sigset_t.h:
 
 /usr/include/aarch64-linux-gnu/bits/struct_mutex.h:
 
-/usr/include/boost/asio/detail/handler_invoke_helpers.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/setjmp.h:
-
-/usr/include/boost/asio/detail/reactive_wait_op.hpp:
-
 /usr/include/aarch64-linux-gnu/bits/types.h:
-
-/usr/include/boost/asio/traits/execute_member.hpp:
-
-/usr/include/boost/predef/architecture/sys370.h:
-
-/usr/include/opencv4/opencv2/core/saturate.hpp:
-
-/usr/include/boost/asio/execution/detail/as_invocable.hpp:
-
-/usr/include/linux/posix_types.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/mbstate_t.h:
-
-/usr/include/aarch64-linux-gnu/bits/pthreadtypes-arch.h:
 
 /usr/include/aarch64-linux-gnu/bits/types/timer_t.h:
 
 /usr/include/c++/11/sstream:
 
-/usr/include/opencv4/opencv2/core/check.hpp:
-
-/usr/lib/gcc/aarch64-linux-gnu/11/include/stdint.h:
-
 /usr/include/c++/11/bits/codecvt.h:
 
 /usr/include/opencv4/opencv2/flann/kmeans_index.h:
-
-/usr/include/c++/11/bits/enable_special_members.h:
-
-/usr/include/c++/11/bits/cxxabi_forced.h:
-
-/usr/include/aarch64-linux-gnu/bits/mathcalls-narrow.h:
-
-/usr/include/boost/asio/detail/impl/posix_event.ipp:
-
-/usr/include/boost/preprocessor/control/iif.hpp:
-
-/usr/include/boost/mpl/aux_/largest_int.hpp:
-
-/usr/include/boost/asio/basic_stream_socket.hpp:
 
 /usr/include/c++/11/bits/basic_ios.tcc:
 
@@ -2285,17 +2275,19 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/aarch64-linux-gnu/c++/11/bits/c++allocator.h:
 
-/usr/include/boost/asio/detail/scheduler_thread_info.hpp:
-
 /usr/include/aarch64-linux-gnu/bits/types/sig_atomic_t.h:
 
-/usr/include/aarch64-linux-gnu/bits/mathcalls-helper-functions.h:
-
-/usr/include/aarch64-linux-gnu/bits/stdlib-float.h:
-
-/usr/include/boost/asio/detail/select_interrupter.hpp:
+/usr/include/boost/asio/detail/scheduler_thread_info.hpp:
 
 /usr/include/aarch64-linux-gnu/bits/types/struct_timespec.h:
+
+/usr/include/boost/asio/posix/stream_descriptor.hpp:
+
+/usr/include/opencv4/opencv2/opencv_modules.hpp:
+
+/usr/include/boost/mpl/int.hpp:
+
+/usr/include/aarch64-linux-gnu/c++/11/bits/gthr.h:
 
 /usr/include/c++/11/bits/ios_base.h:
 
@@ -2306,6 +2298,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/c++/11/cctype:
 
 /usr/include/boost/asio/traits/execute_free.hpp:
+
+/usr/include/c++/11/bits/std_thread.h:
 
 /usr/include/c++/11/bits/stl_multimap.h:
 
@@ -2323,13 +2317,13 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/bits/localefwd.h:
 
-/usr/include/opencv4/opencv2/stitching/detail/util_inl.hpp:
+/usr/include/opencv4/opencv2/stitching/detail/warpers.hpp:
 
-/usr/include/boost/asio/detail/impl/reactive_socket_service_base.ipp:
+/usr/include/boost/asio/detail/non_const_lvalue.hpp:
 
-/usr/include/boost/asio/traits/bulk_execute_free.hpp:
+/usr/include/boost/asio/impl/post.hpp:
 
-/usr/include/boost/asio/detail/timer_queue.hpp:
+/usr/include/c++/11/chrono:
 
 /usr/include/boost/asio/connect.hpp:
 
@@ -2341,25 +2335,19 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/aarch64-linux-gnu/sys/ioctl.h:
 
-/usr/include/c++/11/streambuf:
+/usr/include/aarch64-linux-gnu/bits/stdlib-float.h:
 
-/usr/include/boost/asio/traits/bulk_execute_member.hpp:
+/usr/include/aarch64-linux-gnu/bits/mathcalls-helper-functions.h:
+
+/usr/include/boost/asio/detail/select_interrupter.hpp:
 
 /usr/include/boost/asio/traits/start_free.hpp:
 
 /usr/include/aarch64-linux-gnu/bits/time64.h:
 
-/usr/include/boost/system/api_config.hpp:
-
-/usr/include/boost/asio/detail/impl/strand_service.ipp:
-
-/usr/include/aarch64-linux-gnu/sys/timerfd.h:
-
 /usr/include/boost/date_time/date_duration.hpp:
 
 /usr/include/alloca.h:
-
-../include/CameraFunctions/line_detection.h:
 
 /usr/include/opencv4/opencv2/core/mat.hpp:
 
@@ -2379,29 +2367,15 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/aarch64-linux-gnu/bits/pthread_stack_min-dynamic.h:
 
+/usr/include/unistd.h:
+
+/usr/include/aarch64-linux-gnu/bits/termios-c_oflag.h:
+
+/usr/include/boost/numeric/conversion/detail/preprocessed/numeric_cast_traits_long_long.hpp:
+
 /usr/include/aarch64-linux-gnu/bits/struct_rwlock.h:
 
-/usr/lib/gcc/aarch64-linux-gnu/11/include/arm_bf16.h:
-
-/usr/include/boost/predef/library.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/sigset_t.h:
-
-/usr/include/opencv4/opencv2/flann/flann_base.hpp:
-
-/usr/include/c++/11/bits/charconv.h:
-
-/usr/include/math.h:
-
 /usr/include/aarch64-linux-gnu/bits/timex.h:
-
-/usr/include/boost/is_placeholder.hpp:
-
-/usr/include/boost/asio/execution/impl/bad_executor.ipp:
-
-/usr/include/wchar.h:
-
-/usr/include/boost/asio/impl/handler_alloc_hook.ipp:
 
 /usr/include/c++/11/bits/stringfwd.h:
 
@@ -2409,11 +2383,11 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/features-time64.h:
 
+/usr/include/aarch64-linux-gnu/bits/termios-misc.h:
+
 /usr/include/boost/predef/version_number.h:
 
 /usr/include/aarch64-linux-gnu/bits/procfs-prregset.h:
-
-/usr/include/aarch64-linux-gnu/bits/termios-misc.h:
 
 /usr/include/boost/asio/write.hpp:
 
@@ -2447,6 +2421,10 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/preprocessor/tuple/detail/is_single_return.hpp:
 
+/usr/include/c++/11/bits/this_thread_sleep.h:
+
+/usr/include/boost/asio/basic_socket_streambuf.hpp:
+
 /usr/include/c++/11/bits/locale_facets.tcc:
 
 /usr/include/boost/regex/v4/match_flags.hpp:
@@ -2457,17 +2435,31 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 ../src/main.cpp:
 
-/usr/include/c++/11/bits/locale_facets_nonio.h:
+/usr/include/boost/config/detail/select_platform_config.hpp:
 
-/usr/lib/gcc/aarch64-linux-gnu/11/include/arm_neon.h:
+/usr/include/boost/asio/basic_socket.hpp:
 
-/usr/include/boost/asio/traits/prefer_free.hpp:
+/usr/include/boost/asio/detail/impl/timer_queue_ptime.ipp:
 
-/usr/include/boost/asio/detail/strand_service.hpp:
+/usr/include/aarch64-linux-gnu/bits/types/siginfo_t.h:
+
+/usr/include/aarch64-linux-gnu/sys/user.h:
+
+/usr/include/aarch64-linux-gnu/bits/iscanonical.h:
+
+/usr/include/c++/11/exception:
+
+/usr/include/boost/asio/detail/resolve_endpoint_op.hpp:
+
+/usr/include/boost/asio/buffered_read_stream_fwd.hpp:
 
 /usr/include/c++/11/bits/alloc_traits.h:
 
 /usr/include/stdc-predef.h:
+
+/usr/include/boost/asio/traits/require_free.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/eventfd.h:
 
 /usr/include/c++/11/bits/memoryfwd.h:
 
@@ -2493,6 +2485,12 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/bits/unique_ptr.h:
 
+/usr/include/boost/asio/detail/array_fwd.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/timesize.h:
+
+/usr/include/boost/asio/system_executor.hpp:
+
 /usr/include/boost/preprocessor/array/elem.hpp:
 
 /usr/include/c++/11/bits/stl_pair.h:
@@ -2503,24 +2501,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/mpl/aux_/config/has_xxx.hpp:
 
-/usr/include/aarch64-linux-gnu/bits/types/clockid_t.h:
-
-/usr/include/opencv4/opencv2/stitching/warpers.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/statx.h:
-
-/usr/include/boost/asio/detail/reactive_serial_port_service.hpp:
-
-/usr/include/boost/asio/detail/std_fenced_block.hpp:
-
-/usr/include/boost/mpl/aux_/static_cast.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/termios-c_cc.h:
-
-/usr/include/opencv4/opencv2/stitching/detail/blenders.hpp:
-
-/usr/lib/gcc/aarch64-linux-gnu/11/include/stddef.h:
-
 /usr/include/boost/predef/os/beos.h:
 
 /usr/include/aarch64-linux-gnu/bits/libm-simd-decl-stubs.h:
@@ -2529,9 +2509,13 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/debug/debug.h:
 
-/usr/include/aarch64-linux-gnu/c++/11/bits/cpu_defines.h:
+/usr/include/opencv4/opencv2/stitching/detail/matchers.hpp:
 
-/usr/include/boost/asio/multiple_exceptions.hpp:
+/usr/include/aarch64-linux-gnu/bits/sigstksz.h:
+
+/usr/include/boost/preprocessor/detail/auto_rec.hpp:
+
+/usr/include/aarch64-linux-gnu/c++/11/bits/cpu_defines.h:
 
 /usr/include/aarch64-linux-gnu/c++/11/bits/time_members.h:
 
@@ -2543,6 +2527,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/detail/reactive_socket_sendto_op.hpp:
 
+/usr/include/aarch64-linux-gnu/bits/getopt_posix.h:
+
 /usr/include/aarch64-linux-gnu/c++/11/bits/os_defines.h:
 
 /usr/include/opencv4/opencv2/highgui.hpp:
@@ -2551,27 +2537,9 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/ctype.h:
 
-/usr/include/aarch64-linux-gnu/bits/local_lim.h:
-
-/usr/include/c++/11/bits/stream_iterator.h:
-
-/usr/include/c++/11/bits/cpp_type_traits.h:
-
-/usr/include/endian.h:
-
-/usr/include/boost/asio/execution/blocking.hpp:
-
-/usr/include/c++/11/bits/stl_iterator_base_funcs.h:
-
-/usr/include/c++/11/bits/streambuf.tcc:
-
-/usr/include/boost/preprocessor/control/if.hpp:
+/usr/include/aarch64-linux-gnu/sys/ttydefaults.h:
 
 /usr/include/aarch64-linux-gnu/sys/single_threaded.h:
-
-/usr/include/c++/11/bits/stl_algobase.h:
-
-../include/math_functions.h:
 
 /usr/include/c++/11/cwchar:
 
@@ -2581,11 +2549,19 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/opencv4/opencv2/flann/config.h:
 
-/usr/include/boost/mpl/aux_/type_wrapper.hpp:
+/usr/include/c++/11/bits/allocator.h:
 
-/usr/include/aarch64-linux-gnu/bits/wchar.h:
+/usr/include/linux/limits.h:
 
-/usr/lib/gcc/aarch64-linux-gnu/11/include/float.h:
+/usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h:
+
+/usr/include/c++/11/bits/basic_string.h:
+
+/usr/include/aarch64-linux-gnu/bits/siginfo-consts.h:
+
+/usr/include/boost/date_time/gregorian/greg_duration_types.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/signal_ext.h:
 
 /usr/include/aarch64-linux-gnu/bits/types/__FILE.h:
 
@@ -2601,15 +2577,33 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/opencv4/opencv2/core/cuda.inl.hpp:
 
+/usr/include/aarch64-linux-gnu/bits/types/clockid_t.h:
+
+/usr/include/opencv4/opencv2/stitching/warpers.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/statx.h:
+
+/usr/include/boost/asio/detail/reactive_serial_port_service.hpp:
+
+/usr/include/opencv4/opencv2/stitching/detail/blenders.hpp:
+
+/usr/lib/gcc/aarch64-linux-gnu/11/include/stddef.h:
+
 /usr/include/features.h:
 
+/usr/include/aarch64-linux-gnu/bits/termios-c_cflag.h:
+
+/usr/include/boost/asio/traits/submit_member.hpp:
+
+/usr/include/asm-generic/errno-base.h:
+
+/usr/include/boost/asio/error.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/fp-fast.h:
+
+/usr/include/aarch64-linux-gnu/bits/waitstatus.h:
+
 /usr/include/aarch64-linux-gnu/bits/locale.h:
-
-/usr/include/aarch64-linux-gnu/asm/bitsperlong.h:
-
-/usr/include/boost/predef/library/std/roguewave.h:
-
-/usr/include/aarch64-linux-gnu/bits/termios-tcflow.h:
 
 /usr/include/opencv4/opencv2/core/cvstd.inl.hpp:
 
@@ -2617,11 +2611,29 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h:
 
-/usr/include/aarch64-linux-gnu/bits/fp-fast.h:
-
 /usr/include/c++/11/typeinfo:
 
+/usr/include/locale.h:
+
+/usr/include/c++/11/locale:
+
+/usr/include/opencv4/opencv2/core/fast_math.hpp:
+
+/usr/include/c++/11/climits:
+
+/usr/include/aarch64-linux-gnu/bits/poll.h:
+
+/usr/include/boost/asio/generic/basic_endpoint.hpp:
+
+/usr/include/c++/11/new:
+
 /usr/include/boost/preprocessor/arithmetic/inc.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/setjmp.h:
+
+/usr/include/boost/asio/detail/reactive_wait_op.hpp:
+
+/usr/include/boost/asio/detail/handler_invoke_helpers.hpp:
 
 /usr/include/boost/asio/query.hpp:
 
@@ -2635,15 +2647,9 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/buffered_stream.hpp:
 
-/usr/include/boost/predef/hardware/simd.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/struct_iovec.h:
-
 /usr/include/boost/asio/execution/allocator.hpp:
 
 /usr/include/opencv4/opencv2/core/mat.inl.hpp:
-
-/usr/include/boost/asio/detail/throw_exception.hpp:
 
 /usr/include/aarch64-linux-gnu/bits/errno.h:
 
@@ -2665,57 +2671,19 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h:
 
-/usr/include/c++/11/exception:
-
-/usr/include/boost/asio/detail/resolve_endpoint_op.hpp:
-
-/usr/include/boost/asio/buffered_read_stream_fwd.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/iscanonical.h:
-
 /usr/include/aarch64-linux-gnu/bits/wordsize.h:
 
 /usr/include/c++/11/bits/nested_exception.h:
 
+/usr/include/boost/preprocessor/facilities/expand.hpp:
+
+/usr/include/boost/asio/detail/reactor_fwd.hpp:
+
 /usr/include/aarch64-linux-gnu/bits/pthreadtypes.h:
-
-/usr/include/aarch64-linux-gnu/bits/termios.h:
-
-/usr/include/c++/11/backward/auto_ptr.h:
-
-/usr/include/opencv4/opencv2/dnn/utils/inference_engine.hpp:
-
-/usr/include/aarch64-linux-gnu/sys/stat.h:
-
-/usr/include/boost/config/pragma_message.hpp:
-
-/usr/lib/gcc/aarch64-linux-gnu/11/include/limits.h:
-
-/usr/include/boost/asio/io_context.hpp:
-
-/usr/include/boost/system/detail/system_category_posix.hpp:
-
-/usr/include/boost/date_time/time_iterator.hpp:
-
-/usr/include/c++/11/bits/stl_multiset.h:
 
 /usr/include/opencv4/opencv2/ml.hpp:
 
 /usr/include/boost/asio/io_service.hpp:
-
-/usr/include/c++/11/bits/basic_string.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h:
-
-/usr/include/asm-generic/bitsperlong.h:
-
-/usr/include/c++/11/bits/char_traits.h:
-
-/usr/include/c++/11/bits/concept_check.h:
-
-/usr/include/boost/asio/detail/thread.hpp:
-
-/usr/include/boost/asio/post.hpp:
 
 /usr/include/c++/11/debug/assertions.h:
 
@@ -2731,17 +2699,11 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/aarch64-linux-gnu/bits/waitflags.h:
 
-/usr/include/aarch64-linux-gnu/bits/socket_type.h:
-
-/usr/include/boost/asio/detail/reactive_socket_recvfrom_op.hpp:
-
 /usr/include/c++/11/bits/hash_bytes.h:
 
 /usr/include/boost/asio/execution/set_value.hpp:
 
 /usr/include/opencv4/opencv2/flann/defines.h:
-
-/usr/include/aarch64-linux-gnu/bits/waitstatus.h:
 
 /usr/include/boost/asio/serial_port.hpp:
 
@@ -2767,19 +2729,13 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/bits/erase_if.h:
 
-/usr/include/c++/11/bits/ptr_traits.h:
-
-/usr/include/boost/asio/ip/v6_only.hpp:
-
-/usr/include/aarch64-linux-gnu/asm/ioctls.h:
-
-/usr/include/unistd.h:
-
-/usr/include/boost/numeric/conversion/detail/preprocessed/numeric_cast_traits_long_long.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/termios-c_oflag.h:
-
 /usr/include/stdint.h:
+
+/usr/include/endian.h:
+
+/usr/include/c++/11/bits/stream_iterator.h:
+
+/usr/include/c++/11/bits/cpp_type_traits.h:
 
 /usr/include/c++/11/ext/aligned_buffer.h:
 
@@ -2793,7 +2749,19 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/bits/stl_raw_storage_iter.h:
 
-/usr/include/boost/asio/detail/scoped_ptr.hpp:
+/usr/include/aarch64-linux-gnu/bits/posix1_lim.h:
+
+/usr/include/boost/predef/compiler/palm.h:
+
+/usr/include/boost/predef/compiler/greenhills.h:
+
+/usr/include/aarch64-linux-gnu/asm/errno.h:
+
+/usr/include/aarch64-linux-gnu/bits/long-double.h:
+
+/usr/include/c++/11/bits/std_abs.h:
+
+/usr/include/c++/11/ratio:
 
 /usr/include/boost/shared_ptr.hpp:
 
@@ -2802,6 +2770,22 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h:
 
 /usr/include/boost/mpl/apply_wrap.hpp:
+
+/usr/include/boost/asio/traits/equality_comparable.hpp:
+
+/usr/include/opencv4/opencv2/dnn/dict.hpp:
+
+/usr/include/boost/smart_ptr/detail/sp_counted_impl.hpp:
+
+/usr/include/string.h:
+
+/usr/include/c++/11/bits/streambuf.tcc:
+
+/usr/include/boost/asio/execution/blocking.hpp:
+
+/usr/include/c++/11/bits/stl_iterator_base_funcs.h:
+
+/usr/include/boost/preprocessor/control/if.hpp:
 
 /usr/include/boost/asio/execution/sender.hpp:
 
@@ -2821,11 +2805,21 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/aarch64-linux-gnu/bits/wctype-wchar.h:
 
+/usr/include/boost/date_time/time_iterator.hpp:
+
+/usr/include/c++/11/bits/stl_multiset.h:
+
 /usr/include/c++/11/ios:
 
 /usr/include/boost/asio/detail/impl/scheduler.ipp:
 
 /usr/include/boost/asio/impl/system_context.ipp:
+
+/usr/include/aarch64-linux-gnu/bits/sigstack.h:
+
+/usr/include/aarch64-linux-gnu/bits/floatn-common.h:
+
+/usr/include/aarch64-linux-gnu/bits/types/error_t.h:
 
 /usr/include/boost/asio/co_spawn.hpp:
 
@@ -2847,10 +2841,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/opencv4/opencv2/dnn/layer.hpp:
 
-/usr/include/aarch64-linux-gnu/sys/un.h:
-
-/usr/include/aarch64-linux-gnu/c++/11/bits/error_constants.h:
-
 /usr/include/c++/11/stdexcept:
 
 /usr/include/c++/11/bits/uniform_int_dist.h:
@@ -2860,6 +2850,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/c++/11/bits/locale_facets.h:
 
 /usr/include/c++/11/cwctype:
+
+/usr/include/netdb.h:
 
 /usr/include/boost/asio/high_resolution_timer.hpp:
 
@@ -2893,65 +2885,35 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/date_time/time_resolution_traits.hpp:
 
-/usr/include/boost/asio/detail/variadic_templates.hpp:
+/usr/include/opencv4/opencv2/flann/all_indices.h:
 
-/usr/include/boost/asio/ip/impl/network_v4.ipp:
+/usr/include/boost/asio/detail/eventfd_select_interrupter.hpp:
+
+/usr/include/boost/asio/traits/connect_free.hpp:
+
+/usr/include/c++/11/csignal:
+
+/usr/include/boost/asio/streambuf.hpp:
+
+/usr/include/boost/date_time/adjust_functors.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/signum-generic.h:
+
+/usr/include/boost/date_time/wrapping_int.hpp:
+
+/usr/include/boost/asio/detail/variadic_templates.hpp:
 
 /usr/include/boost/predef/os/bsd/open.h:
 
 /usr/include/aarch64-linux-gnu/bits/sched.h:
 
-/usr/include/boost/asio/detail/bind_handler.hpp:
+/usr/include/limits.h:
 
-/usr/include/boost/asio/detail/handler_cont_helpers.hpp:
-
-/usr/include/strings.h:
-
-/usr/include/boost/asio/impl/buffered_write_stream.hpp:
-
-/usr/include/opencv4/opencv2/opencv.hpp:
-
-/usr/include/boost/asio/ip/address_v4_range.hpp:
-
-/usr/include/aarch64-linux-gnu/c++/11/bits/gthr.h:
-
-/usr/include/boost/asio/posix/stream_descriptor.hpp:
-
-/usr/include/opencv4/opencv2/opencv_modules.hpp:
-
-/usr/include/boost/mpl/int.hpp:
-
-/usr/include/opencv4/opencv2/core.hpp:
-
-/usr/lib/gcc/aarch64-linux-gnu/11/include/arm_fp16.h:
-
-/usr/include/opencv4/opencv2/core/version.hpp:
-
-/usr/include/opencv4/opencv2/core/cv_cpu_dispatch.h:
-
-/usr/include/boost/asio/handler_invoke_hook.hpp:
+/usr/include/aarch64-linux-gnu/sys/time.h:
 
 /usr/include/boost/asio/associated_allocator.hpp:
 
-/usr/include/c++/11/new:
-
-/usr/include/c++/11/climits:
-
-/usr/include/aarch64-linux-gnu/bits/poll.h:
-
-/usr/include/boost/asio/generic/basic_endpoint.hpp:
-
-/usr/include/limits.h:
-
-/usr/include/opencv4/opencv2/core/base.hpp:
-
-/usr/include/boost/preprocessor/detail/check.hpp:
-
-/usr/include/boost/asio/traits/schedule_free.hpp:
-
-/usr/include/opencv4/opencv2/core/cvstd.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/posix2_lim.h:
+/usr/include/boost/mpl/aux_/config/workaround.hpp:
 
 /usr/include/opencv4/opencv2/stitching/detail/util.hpp:
 
@@ -2967,79 +2929,7 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/bits/invoke.h:
 
-/usr/include/aarch64-linux-gnu/bits/xopen_lim.h:
-
-/usr/include/boost/mpl/bool.hpp:
-
-/usr/include/boost/asio/traits/equality_comparable.hpp:
-
-/usr/include/opencv4/opencv2/dnn/dict.hpp:
-
-/usr/include/boost/smart_ptr/detail/sp_counted_impl.hpp:
-
-/usr/include/string.h:
-
-/usr/include/aarch64-linux-gnu/bits/posix1_lim.h:
-
-/usr/include/boost/predef/compiler/palm.h:
-
-/usr/include/boost/predef/compiler/greenhills.h:
-
-/usr/include/aarch64-linux-gnu/asm/errno.h:
-
-/usr/include/aarch64-linux-gnu/bits/long-double.h:
-
-/usr/include/c++/11/bits/std_abs.h:
-
-/usr/include/c++/11/bits/std_function.h:
-
-/usr/include/boost/preprocessor/control/expr_iif.hpp:
-
-/usr/include/linux/limits.h:
-
-/usr/include/c++/11/bits/allocator.h:
-
-/usr/include/boost/predef/language.h:
-
-/usr/include/boost/operators.hpp:
-
-/usr/include/c++/11/cmath:
-
-/usr/include/c++/11/cstring:
-
-/usr/include/locale.h:
-
-/usr/include/c++/11/locale:
-
-/usr/include/opencv4/opencv2/core/fast_math.hpp:
-
-/usr/include/c++/11/memory:
-
-/usr/include/c++/11/bits/stl_uninitialized.h:
-
-/usr/include/aarch64-linux-gnu/sys/time.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/struct_itimerspec.h:
-
-/usr/include/c++/11/vector:
-
-/usr/include/boost/system/detail/config.hpp:
-
-/usr/include/c++/11/bits/unique_lock.h:
-
-/usr/include/boost/mpl/aux_/config/workaround.hpp:
-
-/usr/include/linux/stddef.h:
-
-/usr/include/c++/11/bits/refwrap.h:
-
-/usr/include/c++/11/ext/concurrence.h:
-
-/usr/include/boost/date_time/int_adapter.hpp:
-
-/usr/include/boost/type_traits/is_same.hpp:
-
-/usr/include/boost/mpl/aux_/config/lambda.hpp:
+/usr/include/c++/11/ctime:
 
 /usr/include/c++/11/queue:
 
@@ -3047,11 +2937,249 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/bits/shared_ptr_atomic.h:
 
-/usr/include/opencv4/opencv2/core/vsx_utils.hpp:
+/usr/include/aarch64-linux-gnu/bits/procfs.h:
+
+/usr/include/aarch64-linux-gnu/bits/types/struct_itimerspec.h:
+
+/usr/include/c++/11/vector:
+
+/usr/include/c++/11/bits/stl_uninitialized.h:
+
+/usr/include/c++/11/bits/stl_bvector.h:
+
+/usr/include/c++/11/memory:
+
+/usr/include/c++/11/bits/std_function.h:
+
+/usr/include/boost/preprocessor/control/expr_iif.hpp:
+
+/usr/include/c++/11/bits/stl_tempbuf.h:
+
+/usr/include/opencv4/opencv2/flann/miniflann.hpp:
+
+/usr/include/asm-generic/sockios.h:
+
+/usr/include/boost/asio/detail/posix_static_mutex.hpp:
+
+/usr/include/c++/11/ext/concurrence.h:
+
+/usr/include/boost/mpl/aux_/config/lambda.hpp:
+
+/usr/include/signal.h:
+
+/usr/include/aarch64-linux-gnu/bits/types/__sigval_t.h:
+
+/usr/include/aarch64-linux-gnu/bits/sigevent-consts.h:
+
+/usr/include/boost/asio/detail/posix_thread.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/sigaction.h:
+
+/usr/lib/gcc/aarch64-linux-gnu/11/include/stdint.h:
+
+/usr/include/boost/predef/detail/_exception.h:
+
+/usr/include/aarch64-linux-gnu/bits/sigcontext.h:
+
+/usr/include/aarch64-linux-gnu/bits/signum-arch.h:
+
+/usr/include/boost/asio/detail/handler_work.hpp:
+
+/usr/include/aarch64-linux-gnu/asm/sigcontext.h:
+
+/usr/include/linux/types.h:
+
+/usr/include/opencv4/opencv2/stitching/detail/util_inl.hpp:
+
+/usr/include/boost/asio/detail/impl/reactive_socket_service_base.ipp:
+
+/usr/include/boost/asio/traits/bulk_execute_free.hpp:
+
+/usr/include/boost/asio/detail/timer_queue.hpp:
+
+/usr/include/opencv4/opencv2/imgproc.hpp:
+
+/usr/include/asm-generic/types.h:
+
+/usr/include/c++/11/bits/char_traits.h:
+
+/usr/include/c++/11/bits/concept_check.h:
+
+/usr/include/boost/asio/detail/thread.hpp:
+
+/usr/include/boost/asio/post.hpp:
+
+/usr/include/asm-generic/bitsperlong.h:
+
+/usr/include/aarch64-linux-gnu/bits/types/mbstate_t.h:
+
+/usr/include/aarch64-linux-gnu/bits/pthreadtypes-arch.h:
+
+/usr/include/linux/posix_types.h:
+
+/usr/include/c++/11/bits/refwrap.h:
+
+/usr/include/linux/stddef.h:
+
+/usr/include/boost/asio/detail/future.hpp:
+
+/usr/include/aarch64-linux-gnu/sys/ucontext.h:
+
+/usr/include/c++/11/bits/basic_ios.h:
+
+/usr/include/aarch64-linux-gnu/bits/types/stack_t.h:
+
+/usr/include/boost/predef/platform/ios.h:
+
+/usr/include/boost/asio/detail/chrono.hpp:
+
+/usr/include/c++/11/streambuf:
+
+/usr/include/boost/asio/traits/bulk_execute_member.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/types/wint_t.h:
+
+/usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h:
+
+/usr/include/boost/mpl/aux_/config/static_constant.hpp:
+
+/usr/include/c++/11/bits/stl_algobase.h:
+
+/usr/include/boost/asio/detail/handler_cont_helpers.hpp:
+
+/usr/include/strings.h:
+
+/usr/include/boost/asio/detail/bind_handler.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/siginfo-consts-arch.h:
+
+/usr/include/aarch64-linux-gnu/bits/environments.h:
 
 /usr/include/boost/numeric/conversion/detail/converter.hpp:
 
-/usr/include/c++/11/bits/stl_deque.h:
+/usr/include/opencv4/opencv2/flann/logger.h:
+
+/usr/include/aarch64-linux-gnu/sys/epoll.h:
+
+/usr/include/boost/type_traits/is_same.hpp:
+
+/usr/include/boost/date_time/int_adapter.hpp:
+
+/usr/include/boost/system/system_error.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/getopt_core.h:
+
+/usr/include/boost/numeric/conversion/conversion_traits.hpp:
+
+/usr/include/boost/asio/detail/throw_error.hpp:
+
+/usr/include/aarch64-linux-gnu/c++/11/bits/error_constants.h:
+
+/usr/include/aarch64-linux-gnu/sys/un.h:
+
+/usr/include/boost/system/error_code.hpp:
+
+/usr/include/boost/asio/impl/serial_port_base.ipp:
+
+/usr/include/boost/asio/detail/impl/strand_service.ipp:
+
+/usr/include/aarch64-linux-gnu/sys/timerfd.h:
+
+/usr/include/boost/system/api_config.hpp:
+
+/usr/include/boost/core/enable_if.hpp:
+
+/usr/include/c++/11/bits/unique_lock.h:
+
+/usr/include/boost/system/detail/config.hpp:
+
+/usr/include/boost/asio/local/datagram_protocol.hpp:
+
+/usr/include/boost/date_time/posix_time/posix_time_duration.hpp:
+
+/usr/include/boost/cerrno.hpp:
+
+/usr/include/boost/predef/compiler/digitalmars.h:
+
+/usr/include/aarch64-linux-gnu/sys/socket.h:
+
+/usr/include/boost/asio/detail/impl/throw_error.ipp:
+
+/usr/include/boost/mpl/aux_/include_preprocessed.hpp:
+
+/usr/include/boost/asio/detail/throw_exception.hpp:
+
+/usr/include/boost/throw_exception.hpp:
+
+/usr/include/netinet/in.h:
+
+/usr/include/boost/asio/detail/scoped_lock.hpp:
+
+/usr/include/boost/predef/hardware/simd.h:
+
+/usr/include/aarch64-linux-gnu/bits/types/struct_iovec.h:
+
+/usr/include/aarch64-linux-gnu/bits/socket_type.h:
+
+/usr/include/boost/asio/detail/reactive_socket_recvfrom_op.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/sockaddr.h:
+
+/usr/include/boost/asio/redirect_error.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/types/struct_osockaddr.h:
+
+/usr/include/boost/predef/platform/windows_runtime.h:
+
+/usr/include/aarch64-linux-gnu/bits/in.h:
+
+/usr/include/rpc/netdb.h:
+
+/usr/include/aarch64-linux-gnu/bits/netdb.h:
+
+/usr/include/boost/asio/impl/error.ipp:
+
+/usr/include/boost/asio/execution/detail/as_operation.hpp:
+
+/usr/include/aarch64-linux-gnu/bits/procfs-id.h:
+
+/usr/include/boost/asio/detail/thread_info_base.hpp:
+
+/usr/include/boost/asio/multiple_exceptions.hpp:
+
+/usr/include/boost/regex/config.hpp:
+
+/usr/include/boost/preprocessor/control/detail/while.hpp:
+
+/usr/include/boost/predef/compiler/watcom.h:
+
+/usr/include/boost/asio/handler_alloc_hook.hpp:
+
+/usr/include/boost/asio/impl/handler_alloc_hook.ipp:
+
+/usr/include/boost/asio/detail/scoped_ptr.hpp:
+
+/usr/include/boost/is_placeholder.hpp:
+
+/usr/include/wchar.h:
+
+/usr/include/boost/asio/execution/impl/bad_executor.ipp:
+
+/usr/include/boost/system/detail/system_category_posix.hpp:
+
+/usr/include/boost/asio/io_context.hpp:
+
+/usr/include/boost/asio/prefer.hpp:
+
+/usr/include/boost/predef/library/std/cxx.h:
+
+/usr/include/boost/asio/impl/multiple_exceptions.ipp:
+
+/usr/include/boost/preprocessor/logical/and.hpp:
+
+/usr/include/boost/asio/traits/prefer_free.hpp:
+
+/usr/include/boost/asio/detail/strand_service.hpp:
 
 /usr/include/c++/11/type_traits:
 
@@ -3077,9 +3205,23 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/execution/detail/bulk_sender.hpp:
 
+/usr/include/c++/11/ext/atomicity.h:
+
+/usr/include/c++/11/bits/stl_iterator.h:
+
+/usr/include/termios.h:
+
+/usr/include/boost/asio/execution/context_as.hpp:
+
 /usr/include/boost/date_time/gregorian_calendar.hpp:
 
 /usr/include/boost/asio/execution/occupancy.hpp:
+
+/usr/include/boost/asio/detail/impl/strand_executor_service.ipp:
+
+/usr/include/aarch64-linux-gnu/bits/procfs-extra.h:
+
+/usr/include/boost/asio/execution/outstanding_work.hpp:
 
 /usr/include/aarch64-linux-gnu/bits/thread-shared-types.h:
 
@@ -3095,17 +3237,13 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/aarch64-linux-gnu/bits/ioctls.h:
 
-/usr/include/boost/asio/traits/submit_member.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/termios-c_cflag.h:
-
 /usr/include/boost/asio/impl/system_executor.hpp:
 
 /usr/include/boost/asio/detail/scheduler_operation.hpp:
 
-/usr/include/boost/numeric/conversion/detail/is_subranged.hpp:
-
 /usr/include/c++/11/ext/alloc_traits.h:
+
+/usr/include/boost/numeric/conversion/detail/is_subranged.hpp:
 
 /usr/include/boost/asio/detail/impl/handler_tracking.ipp:
 
@@ -3177,12 +3315,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/linux/stat.h:
 
-/usr/include/linux/types.h:
-
-/usr/include/opencv4/opencv2/imgproc.hpp:
-
-/usr/include/asm-generic/types.h:
-
 /usr/include/aarch64-linux-gnu/bits/statx-generic.h:
 
 /usr/include/aarch64-linux-gnu/bits/endian.h:
@@ -3231,8 +3363,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/date_time/posix_time/ptime.hpp:
 
-/usr/include/aarch64-linux-gnu/sys/ttydefaults.h:
-
 /usr/include/aarch64-linux-gnu/bits/stdio_lim.h:
 
 /usr/include/poll.h:
@@ -3262,104 +3392,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/aarch64-linux-gnu/bits/epoll.h:
 
 /usr/include/boost/asio/detail/signal_blocker.hpp:
-
-/usr/include/boost/asio/traits/connect_free.hpp:
-
-/usr/include/c++/11/csignal:
-
-/usr/include/boost/asio/streambuf.hpp:
-
-/usr/include/boost/date_time/adjust_functors.hpp:
-
-/usr/include/signal.h:
-
-/usr/include/aarch64-linux-gnu/bits/signum-generic.h:
-
-/usr/include/boost/date_time/wrapping_int.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/signum-arch.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/siginfo_t.h:
-
-/usr/include/aarch64-linux-gnu/bits/siginfo-consts.h:
-
-/usr/include/aarch64-linux-gnu/bits/environments.h:
-
-/usr/include/aarch64-linux-gnu/bits/siginfo-consts-arch.h:
-
-/usr/include/aarch64-linux-gnu/bits/sigevent-consts.h:
-
-/usr/include/boost/asio/detail/posix_thread.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/sigaction.h:
-
-/usr/include/boost/predef/detail/_exception.h:
-
-/usr/include/aarch64-linux-gnu/bits/sigcontext.h:
-
-/usr/include/boost/asio/detail/handler_work.hpp:
-
-/usr/include/aarch64-linux-gnu/asm/sigcontext.h:
-
-/usr/include/c++/11/bits/basic_ios.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/stack_t.h:
-
-/usr/include/boost/predef/platform/ios.h:
-
-/usr/include/boost/asio/detail/chrono.hpp:
-
-/usr/include/aarch64-linux-gnu/sys/user.h:
-
-/usr/include/aarch64-linux-gnu/bits/procfs.h:
-
-/usr/include/boost/asio/detail/thread_info_base.hpp:
-
-/usr/include/boost/asio/execution/detail/as_operation.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/procfs-id.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/cookie_io_functions_t.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/wint_t.h:
-
-/usr/include/boost/mpl/aux_/config/static_constant.hpp:
-
-/usr/include/boost/asio/detail/impl/strand_executor_service.ipp:
-
-/usr/include/boost/asio/execution/outstanding_work.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/procfs-extra.h:
-
-/usr/include/aarch64-linux-gnu/bits/floatn-common.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/error_t.h:
-
-/usr/include/aarch64-linux-gnu/bits/sigstack.h:
-
-/usr/include/aarch64-linux-gnu/bits/sigstksz.h:
-
-/usr/include/boost/preprocessor/detail/auto_rec.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/ss_flags.h:
-
-/usr/include/boost/predef/platform/mingw32.h:
-
-/usr/include/boost/predef/library/c/gnu.h:
-
-/usr/include/aarch64-linux-gnu/bits/types/struct_sigstack.h:
-
-/usr/include/boost/asio/detail/impl/strand_service.hpp:
-
-/usr/include/boost/regex/config/cwchar.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/sigthread.h:
-
-/usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:
-
-/usr/include/boost/date_time/gregorian/greg_duration_types.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/signal_ext.h:
 
 /usr/include/boost/asio/detail/thread_group.hpp:
 
@@ -3417,8 +3449,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/detail/reactive_socket_service.hpp:
 
-../include/PurePursuit/pure_pursuit.h:
-
 /usr/include/boost/asio/buffer.hpp:
 
 /usr/include/boost/asio/detail/string_view.hpp:
@@ -3445,9 +3475,9 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/date_time/date_iterator.hpp:
 
-/usr/include/c++/11/bits/std_mutex.h:
-
 /usr/include/boost/asio/traits/set_done_free.hpp:
+
+/usr/include/c++/11/bits/std_mutex.h:
 
 /usr/include/boost/asio/time_traits.hpp:
 
@@ -3579,9 +3609,9 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/date_time/date.hpp:
 
-/usr/include/opencv4/opencv2/core/bufferpool.hpp:
-
 /usr/include/boost/asio/detail/executor_function.hpp:
+
+/usr/include/opencv4/opencv2/core/bufferpool.hpp:
 
 /usr/include/boost/preprocessor/config/config.hpp:
 
@@ -3715,9 +3745,9 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/detail/buffer_resize_guard.hpp:
 
-/usr/include/boost/mpl/aux_/arithmetic_op.hpp:
-
 /usr/include/opencv4/opencv2/stitching.hpp:
+
+/usr/include/boost/mpl/aux_/arithmetic_op.hpp:
 
 /usr/include/boost/mpl/aux_/preprocessor/params.hpp:
 
@@ -3740,8 +3770,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/c++/11/mutex:
 
 /usr/include/boost/preprocessor/repetition/repeat.hpp:
-
-/usr/include/boost/asio/ip/network_v6.hpp:
 
 /usr/include/boost/preprocessor/debug/error.hpp:
 
@@ -3773,12 +3801,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/preprocessor/tuple/elem.hpp:
 
-/usr/include/boost/asio/detail/reactor_fwd.hpp:
-
-/usr/include/boost/preprocessor/facilities/expand.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/termios-c_lflag.h:
-
 /usr/include/boost/preprocessor/facilities/overload.hpp:
 
 /usr/include/boost/asio/impl/detached.hpp:
@@ -3803,9 +3825,9 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/preprocessor/arithmetic/sub.hpp:
 
-/usr/include/boost/asio/detail/impl/service_registry.ipp:
-
 /usr/include/boost/asio/ip/impl/network_v6.hpp:
+
+/usr/include/boost/asio/detail/impl/service_registry.ipp:
 
 /usr/include/boost/mpl/aux_/config/overload_resolution.hpp:
 
@@ -3844,6 +3866,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/aarch64-linux-gnu/bits/flt-eval-method.h:
 
 /usr/include/boost/mpl/tag.hpp:
+
+/usr/include/boost/mpl/void.hpp:
 
 /usr/include/c++/11/iostream:
 
@@ -3935,22 +3959,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/impl/buffered_read_stream.hpp:
 
-/usr/include/c++/11/ext/atomicity.h:
-
-/usr/include/c++/11/bits/stl_iterator.h:
-
-/usr/include/boost/asio/execution/context_as.hpp:
-
-/usr/include/termios.h:
-
-/usr/include/aarch64-linux-gnu/bits/termios-struct.h:
-
-/usr/include/boost/asio/ip/impl/address.hpp:
-
-/usr/include/aarch64-linux-gnu/bits/uio_lim.h:
-
-/usr/include/aarch64-linux-gnu/bits/termios-baud.h:
-
 /usr/include/boost/asio/detail/descriptor_ops.hpp:
 
 ../include/CameraFunctions/thinning.h:
@@ -3974,8 +3982,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/c++/11/bits/exception_ptr.h:
 
 /usr/include/boost/asio/basic_socket_acceptor.hpp:
-
-/usr/include/boost/asio/basic_socket_streambuf.hpp:
 
 /usr/include/boost/asio/basic_waitable_timer.hpp:
 

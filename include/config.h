@@ -2,54 +2,62 @@
 #define CONFIG_H
 
 
+#include "SerialPortFunctions/SerialPort.hpp"
+
+extern debix::SerialPort& serial; 
+
 #define ENABLE_CALIBRATE_CAMERA 0
 #define ENABLE_STREAMING 0
 
+#define SERIAL_PORT "/dev/ttymxc2"      
+
 // Global values
-    static int cutHeight = 0;
-    static const int frameWidth = 320; //160; //320;
-    static const int frameHeight = 180; //90; //180;
-    static cv::Point2f carInFramePosition;
-    static cv::Point2f carInFramePositionBirdsEye;
-    cv::Point2f undefinedPoint = cv::Point2f(1000,0);
-    double lookAheadDistance = 100.0f;  // It's the radius of the circle starting from carInFramePositionBirdsEye
-// Used in camera_setup.h
-    // Used in perspectiveChange()
-    // Size of new perspective box
-    static const int heightBirdsEyeView = 400 - cutHeight*2;
-    static const int widthBirdsEyeView = 370;
-    // dstPoints Box size in pixels
-    // (This box is placed in the middle bottom part of the perspective box)
-    int heightDstPoints;        // This are initialized in initPerspectiveVariables()
-    int widthDstPoints;         // This are initialized in initPerspectiveVariables()
-    static int trackLaneWidthInPixel;                        // Important
-    static std::vector<cv::Point2f> srcPoints;
-    static std::vector<cv::Point2f> dstPoints;
-    // Perspective transform matrix
-    static cv::Mat MatrixBirdsEyeView;
-    static cv::Mat MatrixInverseBirdsEyeView;
+constexpr int captureFrameWidth = 1920;
+constexpr int captureFrameHeight = 1080;
+constexpr int captureFps = 60;
 
-    
-// Used in segmentation.h
-    static const int thresholdValue = 90;
+// Used to resize frame
+constexpr int frameWidth = 320;
+constexpr int frameHeight = 180;
+cv::Point2f undefinedPoint = cv::Point2f(1000,0);
 
-// Used in line_detection.h
-    // Used in fitPolinomial()
-    static const int windowSize = 35;  
-    static double epsilon = 9.0;  // Epsilon value for curve approximation
-    // Used in findMiddle()
-    // Number of points to sample the curve(High number equals more complexity)
-    static const int num_points = 12;  
-    // Used in are2PointsHorizontal()
-    static const double slopeThreshold = 1;
-    // Used in customConnectedComponentsWithThreshold()
-    static const int minPixelCount = 10;                            // Defines how many pixel can make a line (removes noise)
-    static const double rowThresholdCutOff = 0.4;
-    // Used in removeHorizontalIf90Turn()
-    static const double removeAngleMin = 70;
-    static const double removeAngleMax = 110;
-    // Used in getLeftRightLines()
-    cv::Point2f firstPointLeftLine = undefinedPoint;
-    cv::Point2f firstPointRightLine = undefinedPoint;
-    cv::Point2f firstPointSingleLine = undefinedPoint;
+// Used to change perspective to TOP VIEW
+constexpr double widthDstPoints = 0.45 * 320;           // It should be a box so it has same width and height
+constexpr double heightDstPoints = 0.45 * 320;          // It should be a box so it has same width and height
+constexpr double birdsEyeViewWidth = 370;
+constexpr double birdsEyeViewHeight = 400;
+
+// Used to get the points that intersect the lines at rows set below
+constexpr int calibrateTopLine = 45;
+constexpr int calibrateBottomLine = 170;
+
+// Used to do a simple threshold
+constexpr int thresholdValue = 90;
+constexpr int maxThresholdValue = 255;
+
+// Used in fitPolinomial()
+constexpr int fitPolyWindowSize = 35;  
+constexpr double fitPolyEpsilon = 9.0;                  // Epsilon value for curve approximation
+
+// Used in findMiddle()
+constexpr int curveSamplePoints = 12;                   // Number of points to sample the curve(High number equals more complexity)
+
+// Used in are2PointsHorizontal()
+constexpr double horizontalSlopeThreshold = 1;          // Absolute value to handle horizontal line cutoffs
+
+// Used in customConnectedComponentsWithThreshold()
+constexpr int lineMinPixelCount = 10;                   // Defines how many pixel can make a line (removes noise)         
+constexpr double topCutOffPercentage = 0.4;             // Top 40% cutoff to mitigate Far View error
+
+// Used in removeHorizontalIf90Turn()
+constexpr double min90DegreeAngleRange = 70;            // Values between min and max ar cut off to mitigate error
+constexpr double max90DegreeAngleRange = 110;           // Values between min and max ar cut off to mitigate error
+
+// Used in processFrames()
+constexpr double overlayFrameWeight = 1.0;              // Used for visualization of two frames on top of eachother
+
+// Used in mapAngleToServo()
+constexpr double maxLeftServoAngle = -30.0;                  // Used to limit servo rotation
+constexpr double maxRightServoAngle = 30.0;                  // Used to limit servo rotation
+
 #endif
