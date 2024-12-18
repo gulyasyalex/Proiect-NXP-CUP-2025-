@@ -5,7 +5,7 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
-#include "math_functions.h"
+#include "mathFunctions.h"
 
 
 cv::Point2f findHighestIntersection(const std::vector<cv::Point2f>& curve, const cv::Point2f& circleCenter, double circleRadius) {

@@ -11,21 +11,21 @@ class TcpConnection
     int port;
     boost::asio::io_context io_context;
     boost::asio::ip::tcp::socket socket;
+
 public:
-    TcpConnection(int port = 9999);
-    int getPort();
+    explicit TcpConnection(int port);
+    int getPort() const;
     void sendFrame(const cv::Mat& frame);
 };
 
-TcpConnection::TcpConnection(int port) : port(port), socket(io_context){
-    
+TcpConnection::TcpConnection(int port) : port(port), socket(io_context) {
     boost::asio::ip::tcp::acceptor acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
     std::cout << "Waiting for connection on port " << port << "..." << std::endl;
     acceptor.accept(socket);  // Accept connection on socket
     std::cout << "Connected!" << std::endl;
 }
 
-int TcpConnection::getPort(){
+int TcpConnection::getPort() const {
     return port;
 }
 
