@@ -62,6 +62,25 @@ cv::Point2f findHighestIntersection(const std::vector<cv::Point2f>& curve, const
     return lowestYPoint;
 }
 
+// Function to calculate servo value
+double calculateServoValue(double speed, double angleRadians) {
+    
+    double lookaheadDistance = k * speed;
+    lookaheadDistance = std::max(minLookAhead, std::min(maxLookAhead, lookaheadDistance));
+
+    double curvature = (2 * sin(angleRadians)) / lookaheadDistance;
+
+    double steeringAngleRadians = atan(wheelBase * curvature);
+    double steeringAngleDegrees = steeringAngleRadians * 180.0 / CV_PI;
+    double servoValue = (steeringAngleDegrees / maxSteeringAngleDegrees) * maxServoAngle;
+
+    // Clamp servo value to [-30, 30]
+    servoValue = std::max(maxLeftServoAngle, std::min(maxRightServoAngle, servoValue));
+
+    return servoValue;
+}
+
+
 // Function to calculate the shortest distance from a point to a polyline
 double shortestDistanceToCurve(const std::vector<cv::Point2f>& curve, const cv::Point2f& point, double circleRadius) {
     double minDistance = std::numeric_limits<double>::max();

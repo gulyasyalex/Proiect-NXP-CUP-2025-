@@ -28,21 +28,19 @@ void signalHandler(int signal) {
 int main() {
     std::signal(SIGINT, signalHandler); // Register SIGINT handler
 
-    serial.initializeSerialPort(SERIAL_PORT);
+    serial.connectTeensy(SERIAL_PORT);
 
-    serial.startSerialRead();
-
-    for (int i = 0; i < 10; ++i) {
-        serial.writeToSerial("Hello from Debix, message " + std::to_string(i));
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
+    // for (int i = 0; i < 3; ++i) {
+    //     serial.writeToSerial("Hello from Debix, message " + std::to_string(i));
+    //     std::this_thread::sleep_for(std::chrono::seconds(1));
+    // }
 
 
     try {
         // Initialize the global camera instance
         global_camera = std::make_shared<CameraProcessing>();
 
-        #if 1 == ENABLE_STREAMING
+        #if 1 == ENABLE_CAMERA_STREAMING
             // Get the camera index from the shell scriptsc
             std::string cameraIndexStr = getCameraIndex();
             int cameraIndex = std::stoi(cameraIndexStr);

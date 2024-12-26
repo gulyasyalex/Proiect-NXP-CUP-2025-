@@ -39,13 +39,14 @@ namespace debix{
             void readFromSerial();
             void startSerialRead();
             void stopSerialRead();
+            void connectTeensy(const std::string& portName) ;
     };
 }
 
 void debix::SerialPort::initializeSerialPort(const std::string& portName) {
     try {
         serialPort.Open(portName);
-        serialPort.SetBaudRate(LibSerial::BaudRate::BAUD_9600);
+        serialPort.SetBaudRate(LibSerial::BaudRate::BAUD_230400);
         serialPort.SetCharacterSize(LibSerial::CharacterSize::CHAR_SIZE_8);
         serialPort.SetStopBits(LibSerial::StopBits::STOP_BITS_1);
         serialPort.SetParity(LibSerial::Parity::PARITY_NONE);
@@ -57,6 +58,7 @@ void debix::SerialPort::initializeSerialPort(const std::string& portName) {
 }
 
 void debix::SerialPort::writeToSerial(const std::string &data) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     std::lock_guard<std::mutex> lock(serialMutex);  // Ensure thread safety
     try {
         serialPort.Write(data + "\n");  // Append newline for easier reading
@@ -69,16 +71,21 @@ void debix::SerialPort::writeToSerial(const std::string &data) {
 void debix::SerialPort::readFromSerial() {
     while (this->running) {
         try {
-            std::string receivedData;
-            serialPort.ReadLine(receivedData, '\n', 10);
-            if (!receivedData.empty()) {
-                std::cout << "[RX] Received: " << receivedData;
+            if (serialPort.IsDataAvailable()) {
+                std::string receivedData;
+                serialPort.ReadLine(receivedData, '\n', 50);
+                if (!receivedData.empty()) {
+                    std::cout << "[RX] Received: " << receivedData;
+                }
+            } else {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }
         } catch (const std::exception &e) {
-            //std::cerr << "Error reading from serial port: " << e.what() << std::endl;
+            std::cerr << "Error at reading: " << e.what() << std::endl;
         }
     }
 }
+
 void debix::SerialPort::startSerialRead() {
     this->running = true;
     this->serialReadThread = std::thread(&debix::SerialPort::readFromSerial, this);
@@ -91,5 +98,11 @@ void debix::SerialPort::stopSerialRead() {
             this->serialReadThread.join();  
         }
     }
+}
+
+
+void debix::SerialPort::connectTeensy(const std::string& portName) {
+    this->initializeSerialPort(portName);
+    this->startSerialRead();
 }
 #endif

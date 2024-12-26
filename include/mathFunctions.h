@@ -38,43 +38,9 @@ double calculateSignedAngle(cv::Point2f p1, cv::Point2f p2, cv::Point2f p3)
     cv::Point2f vec2 = p3 - p2; // Vector de la p2 la p3
     double dotProduct = vec1.x * vec2.x + vec1.y * vec2.y;
     double crossProduct = vec1.x * vec2.y - vec1.y * vec2.x;
-    double angle = std::atan2(crossProduct, dotProduct) * 180.0 / CV_PI;
+    //double angle = std::atan2(crossProduct, dotProduct) * 180.0 / CV_PI;
+    double angle = std::atan2(crossProduct, dotProduct);
     return angle;
-}
-
-/*
-Protractor Degrees show:
-    - MAX LEFT: 140 degrees
-    - MIDDLE: 90 degrees
-    - MAX RIGHT: 40 degrees
-Translated it should be (-50,0,50) 
-Servo Shows:
-    - MAX LEFT: -30 degrees
-    - MIDDLE: 0 degrees
-    - MAX RIGHT: 30 degrees
-Linear ecuasion should be written as follows:
-
-    ServoAngle = m(slope) * ProtractorAngle + b(intercept);
-
-2 Points: (S = 30; P = 50) and (S = 0; P = 0)
-    m = (30 - 0)/ (50 - 0) = 3/5
-
-Then for point (S = 0; P = 0)
-    0 = 3/5 * 0 + b;  => b = 0;
-
-So any ServoAngle = 3/5 * ProtractorAngle;
-
-
-*/
-double mapAngleToServo(double angle)
-{
-    double mappedAngle = 3.0/5.0 * angle;
-    if (mappedAngle < maxLeftServoAngle)
-        mappedAngle = maxLeftServoAngle;
-    else if (mappedAngle > maxRightServoAngle)
-        mappedAngle = maxRightServoAngle;
-
-    return mappedAngle;
 }
 
 // Function to calculate the midpoint between two points

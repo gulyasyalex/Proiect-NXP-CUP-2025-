@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Search for the HD USB Camera
-CAMERA_NAME="HD USB Camera"
+#CAMERA_NAME="HD USB Camera"
+CAMERA_NAME="Arducam"
 DEVICE=$(v4l2-ctl --list-devices | grep -A 1 "$CAMERA_NAME" | tail -n 1 | awk '{print $1}')
 
 # Check if the device was found
