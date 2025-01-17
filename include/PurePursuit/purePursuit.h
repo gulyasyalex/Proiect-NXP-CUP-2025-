@@ -63,16 +63,13 @@ cv::Point2f findHighestIntersection(const std::vector<cv::Point2f>& curve, const
 }
 
 // Function to calculate servo value
-double calculateServoValue(double speed, double angleRadians) {
-    
-    double lookaheadDistance = k * speed;
-    lookaheadDistance = std::max(minLookAhead, std::min(maxLookAhead, lookaheadDistance));
+double calculateServoValue(double speed, double angleRadians, double lookaheadDistance) {
 
     double curvature = (2 * sin(angleRadians)) / lookaheadDistance;
 
     double steeringAngleRadians = atan(wheelBase * curvature);
     double steeringAngleDegrees = steeringAngleRadians * 180.0 / CV_PI;
-    double servoValue = (steeringAngleDegrees / maxSteeringAngleDegrees) * maxServoAngle;
+    double servoValue = (steeringAngleDegrees / maxSteeringAngleDegrees) * maxServoAngle * servoTurnAdjustmentCoefficient;
 
     // Clamp servo value to [-30, 30]
     servoValue = std::max(maxLeftServoAngle, std::min(maxRightServoAngle, servoValue));

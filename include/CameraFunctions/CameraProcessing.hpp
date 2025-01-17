@@ -18,10 +18,12 @@
 #include "thinning.h"
 #include "TcpConnection.hpp"
 #include "PurePursuit/purePursuit.h"
-
+#include <cstdlib> // Required for exit()
 
 class CameraProcessing {
     private:
+        int frameWidth = captureFrameWidth;
+        int frameHeight = captureFrameHeight;
         cv::VideoCapture cap;
         std::thread captureThread;
         std::thread processingThread;
@@ -81,10 +83,10 @@ class CameraProcessing {
         // Retrieve the latest frame for processing
         cv::Mat getLatestFrame();
         // Resize the image to the specified dimensions
-        cv::Mat resizeImage(const cv::Mat& frame, int width, int height);
+        cv::Mat resizeImage(const cv::Mat& frame, int providedFrameWidth, int providedFrameHeight);
         // Cuts pixel rows from image's top part
-        cv::Mat cropFrameTop(const cv::Mat& frame, int cutHeight);
-        cv::Mat skeletonizeFrame(const cv::Mat& thresholdedImage);
+        cv::Mat cropFrameTop(const cv::Mat& frame, double l_topCutOffPercentage);
+        cv::Mat skeletonizeFrame(cv::Mat& thresholdedImage);
         // Apply color segmentation to isolate specific features in the image
         cv::Mat segmentEdges(const cv::Mat& frame);
         // Function to find lines in a skeletonized frame
@@ -102,7 +104,7 @@ class CameraProcessing {
         bool removeHorizontalIf90Turn(std::vector<cv::Point2f>& line);
         // Function that handles 2 Lines, 1 Line and No line cases
         void getLeftRightLines(const std::vector<std::vector<cv::Point2f>>& lines, std::vector<cv::Point2f>& leftFitted, std::vector<cv::Point2f>& rightFitted); 
-        std::vector<cv::Point2f> findMiddle(std::vector<cv::Point2f>& leftLine, std::vector<cv::Point2f>& rightLine, int frameWidth, int frameHeight);
+        std::vector<cv::Point2f> findMiddle(std::vector<cv::Point2f>& leftLine, std::vector<cv::Point2f>& rightLine, int providedFrameWidth, int providedFrameHeight);
         cv::Point2f interpolateClosestPoints(const std::vector<cv::Point2f>& points, int targetY);
         // Perspective transform related methods
         void initPerspectiveVariables();
@@ -237,11 +239,11 @@ void CameraProcessing::captureFrames() {
                 break;
             }
 
-            //frame = resizeImage(frame, frameWidth, frameHeight);
+            frame = resizeImage(frame, resizeFrameWidth, resizeFrameHeight);
             //saveImage("imagine09122024_01.jpg",frame);
             cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
             // TO CROP
-            //frame = cropFrameTop(frame, 40);
+            frame = cropFrameTop(frame, topCutOffPercentage);
 
             {
                 std::lock_guard<std::mutex> lock(frameMutex);
@@ -295,14 +297,25 @@ void CameraProcessing::processFrames() {
                 //serial.writeToSerial("FPS(processFrames): " + std::to_string(fps) + 
                 //     " FPS(captureFrames): " + std::to_string(this->fpsCaptureFrames));
 
-                #if 1 == ENABLE_CAMERA_THRESHOLD_CHECK 
-                    cv::Mat thresholdFrame = cv::Mat::zeros(frame.size(), CV_8UC3);  // Output image for drawing
-                    cv::threshold(frame, thresholdFrame, thresholdValue, maxThresholdValue, cv::THRESH_BINARY); 
+                cv::TickMeter timer;
+                // * timer.start();
+                cv::Mat thresholdFrame = this->segmentEdges(frame);
+                // * timer.stop();
+                // * std::cout << "segmentEdges Time: " << timer.getTimeMilli() << " ms" << std::endl;
+                #if 1 == ENABLE_TCP_OUTPUT 
                     laptopTCP.sendFrame(thresholdFrame);
-                #else
-                    cv::Mat skeleton = this->segmentEdges(frame); 
+                #endif
+                #if 1 != ENABLE_CAMERA_THRESHOLD_CHECK
+                    // * timer.start();
+                    cv::Mat skeleton = this->skeletonizeFrame(thresholdFrame); 
+                    // * timer.stop();
+                    // * std::cout << "skeletonizeFrame Time: " << timer.getTimeMilli() << " ms" << std::endl;
 
+
+                    // * timer.start();
                     std::vector<std::vector<cv::Point2f>> lines = this->findLines(skeleton);
+                    // * timer.stop();
+                    // * std::cout << "findLines Time: " << timer.getTimeMilli() << " ms" << std::endl;
 
                     cv::Mat outputImage = cv::Mat::zeros(frame.size(), CV_8UC3);  // Output image for drawing
                     
@@ -314,14 +327,18 @@ void CameraProcessing::processFrames() {
                                 std::cout << "Point.x:" << point.x << " Point.y:" << point.y << std::endl;
                             }
                         }*/
-                        laptopTCP.sendFrame(outputImage);
+                        //laptopTCP.sendFrame(outputImage);
                     #endif
-                    for (int i = 0; i < lines.size(); i++){
+                    
+                    // * timer.start();
+                    for (int i = 0; i < lines.size(); i++){  
                         lines[i] = this->fitPolinomial(lines[i],false);
                     }
+                    // * timer.stop();
+                    // * std::cout << "fitPolinomial Time: " << timer.getTimeMilli() << " ms" << std::endl;
                     #if 1 == ENABLE_TCP_OUTPUT 
                         this->drawLines(outputImage,lines,cv::Scalar(0, 0, 255));
-                        this->laptopTCP.sendFrame(outputImage);
+                        //this->laptopTCP.sendFrame(outputImage);
                     #endif
                     #if 1 != ENABLE_CAMERA_CALIBRATION 
                     for (int i = 0; i < lines.size(); i++){
@@ -352,8 +369,15 @@ void CameraProcessing::processFrames() {
                     */
                 
                     if (this->isPastIntersection){
+                        // * timer.start();
                         this->getLeftRightLines(lines,this->leftLine,this->rightLine);
+                        // * timer.stop();
+                        // * std::cout << "getLeftRightLines Time: " << timer.getTimeMilli() << " ms" << std::endl;
+                        
+                        // * timer.start();
                         this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);
+                        // * timer.stop();
+                        // * std::cout << "findMiddle Time: " << timer.getTimeMilli() << " ms" << std::endl;
                         //std::cout << "Was here\n";
                         // Used to handle the case when no point is found in the middle of the intersection
                         if (this->isIntersection)
@@ -372,15 +396,15 @@ void CameraProcessing::processFrames() {
                         #endif
 
                         this->getLeftRightLines(lines,this->leftLine,this->rightLine);
-                        this->extendLineToEdges(leftLine, frameWidth, frameHeight);
-                        this->extendLineToEdges(rightLine, frameWidth, frameHeight);
+                        this->extendLineToEdges(this->leftLine, this->frameWidth, this->frameHeight + distanceErrorFromChassis);
+                        this->extendLineToEdges(this->rightLine, this->frameWidth, this->frameHeight + distanceErrorFromChassis);
                         this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);
 
                         interpolatedPoints.push_back(interpolateClosestPoints(this->leftLine, calibrateTopLine));
                         interpolatedPoints.push_back(interpolateClosestPoints(this->leftLine, calibrateBottomLine));
                         interpolatedPoints.push_back(interpolateClosestPoints(this->rightLine, calibrateTopLine));
                         interpolatedPoints.push_back(interpolateClosestPoints(this->rightLine, calibrateBottomLine));
-                        interpolatedPoints.push_back(interpolateClosestPoints(this->allMidPoints, frameHeight - 5));        // -5 used to set midpoint a bit above screen bottom
+                        interpolatedPoints.push_back(interpolateClosestPoints(this->allMidPoints, this->frameHeight + distanceErrorFromChassis));
                         // Write interpolated points to a TXT file
                         
                         // Show Data on frame
@@ -393,13 +417,19 @@ void CameraProcessing::processFrames() {
                             this->drawHorizontalFromHeight(outputImage,calibrateBottomLine,cv::Scalar(255, 255, 255));
                             this->laptopTCP.sendFrame(outputImage);
                         #endif
-
-                    #else    
+                    #else 
                     
                         //radiusIncrease(lookAheadDistance);                
                         //pointMoveAcrossFrame(carInFramePositionBirdsEye, carTopPoint);
-                        double tempLookAheadDistance = shortestDistanceToCurve(allMidPoints, carInFramePositionBirdsEye, lookAheadDistance);
                     
+                        // * timer.start();
+                                            
+                        lookAheadDistance = k * speed;
+                        lookAheadDistance = std::max(minLookAhead, std::min(maxLookAhead, lookAheadDistance));
+                        
+                        double tempLookAheadDistance = shortestDistanceToCurve(allMidPoints, carInFramePositionBirdsEye, lookAheadDistance);
+                        // * timer.stop();
+                        // * std::cout << "shortestDistanceToCurve Time: " << timer.getTimeMilli() << " ms" << std::endl;
                         // Create a frame of the desired size
                         cv::Size frameSize(birdsEyeViewWidth, birdsEyeViewHeight);
 
@@ -407,7 +437,10 @@ void CameraProcessing::processFrames() {
                         cv::Mat birdEyeViewWithPoints = cv::Mat::zeros(frameSize, CV_8UC3); // 3 channels (color)
 
                         // Find intersections
+                        // * timer.start();
                         cv::Point2f lookAheadPoint = findHighestIntersection(allMidPoints, carInFramePositionBirdsEye, tempLookAheadDistance);
+                        // * timer.stop();
+                        // * std::cout << "findHighestIntersection Time: " << timer.getTimeMilli() << " ms" << std::endl;
                     
                         #if 1 == ENABLE_TCP_OUTPUT 
                             cv::line(birdEyeViewWithPoints, carInFramePositionBirdsEye, lookAheadPoint, cv::Scalar(123, 10, 255), 2); 
@@ -431,8 +464,8 @@ void CameraProcessing::processFrames() {
 
                             outputImage = cv::Mat::zeros(frame.size(),CV_8UC3);
 
-                            const int rowTopCutOffThreshold = static_cast<int>(outputImage.rows * topCutOffPercentage);
-                            const int rowLineStartThreshold = static_cast<int>(outputImage.rows * lineBottomStartRange);  
+                            const int rowTopCutOffThreshold = static_cast<int>(outputImage.rows * topCutOffPercentageCustomConnected);
+                            const int rowLineStartThreshold = static_cast<int>(outputImage.rows * lineBottomStartRangeCustomConnected);  
                             
                             this->drawHorizontalFromHeight(outputImage,rowTopCutOffThreshold,cv::Scalar(50, 20, 255));
                             this->drawHorizontalFromHeight(outputImage,rowLineStartThreshold,cv::Scalar(50, 20, 255));
@@ -454,7 +487,7 @@ void CameraProcessing::processFrames() {
                             this->drawLineVector(outputImage,l_allMidPoints,cv::Scalar(255, 255, 255));
                             this->drawLineVector(outputImage,l_rightLine,cv::Scalar(0, 0, 255));
                         
-                            laptopTCP.sendFrame(outputImage);
+                            //laptopTCP.sendFrame(outputImage);
 
                             cv::cvtColor(frame, frame, cv::COLOR_GRAY2BGR);
 
@@ -464,12 +497,21 @@ void CameraProcessing::processFrames() {
                             laptopTCP.sendFrame(overlayedImage);
                         #endif
                         
+                        // * timer.start();
                         double angle = calculateSignedAngle(carTopPoint, carInFramePositionBirdsEye, lookAheadPoint);
-                        double steeringAngleServo = calculateServoValue(speed, angle);
+                        // * timer.stop();
+                        // * std::cout << "calculateSignedAngle Time: " << timer.getTimeMilli() << " ms" << std::endl;
+                        // * timer.start();
+                        double steeringAngleServo = calculateServoValue(speed, angle, lookAheadDistance);
+                        // * timer.stop();
+                        // * std::cout << "calculateServoValue Time: " << timer.getTimeMilli() << " ms" << std::endl;
                         std::cout << "Calculated Steering Angle: " << angle << std::endl;
                         std::cout << "Calculated steeringAngleServo: " << steeringAngleServo << std::endl;
-                        
+                                                
+                        // * timer.start();
                         serial.writeToSerial(std::to_string(steeringAngleServo));
+                        // * timer.stop();
+                        // * std::cout << "writeToSerial Time: " << timer.getTimeMilli() << " ms" << std::endl;
                     #endif
                 #endif
             }
@@ -487,44 +529,52 @@ cv::Mat CameraProcessing::getLatestFrame() {
         
 
 // Resize the image to the specified dimensions
-cv::Mat CameraProcessing::resizeImage(const cv::Mat& frame, int width, int height) {
+cv::Mat CameraProcessing::resizeImage(const cv::Mat& frame, int providedFrameWidth, int providedFrameHeight) {
     cv::Mat resizedFrame;
-    cv::resize(frame, resizedFrame, cv::Size(width, height));
+    cv::resize(frame, resizedFrame, cv::Size(providedFrameWidth, providedFrameHeight));
+
+    this->frameWidth = providedFrameWidth;
+    this->frameHeight = providedFrameHeight;
+
     return resizedFrame;
 }
         
 // Cuts pixel rows from image's top part
-cv::Mat CameraProcessing::cropFrameTop(const cv::Mat& frame, int cutHeight) {
-    if (cutHeight == 0) {
+cv::Mat CameraProcessing::cropFrameTop(const cv::Mat& frame, double l_topCutOffPercentage) {
+    if (0 == l_topCutOffPercentage) {
         return frame;
     }
 
-    int frameHeight = frame.rows;
-    int frameWidth = frame.cols;
-
-    if (cutHeight < 0 || cutHeight >= frameHeight) {
-        throw std::invalid_argument("Cut Height must be between 0 and " + std::to_string(frameHeight));
+    if (l_topCutOffPercentage < 0.0 || l_topCutOffPercentage >= 1.0) {
+        throw std::invalid_argument("Cut Height must be between 0.0 and 1.0");
     }
 
-    cv::Rect roi(0, cutHeight, frameWidth, frameHeight - cutHeight);
+    this->frameWidth = frame.cols;
+    this->frameHeight = frame.rows;
+
+    int cutOffHeight = frame.rows * l_topCutOffPercentage;
+
+    int newFrameHeight = frame.rows - cutOffHeight;
+    cv::Rect roi(0, cutOffHeight, this->frameWidth, newFrameHeight);
+
+    this->frameHeight = newFrameHeight;
     return frame(roi);
 }
 
-cv::Mat CameraProcessing::skeletonizeFrame(const cv::Mat& thresholdedImage) {
+
+cv::Mat CameraProcessing::skeletonizeFrame(cv::Mat& thresholdedImage) {
     cv::Mat skeleton(cv::Mat::zeros(thresholdedImage.size(), CV_8UC1));
     cv::Mat temp, eroded;
     cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(3, 3));
 
-    cv::Mat workingImage = thresholdedImage.clone();
-
     while (true) {
-        cv::erode(workingImage, eroded, element);
+        cv::erode(thresholdedImage, eroded, element);
         cv::dilate(eroded, temp, element);
-        cv::subtract(workingImage, temp, temp);
+        cv::subtract(thresholdedImage, temp, temp);
         cv::bitwise_or(skeleton, temp, skeleton);
-        eroded.copyTo(workingImage);
+        eroded.copyTo(thresholdedImage);
 
-        if (cv::countNonZero(workingImage) == 0) {
+        if (cv::countNonZero(thresholdedImage) == 0) {
             break;
         }
     }
@@ -536,7 +586,7 @@ cv::Mat CameraProcessing::segmentEdges(const cv::Mat& frame) {
     cv::Mat thresholdFrame;
     cv::threshold(frame, thresholdFrame, thresholdValue, maxThresholdValue, cv::THRESH_BINARY);
     cv::bitwise_not(thresholdFrame, thresholdFrame);
-    return this->skeletonizeFrame(thresholdFrame);
+    return thresholdFrame;
 }
         
 // Function to find lines in a skeletonized frame
@@ -561,8 +611,8 @@ int CameraProcessing::customConnectedComponentsWithThreshold(const cv::Mat& bina
     labelImage = cv::Mat::zeros(binaryImage.size(), CV_32S); // Initialize label matrix
     lines.clear(); // Clear any existing lines
 
-    const int rowTopCutOffThreshold = static_cast<int>(binaryImage.rows * topCutOffPercentage); 
-    const int rowLineStartThreshold = static_cast<int>(binaryImage.rows * lineBottomStartRange); 
+    const int rowTopCutOffThreshold = static_cast<int>(binaryImage.rows * topCutOffPercentageCustomConnected); 
+    const int rowLineStartThreshold = static_cast<int>(binaryImage.rows * lineBottomStartRangeCustomConnected); 
 
     int label = 1; // Start labeling from 1
     std::vector<cv::Point2f> neighborhood = generateNeighborhood(radius); // Generate dynamic neighborhood
@@ -707,7 +757,7 @@ void CameraProcessing::extendLineToEdges(std::vector<cv::Point2f>& line, int pro
     // Extend the line to the bottom of the frame (y = providedFrameHeight)
     double xBottom = firstBottomPoint.x + ((providedFrameHeight - firstBottomPoint.y) / slopeBottom);
     if (xBottom < 0 - providedFrameWidth) xBottom = -providedFrameWidth; // Manually constrain to 2 times the left edge in case line is too long
-    if (xBottom >= 2 * providedFrameWidth) xBottom = 2*providedFrameWidth; // Manually constrain to 2 times the right edge in case line is too long
+    if (xBottom >= 2 * providedFrameWidth) xBottom = 2 * providedFrameWidth; // Manually constrain to 2 times the right edge in case line is too long
     cv::Point2f extendedBottom(static_cast<int>(xBottom), providedFrameHeight);
 
     // Add the extended point to the line
@@ -728,7 +778,7 @@ void CameraProcessing::extendLineToEdges(std::vector<cv::Point2f>& line, int pro
         // Extend the line to the top of the frame (y = 0)
         double xTop = firstTopPoint.x - (firstTopPoint.y / slopeTop);
         if (xTop < 0 - providedFrameWidth) xTop = -providedFrameWidth; // Manually constrain to 2 times the left edge
-        if (xTop >= 2 * providedFrameWidth) xTop = 2*providedFrameWidth; // Manually constrain to 2 times the right edge
+        if (xTop >= 2 * providedFrameWidth) xTop = 2 * providedFrameWidth; // Manually constrain to 2 times the right edge
         cv::Point2f extendedTop(static_cast<int>(xTop), 0);
         // Add the extended points to the line
         line.push_back(extendedTop);                    // Add to the end
@@ -793,17 +843,25 @@ bool CameraProcessing::removeHorizontalIf90Turn(std::vector<cv::Point2f>& line)
     bool has90DegreeTurn = false;
     std::vector<cv::Point2f> result;
 
+    double maxAngle = 0.0; // Variable to store the maximum angle
+
     // Check for 90-degree turns along the line
     for (int i = 1; i < line.size() - 1; ++i) 
     {
-        double angle = std::abs(calculateSignedAngle(line[i - 1], line[i], line[i + 1]));
+        double angle = std::abs(calculateSignedAngle(line[i - 1], line[i], line[i + 1])* 180.0 / CV_PI);
+        maxAngle = std::max(maxAngle, angle); // Update maxAngle if the current angle is larger
+
         if (angle > min90DegreeAngleRange && angle < max90DegreeAngleRange) // Close to 90 degrees
         {  
             has90DegreeTurn = true;
             //std::cout << "Angle(has90DegreeTurn): " << angle << std::endl;
-            break;
+            break; // You may break early if you're only checking for 90-degree turns
         }
     }
+
+    // Print the maximum angle after the loop
+    std::cout << "Maximum angle detected: " << maxAngle << " degrees" << std::endl;
+
 
     // If there is a 90-degree turn, remove the horizontal parts
     if (has90DegreeTurn) 
@@ -850,6 +908,7 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
     double deltaX;
     double deltaY;
     double slope;
+    double alpha = 1.0;
 
     /*
         If we have 2 line it looks to see which one's X value is smaller
@@ -858,27 +917,122 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
 
         firstPointLineA at first is choosed randomly but after it is set to left line first point
     */
-    if(lines.size() >= 2)
-    {
+   
+    // std::cout << " lines.size(): " << lines.size() << "\n";
+    // std::cout << " firstPointLeftLine: " << firstPointLeftLine << "\n";
+    // std::cout << " firstPointRightLine: " << firstPointRightLine << "\n";
+    // std::cout << " firstPointSingleLine: " << firstPointSingleLine << "\n";
+    // std::cout << " ---------------------------------\n";
+
+
+    if (lines.size() >= 2) {
         firstPointLineA = lines[0][0];
         firstPointLineB = lines[1][0];
 
-        if( firstPointLineA.x < firstPointLineB.x )
+        // Weighted distances
+        double weightedDistAtoLeft = euclideanDistance(firstPointLineA, firstPointLeftLine) 
+                                    + alpha * abs(firstPointLineA.y - firstPointLeftLine.y);
+        double weightedDistAtoRight = euclideanDistance(firstPointLineA, firstPointRightLine) 
+                                    + alpha * abs(firstPointLineA.y - firstPointRightLine.y);
+        double weightedDistBtoLeft = euclideanDistance(firstPointLineB, firstPointLeftLine) 
+                                    + alpha * abs(firstPointLineB.y - firstPointLeftLine.y);
+        double weightedDistBtoRight = euclideanDistance(firstPointLineB, firstPointRightLine) 
+                                    + alpha * abs(firstPointLineB.y - firstPointRightLine.y);
+
+
+        std::cout <<" weightedDistAtoLeft" << weightedDistAtoLeft << std::endl;
+        std::cout <<" weightedDistAtoRight" << weightedDistAtoRight << std::endl;
+        std::cout <<" weightedDistAtoLeft" << weightedDistBtoLeft << std::endl;
+        std::cout <<" weightedDistAtoRight" << weightedDistBtoRight << std::endl;
+        // Check for impostors
+        if ((weightedDistAtoLeft < weightedDistAtoRight && weightedDistBtoLeft < weightedDistBtoRight) || 
+            (weightedDistAtoRight < weightedDistAtoLeft && weightedDistBtoRight < weightedDistBtoLeft)) 
         {
-            leftFitted = lines[0];
-            firstPointLeftLine = firstPointLineA;
-            rightFitted = lines[1];            
-            firstPointRightLine = firstPointLineB;
+            std::cout << "Distances: " << std::endl;
+            std::cout << "weightedDistAtoLeft: " << weightedDistAtoLeft << std::endl;
+            std::cout << "weightedDistAtoRight: " << weightedDistAtoRight << std::endl;
+            std::cout << "weightedDistBtoLeft: " << weightedDistBtoLeft << std::endl;
+            std::cout << "weightedDistBtoRight: " << weightedDistBtoRight << std::endl;
+
+            double smallestDistance = weightedDistAtoLeft;
+            std::string smallestType = "AtoLeft";
+
+            // Step 3: Compare each distance to find the smallest
+            if (weightedDistAtoRight < smallestDistance) {
+                smallestDistance = weightedDistAtoRight;
+                smallestType = "AtoRight";
+            }
+            if (weightedDistBtoLeft < smallestDistance) {
+                smallestDistance = weightedDistBtoLeft;
+                smallestType = "BtoLeft";
+            }
+            if (weightedDistBtoRight < smallestDistance) {
+                smallestDistance = weightedDistBtoRight;
+                smallestType = "BtoRight";
+            }
+
+            std::cout << "Smallest distance: " << smallestDistance << " (" << smallestType << ")" << std::endl;
+
+            if (smallestType == "AtoLeft") {
+                // Line A is closest to the left
+                std::cout << "Classifying Line A as the left line." << std::endl;
+                leftFitted = lines[0];
+                rightFitted.clear();
+                for (const auto& point : leftFitted) {
+                    shiftedPoint = cv::Point2f(point.x + trackLaneWidthInPixel, point.y); // Mirror left to right
+                    rightFitted.push_back(shiftedPoint);
+                }
+                firstPointLeftLine = firstPointLineA; // Update historical left point
+                firstPointRightLine = rightFitted[0]; // Update historical right point
+            } else if (smallestType == "AtoRight") {
+                // Line A is closest to the right
+                rightFitted = lines[0];
+                leftFitted.clear();
+                for (const auto& point : rightFitted) {
+                    shiftedPoint = cv::Point2f(point.x - trackLaneWidthInPixel, point.y); // Mirror right to left
+                    leftFitted.push_back(shiftedPoint);
+                }
+                firstPointRightLine = firstPointLineA; // Update historical right point
+                firstPointLeftLine = leftFitted[0]; // Update historical left point
+            } else if (smallestType == "BtoLeft") {
+                // Line B is closest to the left
+                leftFitted = lines[1];
+                rightFitted.clear();
+                for (const auto& point : leftFitted) {
+                    shiftedPoint = cv::Point2f(point.x + trackLaneWidthInPixel, point.y); // Mirror left to right
+                    rightFitted.push_back(shiftedPoint);
+                }
+                firstPointLeftLine = firstPointLineB; // Update historical left point
+                firstPointRightLine = rightFitted[0]; // Update historical right point
+            } else if (smallestType == "BtoRight") {
+                // Line B is closest to the right
+                rightFitted = lines[1];
+                leftFitted.clear();
+                for (const auto& point : rightFitted) {
+                    shiftedPoint = cv::Point2f(point.x - trackLaneWidthInPixel, point.y); // Mirror right to left
+                    leftFitted.push_back(shiftedPoint);
+                }
+                firstPointRightLine = firstPointLineB; // Update historical right point
+                firstPointLeftLine = leftFitted[0]; // Update historical left point
+            }
+        } else {
+            // Correct classification
+            if (weightedDistAtoLeft < weightedDistAtoRight) {
+                leftFitted = lines[0];
+                rightFitted = lines[1];
+                firstPointLeftLine = firstPointLineA;
+                firstPointRightLine = firstPointLineB;
+            } else {
+                leftFitted = lines[1];
+                rightFitted = lines[0];
+                firstPointLeftLine = firstPointLineB;
+                firstPointRightLine = firstPointLineA;
+            }
         }
-        else
-        {
-            leftFitted = lines[1];
-            firstPointLeftLine = firstPointLineB;
-            rightFitted = lines[0];
-            firstPointRightLine = firstPointLineA;
-        }
-        
     }
+
+
+
     /*
         If we have one line and history then decide to which starting point is closer:
             - If it is to the left then duplicate a line to it's left and lower
@@ -886,12 +1040,26 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
 
         If we have one line and no history then decide based on slope (corner case)
     */
-    else if (1 == lines.size())
+    /*else if (1 == lines.size())
     {
-        
-        firstPointSingleLine = lines[0][0];
-        
-        if (euclideanDistance(firstPointSingleLine,firstPointLeftLine) <  euclideanDistance(firstPointSingleLine,firstPointRightLine))
+        // Compare to based on slope of first and last points
+        // If it has an orientation to the left it is left otherwise rightv
+        cv::Point2f pointBack(lines[0].back().x,lines[0].back().y);
+        cv::Point2f pointFront(lines[0][0].x,lines[0][0].y);
+
+        pointBack = perspectiveChangePoint(pointBack, MatrixInverseBirdsEyeView);
+        pointFront = perspectiveChangePoint(pointFront, MatrixInverseBirdsEyeView);
+
+        double deltaX = pointBack.x - pointFront.x;
+        double deltaY = pointBack.y - pointFront.y;
+        // Handle vertical lines (deltaX == 0)
+        if (deltaX == 0) {
+            deltaX = 1e-6f; // Avoid division by zero
+        }
+        double slope = deltaY / deltaX;
+
+        // If slope rises to the right (top-right) then we have left line
+        if(slope < 0)
         {
             leftFitted = lines[0];
             rightFitted.clear();
@@ -899,8 +1067,10 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
                 shiftedPoint = cv::Point2f(point.x + trackLaneWidthInPixel, point.y);
                 rightFitted.push_back(shiftedPoint);
             }
-        }
-        else if(euclideanDistance(firstPointSingleLine,firstPointLeftLine) >  euclideanDistance(firstPointSingleLine,firstPointRightLine))
+            firstPointLeftLine = leftFitted[0];
+            firstPointRightLine = rightFitted[0];
+        } 
+        else
         {
             rightFitted = lines[0];
             leftFitted.clear();
@@ -908,60 +1078,146 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
                 shiftedPoint = cv::Point2f(point.x - trackLaneWidthInPixel, point.y);
                 leftFitted.push_back(shiftedPoint);
             }
-        }
-        else if( firstPointLeftLine == undefinedPoint || firstPointRightLine == undefinedPoint){
-            // Compare to based on slope of first and last points
-            // If it has an orientation to the left it is left otherwise rightv
-            cv::Point2f pointBack(lines[0].back().x,lines[0].back().y);
-            cv::Point2f pointFront(lines[0][0].x,lines[0][0].y);
+            
+            firstPointLeftLine = leftFitted[0];
+            firstPointRightLine = rightFitted[0];
+        }            
+    }*/
 
-            pointBack = perspectiveChangePoint(pointBack, MatrixInverseBirdsEyeView);
-            pointFront = perspectiveChangePoint(pointFront, MatrixInverseBirdsEyeView);
+    // Almost good approach
+    /*
+        else if (1 == lines.size())
+        {
+            // Get the first, second, and last points of the line
+            cv::Point2f pointFront(lines[0][0].x, lines[0][0].y);       // First point of the line
+            cv::Point2f pointSecond(lines[0][1].x, lines[0][1].y);      // Second point of the line
+            cv::Point2f pointBack(lines[0].back().x, lines[0].back().y); // Last point of the line
 
-            double deltaX = pointBack.x - pointFront.x;
-            double deltaY = pointBack.y - pointFront.y;
-            // Handle vertical lines (deltaX == 0)
+            // Calculate slope using the first two points
+            double deltaX = pointSecond.x - pointFront.x;
+            double deltaY = pointSecond.y - pointFront.y;
             if (deltaX == 0) {
                 deltaX = 1e-6f; // Avoid division by zero
             }
             double slope = deltaY / deltaX;
-        
-            // If slope rises to the right (top-right) then we have left line
-            if(slope < 0)
-            {
+
+            // Output debug information
+            std::cout << "Slope (First 2 Points): " << slope << std::endl;
+
+            if (std::abs(slope) < 1e-3) { // Ambiguous case: Slope is approximately 0
+                std::cout << "Ambiguous slope detected (near 0). Checking last point..." << std::endl;
+
+                // History check: Compare the last point to historical positions
+                double distToLeftHistory = euclideanDistance(pointBack, firstPointLeftLine);
+                double distToRightHistory = euclideanDistance(pointBack, firstPointRightLine);
+
+                // Output debug information
+                std::cout << "Distance to Left History: " << distToLeftHistory << std::endl;
+                std::cout << "Distance to Right History: " << distToRightHistory << std::endl;
+
+                // Classify the line based on the last point
+                if (distToLeftHistory < distToRightHistory) {
+                    // Single line is closer to historical left, so it is the right line
+                    rightFitted = lines[0];
+                    leftFitted.clear();
+                    for (const auto& point : rightFitted) {
+                        shiftedPoint = cv::Point2f(point.x - trackLaneWidthInPixel, point.y);
+                        leftFitted.push_back(shiftedPoint);
+                    }
+                    firstPointRightLine = pointFront; // Update historical right point
+                    firstPointLeftLine = leftFitted[0]; // Update historical left point
+                } else {
+                    // Single line is closer to historical right, so it is the left line
+                    leftFitted = lines[0];
+                    rightFitted.clear();
+                    for (const auto& point : leftFitted) {
+                        shiftedPoint = cv::Point2f(point.x + trackLaneWidthInPixel, point.y);
+                        rightFitted.push_back(shiftedPoint);
+                    }
+                    firstPointLeftLine = pointFront; // Update historical left point
+                    firstPointRightLine = rightFitted[0]; // Update historical right point
+                }
+            } else {
+                // Classify based on slope
+                if (slope < 0) {
+                    // Line rises to the left, so it is the left line
+                    leftFitted = lines[0];
+                    rightFitted.clear();
+                    for (const auto& point : leftFitted) {
+                        shiftedPoint = cv::Point2f(point.x + trackLaneWidthInPixel, point.y);
+                        rightFitted.push_back(shiftedPoint);
+                    }
+                    firstPointLeftLine = pointFront; // Update historical left point
+                    firstPointRightLine = rightFitted[0]; // Update historical right point
+                } else {
+                    // Line rises to the right, so it is the right line
+                    rightFitted = lines[0];
+                    leftFitted.clear();
+                    for (const auto& point : rightFitted) {
+                        shiftedPoint = cv::Point2f(point.x - trackLaneWidthInPixel, point.y);
+                        leftFitted.push_back(shiftedPoint);
+                    }
+                    firstPointRightLine = pointFront; // Update historical right point
+                    firstPointLeftLine = leftFitted[0]; // Update historical left point
+                }
+            }
+        }
+        */
+        else if (1 == lines.size())
+        {
+            // Get the first and last points of the line
+            cv::Point2f pointFront(lines[0][0].x, lines[0][0].y);       // First point of the line
+
+            // Weighted distance comparison using the first point
+            double weightedDistToLeft = euclideanDistance(pointFront, firstPointLeftLine) 
+                                    + alpha * std::abs(pointFront.y - firstPointLeftLine.y);
+            double weightedDistToRight = euclideanDistance(pointFront, firstPointRightLine) 
+                                        + alpha * std::abs(pointFront.y - firstPointRightLine.y);
+
+            // Output debug information
+            std::cout << "Weighted Distance to Left: " << weightedDistToLeft << std::endl;
+            std::cout << "Weighted Distance to Right: " << weightedDistToRight << std::endl;
+
+            // Classify the line as left or right based on weighted distances
+            if (weightedDistToLeft < weightedDistToRight) {
+                // Single line is closer to historical left, so it is the left line
                 leftFitted = lines[0];
                 rightFitted.clear();
                 for (const auto& point : leftFitted) {
                     shiftedPoint = cv::Point2f(point.x + trackLaneWidthInPixel, point.y);
                     rightFitted.push_back(shiftedPoint);
                 }
-            } 
-            else
-            {
+                firstPointLeftLine = pointFront; // Update historical left point
+                firstPointRightLine = rightFitted[0]; // Update historical right point
+            } else {
+                // Single line is closer to historical right, so it is the right line
                 rightFitted = lines[0];
                 leftFitted.clear();
                 for (const auto& point : rightFitted) {
                     shiftedPoint = cv::Point2f(point.x - trackLaneWidthInPixel, point.y);
                     leftFitted.push_back(shiftedPoint);
                 }
-            }            
+                firstPointRightLine = pointFront; // Update historical right point
+                firstPointLeftLine = leftFitted[0]; // Update historical left point
+            }
         }
-    }else{
-        firstPointLeftLine = undefinedPoint;
-        firstPointRightLine = undefinedPoint;
+
+        else {
+        //firstPointLeftLine = undefinedPoint;
+        //firstPointRightLine = undefinedPoint;
 
         if(!isIntersection){
             // TBD NO LINES, STOP CAR
         }
     }
 }
-std::vector<cv::Point2f> CameraProcessing::findMiddle(std::vector<cv::Point2f>& leftLine, std::vector<cv::Point2f>& rightLine, int frameWidth, int frameHeight) {
+std::vector<cv::Point2f> CameraProcessing::findMiddle(std::vector<cv::Point2f>& leftLine, std::vector<cv::Point2f>& rightLine, int providedFrameWidth, int providedFrameHeight) {
     std::vector<cv::Point2f> midPoints;
     for (size_t i = 0; i < std::min(leftLine.size(), rightLine.size()); ++i) {
         cv::Point2f midpoint((leftLine[i].x + rightLine[i].x) / 2, (leftLine[i].y + rightLine[i].y) / 2);
         midPoints.push_back(midpoint);
     }
-    this->extendLineToEdges(midPoints, frameWidth, frameHeight);
+    this->extendLineToEdges(midPoints, providedFrameWidth, providedFrameHeight);
     return midPoints;
 }
         
@@ -969,7 +1225,7 @@ cv::Point2f CameraProcessing::interpolateClosestPoints(const std::vector<cv::Poi
     if (points.size() < 2) {
         throw std::invalid_argument("Not enough points to interpolate");
     }
-
+    targetY -= 1;                                           // -1 used to set midpoint a bit above lower limit
     // Initialize variables to track the closest points
     cv::Point2f lower, upper;
     bool lowerFound = false, upperFound = false;
@@ -1003,37 +1259,43 @@ void CameraProcessing::initPerspectiveVariables() {
     auto loadedPoints = readPointsFromTxt("interpolated_points.txt");
 
     this->srcPoints = {
-        cv::Point2f(loadedPoints[0].x, loadedPoints[0].y - 0),
-        cv::Point2f(loadedPoints[1].x, loadedPoints[1].y - 0),
-        cv::Point2f(loadedPoints[2].x, loadedPoints[2].y - 0),
-        cv::Point2f(loadedPoints[3].x, loadedPoints[3].y - 0)
+        cv::Point2f(loadedPoints[0].x, loadedPoints[0].y),
+        cv::Point2f(loadedPoints[1].x, loadedPoints[1].y),
+        cv::Point2f(loadedPoints[2].x, loadedPoints[2].y),
+        cv::Point2f(loadedPoints[3].x, loadedPoints[3].y)
     };
 
     dstPoints = {
         cv::Point2f(
             birdsEyeViewWidth / 2 - widthDstPoints / 2,
-            birdsEyeViewHeight - 10.0f - heightDstPoints
+            birdsEyeViewHeight - heightDstPoints - distanceErrorFromChassis
         ), // Top-left corner
         cv::Point2f(
             birdsEyeViewWidth / 2 - widthDstPoints / 2,
-            birdsEyeViewHeight - 20.0f
+            birdsEyeViewHeight - distanceErrorFromChassis
         ), // Bottom-left corner
         cv::Point2f(
             birdsEyeViewWidth / 2 + widthDstPoints / 2,
-            birdsEyeViewHeight - 10.0f - heightDstPoints
+            birdsEyeViewHeight - heightDstPoints - distanceErrorFromChassis
         ), // Top-right corner
         cv::Point2f(
             birdsEyeViewWidth / 2 + widthDstPoints / 2,
-            birdsEyeViewHeight - 20.0f
+            birdsEyeViewHeight - distanceErrorFromChassis
         ) // Bottom-right corner
     };
 
-    this->trackLaneWidthInPixel = euclideanDistance(dstPoints[3], dstPoints[1]);
+    this->trackLaneWidthInPixel = euclideanDistance(dstPoints[3], dstPoints[1]) + 20;   //Error mitigation +10
     this->MatrixBirdsEyeView = cv::getPerspectiveTransform(srcPoints, dstPoints);
     this->MatrixInverseBirdsEyeView = this->MatrixBirdsEyeView.inv();
+    
+    //std::cout << " carInFramePosition: " << carInFramePosition << "\n";
+    //std::cout << " carInFramePositionBirdsEye: " << carInFramePositionBirdsEye << "\n";
     this->carInFramePosition = cv::Point2f(loadedPoints[4].x, loadedPoints[4].y);
     this->carInFramePositionBirdsEye = this->perspectiveChangePoint(this->carInFramePosition, this->MatrixBirdsEyeView);
     this->carTopPoint = cv::Point2f(this->carInFramePositionBirdsEye.x, 0.0);
+    
+    //std::cout << " carInFramePosition: " << carInFramePosition << "\n";
+    //std::cout << " carInFramePositionBirdsEye: " << carInFramePositionBirdsEye << "\n";
 }
 
 cv::Point2f CameraProcessing::perspectiveChangePoint(const cv::Point2f& point, const cv::Mat& transformMatrix)

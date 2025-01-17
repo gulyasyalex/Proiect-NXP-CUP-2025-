@@ -58,7 +58,6 @@ void debix::SerialPort::initializeSerialPort(const std::string& portName) {
 }
 
 void debix::SerialPort::writeToSerial(const std::string &data) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     std::lock_guard<std::mutex> lock(serialMutex);  // Ensure thread safety
     try {
         serialPort.Write(data + "\n");  // Append newline for easier reading

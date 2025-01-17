@@ -52,7 +52,7 @@ int main() {
         global_camera->startFrameProcessing();
 
         while (global_camera->isRunning()) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            //std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
 
         global_camera->stopCapture();
