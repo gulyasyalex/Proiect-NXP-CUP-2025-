@@ -17,7 +17,7 @@
 #include "mathFunctions.h"
 #include "thinning.h"
 #include "TcpConnection.hpp"
-#include "PurePursuit/purePursuit.h"
+#include "PurePursuit/PurePursuit.hpp"
 #include <cstdlib> // Required for exit()
 
 class CameraProcessing {
@@ -45,9 +45,11 @@ class CameraProcessing {
         cv::Point2f carInFramePositionBirdsEye;
         cv::Point2f carTopPoint;
         double trackLaneWidthInPixel;
+        double trackLaneWidthInCm;
+        double pixelSizeInCm;
         TcpConnection laptopTCP{9999};
 
-        double lookAheadDistance = 150.0f;  // It's the radius of the circle starting from carInFramePositionBirdsEye
+        double lookAheadDistanceInCm = 40.0f; 
         bool isIntersection = false;    // Used to check if we have an intersection on the racetrack, a crosspath
         bool isPastIntersection = true;    // Used to keep same middle line till we cross intersection
         double lineStartPointY = 0.8;       // birdsEyeViewHeight * lineStartPointY = Y threshold for isPastIntersection
@@ -57,6 +59,8 @@ class CameraProcessing {
         cv::Point2f firstPointLeftLine = undefinedPoint;
         cv::Point2f firstPointRightLine = undefinedPoint;
         cv::Point2f firstPointSingleLine = undefinedPoint;
+
+        PurePursuit ppObject;
 
     public:
         std::atomic<bool> running{false};
@@ -110,6 +114,7 @@ class CameraProcessing {
         void initPerspectiveVariables();
         cv::Point2f perspectiveChangePoint(const cv::Point2f& point, const cv::Mat& transformMatrix);
         std::vector<cv::Point2f> perspectiveChangeLine(const std::vector<cv::Point2f>& line, const cv::Mat& transformMatrix);
+        
         void saveImage(const std::string& filename, const cv::Mat& frame);
         void writePointsToTxt(const std::vector<cv::Point2f>& points, const std::string& filename);
         std::vector<cv::Point2f> readPointsFromTxt(const std::string& filename);
@@ -419,35 +424,31 @@ void CameraProcessing::processFrames() {
                         #endif
                     #else 
                     
-                        //radiusIncrease(lookAheadDistance);                
-                        //pointMoveAcrossFrame(carInFramePositionBirdsEye, carTopPoint);
-                    
-                        // * timer.start();
-                                            
-                        lookAheadDistance = k * speed;
-                        lookAheadDistance = std::max(minLookAhead, std::min(maxLookAhead, lookAheadDistance));
-                        
-                        double tempLookAheadDistance = shortestDistanceToCurve(allMidPoints, carInFramePositionBirdsEye, lookAheadDistance);
-                        // * timer.stop();
-                        // * std::cout << "shortestDistanceToCurve Time: " << timer.getTimeMilli() << " ms" << std::endl;
-                        // Create a frame of the desired size
                         cv::Size frameSize(birdsEyeViewWidth, birdsEyeViewHeight);
 
                         // Initialize an empty image (black by default)
                         cv::Mat birdEyeViewWithPoints = cv::Mat::zeros(frameSize, CV_8UC3); // 3 channels (color)
-
-                        // Find intersections
-                        // * timer.start();
-                        cv::Point2f lookAheadPoint = findHighestIntersection(allMidPoints, carInFramePositionBirdsEye, tempLookAheadDistance);
-                        // * timer.stop();
-                        // * std::cout << "findHighestIntersection Time: " << timer.getTimeMilli() << " ms" << std::endl;
+                        timer.start();
+                        ppObject.computePurePursuit( this->allMidPoints, this->carInFramePositionBirdsEye, 
+                                                this->pixelSizeInCm, this->carTopPoint);
+                        timer.stop();
+                        std::cout << "computePurePursuit Time: " << timer.getTimeMilli() << " ms" << std::endl;
+                
+                        std::cout << "pixelSizeInCm: " << this->pixelSizeInCm << std::endl;                        
+                        std::cout << "TrackCurvature radius: " << ppObject.getTrackCurvatureRadius() << std::endl;
+                        std::cout << "Calculated steeringAngleServo: " << ppObject.getSteeringAngleServo() << std::endl;
+                        std::cout << "Calculated speed: " << ppObject.getSpeed() << std::endl;
+                                            
+                        #if 1 == ENABLE_TEENSY_SERIAL
+                            serial.writeToSerial(std::to_string(ppObject.getSteeringAngleServo()));
+                        #endif
                     
                         #if 1 == ENABLE_TCP_OUTPUT 
-                            cv::line(birdEyeViewWithPoints, carInFramePositionBirdsEye, lookAheadPoint, cv::Scalar(123, 10, 255), 2); 
+                            cv::line(birdEyeViewWithPoints, carInFramePositionBirdsEye, ppObject.getLookAheadPoint(), cv::Scalar(123, 10, 255), 2); 
                             cv::line(birdEyeViewWithPoints, carInFramePositionBirdsEye, carTopPoint, cv::Scalar(123, 10, 255), 2);  
                             
-                            cv::circle(birdEyeViewWithPoints, lookAheadPoint, 5, cv::Scalar(254, 34, 169), -1);
-                            this->drawCircle(birdEyeViewWithPoints, carInFramePositionBirdsEye, tempLookAheadDistance, cv::Scalar(254, 34, 169));
+                            cv::circle(birdEyeViewWithPoints, ppObject.getLookAheadPoint(), 5, cv::Scalar(254, 34, 169), -1);
+                            this->drawCircle(birdEyeViewWithPoints, carInFramePositionBirdsEye, lookAheadDistanceInCm/this->pixelSizeInCm, cv::Scalar(254, 34, 169));
                             cv::circle(birdEyeViewWithPoints, carInFramePositionBirdsEye, 5, cv::Scalar(254, 34, 169), -1);
                         
                             this->drawPoints(birdEyeViewWithPoints, dstPoints, cv::Scalar(0, 255, 255));
@@ -455,12 +456,12 @@ void CameraProcessing::processFrames() {
                             this->drawLineVector(birdEyeViewWithPoints,allMidPoints,cv::Scalar(255, 255, 255));
                             this->drawLineVector(birdEyeViewWithPoints,rightLine,cv::Scalar(0, 0, 255));
                             this->laptopTCP.sendFrame(birdEyeViewWithPoints);
-
+                            
 
                             std::vector<cv::Point2f> l_leftLine = this->perspectiveChangeLine(this->leftLine, MatrixInverseBirdsEyeView);
                             std::vector<cv::Point2f> l_rightLine = this->perspectiveChangeLine(this->rightLine, MatrixInverseBirdsEyeView);
                             std::vector<cv::Point2f> l_allMidPoints = this->perspectiveChangeLine(this->allMidPoints, MatrixInverseBirdsEyeView);
-                            cv::Point2f l_lookAheadPoint = this->perspectiveChangePoint(lookAheadPoint, MatrixInverseBirdsEyeView);
+                            cv::Point2f l_lookAheadPoint = this->perspectiveChangePoint(ppObject.getLookAheadPoint(), MatrixInverseBirdsEyeView);
 
                             outputImage = cv::Mat::zeros(frame.size(),CV_8UC3);
 
@@ -496,22 +497,6 @@ void CameraProcessing::processFrames() {
                             cv::addWeighted(frame, overlayFrameWeight, outputImage, overlayFrameWeight, 0, overlayedImage);
                             laptopTCP.sendFrame(overlayedImage);
                         #endif
-                        
-                        // * timer.start();
-                        double angle = calculateSignedAngle(carTopPoint, carInFramePositionBirdsEye, lookAheadPoint);
-                        // * timer.stop();
-                        // * std::cout << "calculateSignedAngle Time: " << timer.getTimeMilli() << " ms" << std::endl;
-                        // * timer.start();
-                        double steeringAngleServo = calculateServoValue(speed, angle, lookAheadDistance);
-                        // * timer.stop();
-                        // * std::cout << "calculateServoValue Time: " << timer.getTimeMilli() << " ms" << std::endl;
-                        std::cout << "Calculated Steering Angle: " << angle << std::endl;
-                        std::cout << "Calculated steeringAngleServo: " << steeringAngleServo << std::endl;
-                                                
-                        // * timer.start();
-                        serial.writeToSerial(std::to_string(steeringAngleServo));
-                        // * timer.stop();
-                        // * std::cout << "writeToSerial Time: " << timer.getTimeMilli() << " ms" << std::endl;
                     #endif
                 #endif
             }
@@ -1254,6 +1239,7 @@ cv::Point2f CameraProcessing::interpolateClosestPoints(const std::vector<cv::Poi
     int interpolatedX = lower.x + (targetY - lower.y) * (upper.x - lower.x) / (upper.y - lower.y);
     return cv::Point2f(interpolatedX, targetY);
 }
+
 // Perspective transform related methods
 void CameraProcessing::initPerspectiveVariables() {
     auto loadedPoints = readPointsFromTxt("interpolated_points.txt");
@@ -1284,7 +1270,13 @@ void CameraProcessing::initPerspectiveVariables() {
         ) // Bottom-right corner
     };
 
-    this->trackLaneWidthInPixel = euclideanDistance(dstPoints[3], dstPoints[1]) + 20;   //Error mitigation +10
+    this->trackLaneWidthInPixel = euclideanDistance(dstPoints[3], dstPoints[1]) ;//+ 20;   //Error mitigation +10
+    this->trackLaneWidthInCm = trackWidthInCm;
+    this->pixelSizeInCm = trackLaneWidthInCm / trackLaneWidthInPixel;
+    std::cout << "trackLaneWidthInCm: " << trackLaneWidthInCm << std::endl;
+    std::cout << "trackLaneWidthInPixel: " << trackLaneWidthInPixel << std::endl;
+    std::cout << "pixelSizeInCm: " << pixelSizeInCm << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(10));
     this->MatrixBirdsEyeView = cv::getPerspectiveTransform(srcPoints, dstPoints);
     this->MatrixInverseBirdsEyeView = this->MatrixBirdsEyeView.inv();
     

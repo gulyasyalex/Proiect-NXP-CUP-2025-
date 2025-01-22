@@ -1353,11 +1353,11 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/boost/asio/windows/stream_handle.hpp \
   /usr/include/boost/asio/write_at.hpp \
   /usr/include/boost/asio/impl/write_at.hpp \
-  ../include/PurePursuit/purePursuit.h \
+  ../include/PurePursuit/PurePursuit.hpp \
   ../include/CameraFunctions/cameraSetup.h
 
 
-../include/PurePursuit/purePursuit.h:
+../include/PurePursuit/PurePursuit.hpp:
 
 /usr/include/boost/asio/write_at.hpp:
 

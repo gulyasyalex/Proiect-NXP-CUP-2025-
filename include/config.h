@@ -7,26 +7,22 @@
 extern debix::SerialPort& serial; 
 
 #define ENABLE_CAMERA_CALIBRATION 0
-#define ENABLE_CAMERA_STREAMING 1
+#define ENABLE_CAMERA_STREAMING 0
 #define ENABLE_CAMERA_THRESHOLD_CHECK 0
-#define ENABLE_TCP_OUTPUT 0
+#define ENABLE_TCP_OUTPUT 1
+#define ENABLE_TEENSY_SERIAL 0
 
 //#define SERIAL_PORT "/dev/ttymxc2"      
 #define SERIAL_PORT "/dev/ttyACM0"      
 
 /*
-with CutOff 0.35
-76 20
--45 120
-245 20
-345 120
-146 151
 
-57 110
--89 235
-238 110
-365 235
-139 235
+for indoor circuit
+73 19
+-36 144
+245 19
+360 144
+162 185
 */
 
 // Global values
@@ -36,8 +32,11 @@ constexpr int resizeFrameWidth = 320;
 constexpr int resizeFrameHeight = 240;
 constexpr int captureFps = 100;
 
+// used to calculate pixelSizeInCm
+constexpr double trackWidthInCm = 53.0;                     // 53cm
+
 // Used to resize frame
-constexpr double topCutOffPercentage = 0.35; 
+constexpr double topCutOffPercentage = 0; //0.35; 
 cv::Point2f undefinedPoint = cv::Point2f(1000,0);
 
 // Used to calculate where chassis should be in image
@@ -54,7 +53,7 @@ constexpr int calibrateTopLine = 20;
 constexpr int calibrateBottomLine = 145;
 
 // Used to do a simple threshold
-constexpr int thresholdValue = 50;                             // 70 75
+constexpr int thresholdValue = 75;                 // 50;                             
 constexpr int maxThresholdValue = 255;
 
 // Used in fitPolinomial()
@@ -81,12 +80,17 @@ constexpr double overlayFrameWeight = 1.0;                      // Used for visu
 
 
 
-// Used in calculateServoValue()
-constexpr double speed = 40.0;                                  // Vehicle speed (example: 30 cm/s)
-constexpr double k = 3;                                       // Lookahead distance tuning constant
-constexpr double minLookAhead = 30.0;                           // Minimum lookahead distance in cm
-constexpr double maxLookAhead = 150.0;                          // Maximum lookahead distance in cm
-constexpr double wheelBase = 17.0;                              // Wheelbase in cm
+// Used in calculateServoValue() PurePursuitAlgo
+constexpr double wheelBaseInCm = 17.0;                          // Distance between fron and rear axle is 17cm)
+constexpr double minSpeed = 0.0;                                // Vehicle speed min 0 cm/s
+constexpr double maxSpeed = 40.0;                               // Vehicle speed max 40 cm/s
+constexpr double curvatureFactor = 10.0;                        // Tunable factor for sensitivity
+constexpr double k_min = 0.2;                                   // Lookahead distance tuning constant
+constexpr double k_max = 1.0;                                   // Lookahead distance tuning constant
+constexpr double R_minInCm = 20;                                // Road Curvature Radius min
+constexpr double R_maxInCm = 1000;                              // Road Curvature Radius max
+constexpr double minLookAheadInCm = 30.0;                       // Minimum lookahead distance in cm
+constexpr double maxLookAheadInCm = 100.0;                      // Maximum lookahead distance in cm
 
 // Used in mapAngleToServo()
 constexpr double maxSteeringAngleDegrees = 50.0;                // Maximum steering angle in degrees either to the left or right

@@ -20,7 +20,9 @@ void signalHandler(int signal) {
         global_camera->stopCapture();
         global_camera->stopFrameProcessing();
     }
-    serial.stopSerialRead();
+    #if 1 == ENABLE_TEENSY_SERIAL
+        serial.stopSerialRead();
+    #endif
 
     std::exit(signal);
 }
@@ -28,7 +30,9 @@ void signalHandler(int signal) {
 int main() {
     std::signal(SIGINT, signalHandler); // Register SIGINT handler
 
-    serial.connectTeensy(SERIAL_PORT);
+    #if 1 == ENABLE_TEENSY_SERIAL
+        serial.connectTeensy(SERIAL_PORT);
+    #endif
 
     // for (int i = 0; i < 3; ++i) {
     //     serial.writeToSerial("Hello from Debix, message " + std::to_string(i));

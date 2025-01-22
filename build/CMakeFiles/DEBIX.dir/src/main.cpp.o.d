@@ -1239,5 +1239,5 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: \
  /usr/include/boost/asio/windows/stream_handle.hpp \
  /usr/include/boost/asio/write_at.hpp \
  /usr/include/boost/asio/impl/write_at.hpp \
- /home/debix/Documents/Proiect-NXP-CUP-2025-/include/PurePursuit/purePursuit.h \
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/PurePursuit/PurePursuit.hpp \
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/cameraSetup.h
