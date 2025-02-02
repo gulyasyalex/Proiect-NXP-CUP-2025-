@@ -7,7 +7,9 @@
 #include "SerialPortFunctions/SerialPort.hpp"
 #include "CameraFunctions/CameraProcessing.hpp"
 #include "CameraFunctions/cameraSetup.h"
+#include "OledLcdFunctions/OledDisplay.hpp"
 #include "config.h"
+#include "u8g2/csrc/u8g2.h"
 
 // Global shared pointer for managing the camera
 std::shared_ptr<CameraProcessing> global_camera;
@@ -34,11 +36,25 @@ int main() {
         serial.connectTeensy(SERIAL_PORT);
     #endif
 
+    
+    // Open the I2C device for OLED LCD
+    i2c_fd = open(I2C_BUS, O_RDWR);
+    if (i2c_fd < 0) {
+        std::cerr << "Failed to open I2C bus: " << I2C_BUS << std::endl;
+        return -1;
+    }
+
+    // Set the I2C address for the OLED LCD
+    if (ioctl(i2c_fd, I2C_SLAVE, SSD1306_ADDR) < 0) {
+        std::cerr << "Failed to set I2C address: 0x" << std::hex << SSD1306_ADDR << std::endl;
+        return -1;
+    }
+    
+
     // for (int i = 0; i < 3; ++i) {
     //     serial.writeToSerial("Hello from Debix, message " + std::to_string(i));
     //     std::this_thread::sleep_for(std::chrono::seconds(1));
     // }
-
 
     try {
         // Initialize the global camera instance
@@ -55,6 +71,9 @@ int main() {
         global_camera->startCapture();
         global_camera->startFrameProcessing();
 
+        // oled.clearDisplay();
+        // oled.drawText("Camera running...");
+        
         while (global_camera->isRunning()) {
             //std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }

@@ -1,5 +1,5 @@
-#ifndef PURE_PURSUIT_H
-#define PURE_PURSUIT_H
+#ifndef PURE_PURSUIT_HPP
+#define PURE_PURSUIT_HPP
 
 #include <opencv2/opencv.hpp>
 #include <vector>

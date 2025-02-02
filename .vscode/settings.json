@@ -71,6 +71,8 @@
         "cinttypes": "cpp",
         "typeindex": "cpp",
         "variant": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "u8x8_gpio.c": "cpp",
+        "ioctl.h": "c"
     }
 }

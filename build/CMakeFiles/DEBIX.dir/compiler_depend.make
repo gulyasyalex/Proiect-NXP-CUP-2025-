@@ -1354,8 +1354,14 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/boost/asio/write_at.hpp \
   /usr/include/boost/asio/impl/write_at.hpp \
   ../include/PurePursuit/PurePursuit.hpp \
-  ../include/CameraFunctions/cameraSetup.h
+  ../include/CameraFunctions/cameraSetup.h \
+  ../include/OledLcdFunctions/OledDisplay.hpp \
+  /usr/include/linux/i2c-dev.h \
+  ../include/u8g2/csrc/u8g2.h \
+  ../include/u8g2/csrc/u8x8.h
 
+
+../include/OledLcdFunctions/OledDisplay.hpp:
 
 ../include/PurePursuit/PurePursuit.hpp:
 
@@ -2009,6 +2015,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/traits/execute_member.hpp:
 
+/usr/include/linux/i2c-dev.h:
+
 /usr/include/boost/predef/architecture/sys370.h:
 
 /usr/include/opencv4/opencv2/core/saturate.hpp:
@@ -2048,6 +2056,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/opencv4/opencv2/flann/flann_base.hpp:
 
 /usr/include/c++/11/bits/charconv.h:
+
+../include/u8g2/csrc/u8g2.h:
 
 /usr/include/c++/11/cstring:
 
@@ -3018,6 +3028,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/linux/posix_types.h:
 
 /usr/include/c++/11/bits/refwrap.h:
+
+../include/u8g2/csrc/u8x8.h:
 
 /usr/include/linux/stddef.h:
 

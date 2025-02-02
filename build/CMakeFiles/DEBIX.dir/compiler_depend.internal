@@ -1356,4 +1356,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o
  /usr/include/boost/asio/impl/write_at.hpp
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/PurePursuit/PurePursuit.hpp
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/cameraSetup.h
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/OledLcdFunctions/OledDisplay.hpp
+ /usr/include/linux/i2c-dev.h
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/u8g2/csrc/u8g2.h
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/u8g2/csrc/u8x8.h
 
