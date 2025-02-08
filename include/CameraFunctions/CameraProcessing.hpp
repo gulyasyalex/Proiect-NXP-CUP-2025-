@@ -307,7 +307,7 @@ void CameraProcessing::processFrames() {
                 // * timer.stop();
                 // * std::cout << "segmentEdges Time: " << timer.getTimeMilli() << " ms" << std::endl;
                 #if 1 == ENABLE_TCP_OUTPUT 
-                    laptopTCP.sendFrame(thresholdFrame);
+                    //laptopTCP.sendFrame(thresholdFrame);
                 #endif
                 if ( 1 != enableCameraThresholdCheck )
                 {
@@ -343,7 +343,7 @@ void CameraProcessing::processFrames() {
                     // * std::cout << "fitPolinomial Time: " << timer.getTimeMilli() << " ms" << std::endl;
                     #if 1 == ENABLE_TCP_OUTPUT 
                         this->drawLines(outputImage,lines,cv::Scalar(0, 0, 255));
-                        this->laptopTCP.sendFrame(outputImage);
+                        //this->laptopTCP.sendFrame(outputImage);
                     #endif
                     #if 1 != ENABLE_CAMERA_CALIBRATION 
                     for (int i = 0; i < lines.size(); i++){
@@ -442,6 +442,7 @@ void CameraProcessing::processFrames() {
                         std::cout << "pixelSizeInCm: " << this->pixelSizeInCm << std::endl;                        
                         std::cout << "TrackCurvature radius: " << ppObject.getTrackCurvatureRadius() << std::endl;
                         std::cout << "Calculated steeringAngleServo: " << ppObject.getSteeringAngleServo() << std::endl;
+                        std::cout << "Calculated steeringAngleDegrees: " << ppObject.getSteeringAngleDegrees() << std::endl;
                         std::cout << "Calculated speed: " << ppObject.getSpeed() << std::endl;
                                             
                         #if 1 == ENABLE_TEENSY_SERIAL
@@ -460,7 +461,7 @@ void CameraProcessing::processFrames() {
                             this->drawLineVector(birdEyeViewWithPoints,leftLine,cv::Scalar(0, 255, 0));
                             this->drawLineVector(birdEyeViewWithPoints,allMidPoints,cv::Scalar(255, 255, 255));
                             this->drawLineVector(birdEyeViewWithPoints,rightLine,cv::Scalar(0, 0, 255));
-                            //this->laptopTCP.sendFrame(birdEyeViewWithPoints);
+                            this->laptopTCP.sendFrame(birdEyeViewWithPoints);
                             
 
                             std::vector<cv::Point2f> l_leftLine = this->perspectiveChangeLine(this->leftLine, MatrixInverseBirdsEyeView);

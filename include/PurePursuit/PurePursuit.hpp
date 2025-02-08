@@ -12,6 +12,7 @@ private:
     double trackCurvatureRadius;
     double speed = 0;
     double lookAheadDistanceInCm;
+    double steeringAngleDegrees;
     double steeringAngleServo;
     cv::Point2f lookAheadPoint;
     double angleHeadingTarget;
@@ -56,6 +57,9 @@ public:
     }
     double getSteeringAngleServo(){
         return this->steeringAngleServo;
+    }
+    double getSteeringAngleDegrees(){
+        return this->steeringAngleDegrees;
     }
     cv::Point2f getLookAheadPoint(){
         return this->lookAheadPoint;
@@ -173,8 +177,8 @@ double PurePursuit::computeK(double R)
 double PurePursuit::calculateServoValue(double angleRadians, double lookaheadDistance) {
 
     double steeringAngleRadians = atan((2.0 * wheelBaseInCm * sin(angleRadians)) / lookaheadDistance);
-    double steeringAngleDegrees = steeringAngleRadians * 180.0 / CV_PI;
-    double servoValue = (steeringAngleDegrees / maxSteeringAngleDegrees) * maxServoAngle * servoTurnAdjustmentCoefficient;
+    this->steeringAngleDegrees = steeringAngleRadians * 180.0 / CV_PI;
+    double servoValue = (this->steeringAngleDegrees / maxSteeringAngleDegrees) * maxServoAngle * servoTurnAdjustmentCoefficient;
 
     // Clamp servo value to [-30, 30]
     servoValue = std::max(maxLeftServoAngle, std::min(maxRightServoAngle, servoValue));

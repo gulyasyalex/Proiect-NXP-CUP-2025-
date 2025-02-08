@@ -74,7 +74,7 @@ void debix::SerialPort::readFromSerial() {
                 std::string receivedData;
                 serialPort.ReadLine(receivedData, '\n', 50);
                 if (!receivedData.empty()) {
-                    std::cout << "[RX] Received: " << receivedData;
+                    //std::cout << "[RX] Received: " << receivedData;
                 }
             } else {
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
