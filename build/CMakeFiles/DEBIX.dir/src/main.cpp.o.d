@@ -213,7 +213,17 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: \
  /usr/include/aarch64-linux-gnu/bits/ss_flags.h \
  /usr/include/aarch64-linux-gnu/bits/types/struct_sigstack.h \
  /usr/include/aarch64-linux-gnu/bits/sigthread.h \
- /usr/include/aarch64-linux-gnu/bits/signal_ext.h \
+ /usr/include/aarch64-linux-gnu/bits/signal_ext.h /usr/include/fcntl.h \
+ /usr/include/aarch64-linux-gnu/bits/fcntl.h \
+ /usr/include/aarch64-linux-gnu/bits/fcntl-linux.h \
+ /usr/include/aarch64-linux-gnu/bits/types/struct_iovec.h \
+ /usr/include/linux/falloc.h /usr/include/aarch64-linux-gnu/bits/stat.h \
+ /usr/include/aarch64-linux-gnu/bits/struct_stat.h \
+ /usr/include/aarch64-linux-gnu/sys/mman.h \
+ /usr/include/aarch64-linux-gnu/bits/mman.h \
+ /usr/include/aarch64-linux-gnu/bits/mman-map-flags-generic.h \
+ /usr/include/aarch64-linux-gnu/bits/mman-linux.h \
+ /usr/include/aarch64-linux-gnu/bits/mman-shared.h \
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/SerialPortFunctions/SerialPort.hpp \
  /usr/include/libserial/SerialPort.h \
  /usr/include/libserial/SerialPortConstants.h /usr/include/termios.h \
@@ -492,7 +502,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: \
  /usr/include/boost/system/system_error.hpp /usr/include/c++/11/cassert \
  /usr/include/boost/asio/error.hpp /usr/include/netdb.h \
  /usr/include/netinet/in.h /usr/include/aarch64-linux-gnu/sys/socket.h \
- /usr/include/aarch64-linux-gnu/bits/types/struct_iovec.h \
  /usr/include/aarch64-linux-gnu/bits/socket.h \
  /usr/include/aarch64-linux-gnu/bits/socket_type.h \
  /usr/include/aarch64-linux-gnu/bits/sockaddr.h \
@@ -590,15 +599,11 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: \
  /usr/include/boost/asio/detail/eventfd_select_interrupter.hpp \
  /usr/include/boost/asio/detail/impl/eventfd_select_interrupter.ipp \
  /usr/include/aarch64-linux-gnu/sys/stat.h \
- /usr/include/aarch64-linux-gnu/bits/stat.h \
- /usr/include/aarch64-linux-gnu/bits/struct_stat.h \
  /usr/include/aarch64-linux-gnu/bits/statx.h /usr/include/linux/stat.h \
  /usr/include/aarch64-linux-gnu/bits/statx-generic.h \
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx_timestamp.h \
  /usr/include/aarch64-linux-gnu/bits/types/struct_statx.h \
- /usr/include/fcntl.h /usr/include/aarch64-linux-gnu/bits/fcntl.h \
- /usr/include/aarch64-linux-gnu/bits/fcntl-linux.h \
- /usr/include/linux/falloc.h /usr/include/aarch64-linux-gnu/sys/eventfd.h \
+ /usr/include/aarch64-linux-gnu/sys/eventfd.h \
  /usr/include/aarch64-linux-gnu/bits/eventfd.h \
  /usr/include/boost/asio/detail/cstdint.hpp \
  /usr/include/boost/asio/detail/socket_types.hpp \
@@ -1241,7 +1246,5 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: \
  /usr/include/boost/asio/impl/write_at.hpp \
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/PurePursuit/PurePursuit.hpp \
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/cameraSetup.h \
- /home/debix/Documents/Proiect-NXP-CUP-2025-/include/OledLcdFunctions/OledDisplay.hpp \
- /usr/include/linux/i2c-dev.h \
- /home/debix/Documents/Proiect-NXP-CUP-2025-/include/u8g2/csrc/u8g2.h \
- /home/debix/Documents/Proiect-NXP-CUP-2025-/include/u8g2/csrc/u8x8.h
+ /usr/include/aarch64-linux-gnu/sys/wait.h /usr/include/gpiod.h \
+ /usr/lib/gcc/aarch64-linux-gnu/11/include/stdbool.h

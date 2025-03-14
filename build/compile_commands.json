@@ -1,7 +1,7 @@
 [
 {
   "directory": "/home/debix/Documents/Proiect-NXP-CUP-2025-/build",
-  "command": "/usr/bin/c++  -I/home/debix/Documents/Proiect-NXP-CUP-2025-/include -isystem /usr/include/opencv4 -std=gnu++11 -o CMakeFiles/DEBIX.dir/src/main.cpp.o -c /home/debix/Documents/Proiect-NXP-CUP-2025-/src/main.cpp",
+  "command": "/usr/bin/c++  -I/home/debix/Documents/Proiect-NXP-CUP-2025-/include -isystem /usr/include/opencv4 -g -std=gnu++11 -o CMakeFiles/DEBIX.dir/src/main.cpp.o -c /home/debix/Documents/Proiect-NXP-CUP-2025-/src/main.cpp",
   "file": "/home/debix/Documents/Proiect-NXP-CUP-2025-/src/main.cpp"
 }
 ]

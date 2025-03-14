@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/home/debix/Documents/Proiect-NXP-CUP-2025-/include -isystem /usr/include/opencv4
 
-CXX_FLAGS = -std=gnu++11
+CXX_FLAGS = -g -std=gnu++11
 

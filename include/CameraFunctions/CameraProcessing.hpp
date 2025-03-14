@@ -51,26 +51,30 @@ class CameraProcessing {
 
         bool isIntersection = false;    // Used to check if we have an intersection on the racetrack, a crosspath
         bool isPastIntersection = true;    // Used to keep same middle line till we cross intersection
-        double lineStartPointY = 0.8;       // birdsEyeViewHeight * lineStartPointY = Y threshold for isPastIntersection
+        double lineStartPointY = 0.7;       // birdsEyeViewHeight * lineStartPointY = Y threshold for isPastIntersection
 
+        bool isFinishLineDetected = false;
 
         // Used in getLeftRightLines()
         cv::Point2f firstPointLeftLine = undefinedPoint;
         cv::Point2f firstPointRightLine = undefinedPoint;
         cv::Point2f firstPointSingleLine = undefinedPoint;
 
+        SharedConfig* config;
         PurePursuit ppObject;
 
     public:
         std::atomic<bool> running{false};
         // Default constructor
         CameraProcessing();
+        // Constructor with parameters for image read
+        CameraProcessing(std::shared_ptr<SharedConfig> global_config);
         // Constructor with camera parameters
-        CameraProcessing(int cameraIndex, int width, int height, int fps);
+        CameraProcessing(int cameraIndex, int width, int height, int fps, std::shared_ptr<SharedConfig> global_config);
         // Destructor stops capturing
         ~CameraProcessing();
         // Set camera parameters
-        void setParameters(int cameraIndex, int width, int height, int fps);
+        void setParameters(int cameraIndex, int width, int height, int fps, std::shared_ptr<SharedConfig> global_config);
         // Start capturing frames
         void startCapture(); 
         // Start capturing frames
@@ -104,11 +108,16 @@ class CameraProcessing {
         std::vector<cv::Point2f> evenlySpacePoints(const std::vector<cv::Point2f>& line, int num_points);
         bool are2PointsHorizontal(const cv::Point2f& p1, const cv::Point2f& p2, double slopeThreshold = 1);
         // Function to remove horizontal sections if a 90-degree turn is detected
-        bool removeHorizontalIf90Turn(std::vector<cv::Point2f>& line);
+        bool removeHorizontalIf90Turn(std::vector<cv::Point2f>& line, bool isPastIntersection);
         // Function that handles 2 Lines, 1 Line and No line cases
         void getLeftRightLines(const std::vector<std::vector<cv::Point2f>>& lines, std::vector<cv::Point2f>& leftFitted, std::vector<cv::Point2f>& rightFitted); 
         std::vector<cv::Point2f> findMiddle(std::vector<cv::Point2f>& leftLine, std::vector<cv::Point2f>& rightLine, int providedFrameWidth, int providedFrameHeight);
         cv::Point2f interpolateClosestPoints(const std::vector<cv::Point2f>& points, int targetY);
+        double calculateLineLength(const std::vector<cv::Point2f>& curve);
+
+        // Functions to read Specific Data From Recieved Data via Serial
+        uint16_t getDistanceFromCarsBumper();
+
         // Perspective transform related methods
         void initPerspectiveVariables();
         cv::Point2f perspectiveChangePoint(const cv::Point2f& point, const cv::Mat& transformMatrix);
@@ -132,9 +141,14 @@ class CameraProcessing {
 CameraProcessing::CameraProcessing() {}
 
 // Constructor with camera parameters
-CameraProcessing::CameraProcessing(int cameraIndex, int width, int height, int fps)
+CameraProcessing::CameraProcessing(int cameraIndex, int width, int height, int fps, std::shared_ptr<SharedConfig> global_config)
 {
-    setParameters(cameraIndex, width, height, fps);
+    setParameters(cameraIndex, width, height, fps, global_config);
+}
+CameraProcessing::CameraProcessing(std::shared_ptr<SharedConfig> global_config)
+{
+    this->config = global_config.get();
+    ppObject.setParameters(global_config);
 }
 
 // Destructor stops capturing
@@ -143,7 +157,7 @@ CameraProcessing::~CameraProcessing() {
 }
 
 // Set camera parameters
-void CameraProcessing::setParameters(int cameraIndex, int width, int height, int fps) {
+void CameraProcessing::setParameters(int cameraIndex, int width, int height, int fps, std::shared_ptr<SharedConfig> global_config) {
     cap.open(cameraIndex, cv::CAP_V4L2);
     cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
     cap.set(cv::CAP_PROP_FRAME_WIDTH, width);
@@ -158,6 +172,9 @@ void CameraProcessing::setParameters(int cameraIndex, int width, int height, int
     std::cout << "  Frame width: " << actualWidth << std::endl;
     std::cout << "  Frame height: " << actualHeight << std::endl;
     std::cout << "  FPS: " << actualFPS << std::endl;
+
+    this->config = global_config.get();
+    ppObject.setParameters(global_config);
 
     if (!cap.isOpened()) {
         throw std::runtime_error("Error: Could not open video device");
@@ -221,7 +238,8 @@ void CameraProcessing::captureFrames() {
                 //std::string imagePath = "imagineSala4.jpg";
                 //std::string imagePath = "lines4.jpeg";
                 //std::string imagePath = "lines5.jpeg";
-                std::string imagePath = "imagine12022024_02.jpg";
+                std::string imagePath = "imagine03032025_01.jpg";
+                //std::string imagePath = "imagine12022024_02.jpg";
                 //std::string imagePath = "imagine12022024_03.jpg";
                 //std::string imagePath = "imagineThreshold_01.jpg";
                 //std::string imagePath = "imagineThreshold_02.jpg";
@@ -244,10 +262,10 @@ void CameraProcessing::captureFrames() {
             }
 
             frame = resizeImage(frame, resizeFrameWidth, resizeFrameHeight);
-            //saveImage("imagine09122024_01.jpg",frame);
+            //saveImage("imagine03032025_01.jpg",frame);
             cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
             // TO CROP
-            frame = cropFrameTop(frame, topCutOffPercentage);
+            frame = cropFrameTop(frame, config->topImageCutPercentage);
 
             {
                 std::lock_guard<std::mutex> lock(frameMutex);
@@ -301,210 +319,354 @@ void CameraProcessing::processFrames() {
                 //serial.writeToSerial("FPS(processFrames): " + std::to_string(fps) + 
                 //     " FPS(captureFrames): " + std::to_string(this->fpsCaptureFrames));
 
-                cv::TickMeter timer;
-                // * timer.start();
-                cv::Mat thresholdFrame = this->segmentEdges(frame);
-                // * timer.stop();
-                // * std::cout << "segmentEdges Time: " << timer.getTimeMilli() << " ms" << std::endl;
-                #if 1 == ENABLE_TCP_OUTPUT 
-                    //laptopTCP.sendFrame(thresholdFrame);
+                /*
+                 *After finish line is detected we check if object is closer then 70cm 
+                 *After that we just lock wheels and close eyes
+                */
+                uint16_t distance = getDistanceFromCarsBumper();
+                //std::cout << "Distance: " << distance << std::endl;
+                #if 0
+                if(getDistanceFromCarsBumper() < 70){
+                    #if 1 == ENABLE_TCP_OUTPUT 
+                        laptopTCP.sendFrame(frame);
+                    #endif
+                }else{
                 #endif
-                if ( 1 != enableCameraThresholdCheck )
-                {
+                    cv::TickMeter timer;
                     // * timer.start();
-                    cv::Mat skeleton = this->skeletonizeFrame(thresholdFrame); 
+                    cv::Mat thresholdFrame = this->segmentEdges(frame);
                     // * timer.stop();
-                    // * std::cout << "skeletonizeFrame Time: " << timer.getTimeMilli() << " ms" << std::endl;
-
-
-                    // * timer.start();
-                    std::vector<std::vector<cv::Point2f>> lines = this->findLines(skeleton);
-                    // * timer.stop();
-                    // * std::cout << "findLines Time: " << timer.getTimeMilli() << " ms" << std::endl;
-
-                    cv::Mat outputImage = cv::Mat::zeros(frame.size(), CV_8UC3);  // Output image for drawing
+                    // * std::cout << "segmentEdges Time: " << timer.getTimeMilli() << " ms" << std::endl;
                     
-                    #if 1 == ENABLE_TCP_OUTPUT 
-                        this->drawLines(outputImage,lines,cv::Scalar(255, 0, 0));
-                        /*for (const auto& line : lines){
-                            //drawPoints(outputImage, line, cv::Scalar(255, 0, 0));
-                            for (const auto& point : line){
-                                std::cout << "Point.x:" << point.x << " Point.y:" << point.y << std::endl;
-                            }
-                        }*/
-                        //laptopTCP.sendFrame(outputImage);
-                    #endif
-                    
-                    // * timer.start();
-                    for (int i = 0; i < lines.size(); i++){  
-                        lines[i] = this->fitPolinomial(lines[i],false);
-                    }
-                    // * timer.stop();
-                    // * std::cout << "fitPolinomial Time: " << timer.getTimeMilli() << " ms" << std::endl;
-                    #if 1 == ENABLE_TCP_OUTPUT 
-                        this->drawLines(outputImage,lines,cv::Scalar(0, 0, 255));
-                        //this->laptopTCP.sendFrame(outputImage);
-                    #endif
-                    #if 1 != ENABLE_CAMERA_CALIBRATION 
-                    for (int i = 0; i < lines.size(); i++){
-                        if(this->isIntersection && lines[i][0].y >= frameHeight * this->lineStartPointY){
-                            this->isPastIntersection = true;
-                            this->isIntersection = false;
-                        }
-                        if(!this->isIntersection){
-                            lines[i] = this->perspectiveChangeLine(lines[i], this->MatrixBirdsEyeView);
-                            this->isIntersection = this->removeHorizontalIf90Turn(lines[i]);
-                            this->extendLineToEdges(lines[i], birdsEyeViewWidth, birdsEyeViewHeight);
-                            lines[i] = this->evenlySpacePoints(lines[i], curveSamplePoints);
-                            if (this->isIntersection) {
-                                std::vector<cv::Point2f> temp;
-                                temp = lines[i]; 
-                                lines.clear();
-                                lines.emplace_back(temp); 
-                                break;
-                            }
-                        }
-
-                    }
-
-                    /*
-                        If car finds intersection it looks for the middle line 
-                        and keeps middle till it goes past intersection.
-                        Assigns middle line only once!
-                    */
-                
-                    if (this->isPastIntersection){
-                        // * timer.start();
-                        this->getLeftRightLines(lines,this->leftLine,this->rightLine);
-                        // * timer.stop();
-                        // * std::cout << "getLeftRightLines Time: " << timer.getTimeMilli() << " ms" << std::endl;
-                        
-                        // * timer.start();
-                        this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);
-                        // * timer.stop();
-                        // * std::cout << "findMiddle Time: " << timer.getTimeMilli() << " ms" << std::endl;
-                        //std::cout << "Was here\n";
-                        // Used to handle the case when no point is found in the middle of the intersection
-                        if (this->isIntersection)
-                                this->isPastIntersection = false;
-                        
-                    }
-            
-                    #endif
-                    #if 1 == ENABLE_CAMERA_CALIBRATION 
-                        // TO CALIBRATE CAMERA
-                        cv::Point2f result;
-                        std::vector<cv::Point2f> interpolatedPoints;
-                        
+                    if ( 1 == config->enableCameraThresholdCheck ){
                         #if 1 == ENABLE_TCP_OUTPUT 
-                            this->laptopTCP.sendFrame(frame);
+                            laptopTCP.sendFrame(thresholdFrame);
                         #endif
+                    } 
+                    else 
+                    {
+                        // * timer.start();
+                        cv::Mat skeleton = this->skeletonizeFrame(thresholdFrame); 
+                        // * timer.stop();
+                        // * std::cout << "skeletonizeFrame Time: " << timer.getTimeMilli() << " ms" << std::endl;
 
-                        this->getLeftRightLines(lines,this->leftLine,this->rightLine);
-                        this->extendLineToEdges(this->leftLine, this->frameWidth, this->frameHeight + distanceErrorFromChassis);
-                        this->extendLineToEdges(this->rightLine, this->frameWidth, this->frameHeight + distanceErrorFromChassis);
-                        this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);
-                        
-                        std::cout << "this->leftLine, calibrateTopLine" << "\n";
-                        interpolatedPoints.push_back(interpolateClosestPoints(this->leftLine, calibrateTopLine));
-                        std::cout << "this->leftLine, calibrateBottomLine" << "\n";
-                        interpolatedPoints.push_back(interpolateClosestPoints(this->leftLine, calibrateBottomLine));
-                        std::cout << "this->rightLine, calibrateTopLine" << "\n";
-                        interpolatedPoints.push_back(interpolateClosestPoints(this->rightLine, calibrateTopLine));
-                        std::cout << "this->rightLine, calibrateBottomLine" << "\n";
-                        interpolatedPoints.push_back(interpolateClosestPoints(this->rightLine, calibrateBottomLine));
-                        std::cout << "this->allMidPoints, frameHeight" << "\n";
-                        interpolatedPoints.push_back(interpolateClosestPoints(this->allMidPoints, this->frameHeight + distanceErrorFromChassis));
-                        // Write interpolated points to a TXT file
-                        
-                        // Show Data on frame
-                        this->writePointsToTxt(interpolatedPoints, "interpolated_points.txt");
-                        this->initPerspectiveVariables();
+
+                        // * timer.start();
+                        std::vector<std::vector<cv::Point2f>> lines = this->findLines(skeleton);
+                        // * timer.stop();
+                        // * std::cout << "findLines Time: " << timer.getTimeMilli() << " ms" << std::endl;
+
+                        cv::Mat outputImage = cv::Mat::zeros(frame.size(), CV_8UC3);  // Output image for drawing
                         
                         #if 1 == ENABLE_TCP_OUTPUT 
-                            this->drawPoints(outputImage, srcPoints, cv::Scalar(0, 255, 0));
-                            this->drawHorizontalFromHeight(outputImage,calibrateTopLine,cv::Scalar(255, 255, 255));
-                            this->drawHorizontalFromHeight(outputImage,calibrateBottomLine,cv::Scalar(255, 255, 255));
+                            this->drawLines(outputImage,lines,cv::Scalar(255, 0, 0));
+                            /*for (const auto& line : lines){
+                                //drawPoints(outputImage, line, cv::Scalar(255, 0, 0));
+                                for (const auto& point : line){
+                                    std::cout << "Point.x:" << point.x << " Point.y:" << point.y << std::endl;
+                                }
+                            }*/
+                            //laptopTCP.sendFrame(outputImage);
+                        #endif
+                        
+                        // * timer.start();
+                        for (int i = 0; i < lines.size(); i++){  
+                            lines[i] = this->fitPolinomial(lines[i],false);
+                        }
+                        // * timer.stop();
+                        // * std::cout << "fitPolinomial Time: " << timer.getTimeMilli() << " ms" << std::endl;
+                        #if 1 == ENABLE_TCP_OUTPUT 
+                            this->drawLines(outputImage,lines,cv::Scalar(0, 0, 255));
                             this->laptopTCP.sendFrame(outputImage);
                         #endif
-                    #else 
-                    
-                        cv::Size frameSize(birdsEyeViewWidth, birdsEyeViewHeight);
 
-                        // Initialize an empty image (black by default)
-                        cv::Mat birdEyeViewWithPoints = cv::Mat::zeros(frameSize, CV_8UC3); // 3 channels (color)
-                        timer.start();
-                        ppObject.computePurePursuit( this->allMidPoints, this->carInFramePositionBirdsEye, 
-                                                this->pixelSizeInCm, this->carTopPoint);
-                        timer.stop();
-                        std::cout << "computePurePursuit Time: " << timer.getTimeMilli() << " ms" << std::endl;
+                        #if 1 != ENABLE_CAMERA_CALIBRATION 
+                            for (int i = 0; i < lines.size(); i++){
+                                if(this->isIntersection && lines[i][0].y >= frameHeight * this->lineStartPointY){
+                                    this->isPastIntersection = true;
+                                    this->isIntersection = false;
+                                }
+                            }
+                            
+                            cv::Size frameSize1(birdsEyeViewWidth, birdsEyeViewHeight);
+                            cv::Mat birdEyeViewWithPoints1 = cv::Mat::zeros(frameSize1, CV_8UC3);
+                            if(!this->isIntersection){
+                                
+                                for (int i = 0; i < lines.size(); i++){
+                                    lines[i] = this->perspectiveChangeLine(lines[i], this->MatrixBirdsEyeView);
+                                    this->isIntersection = this->removeHorizontalIf90Turn(lines[i], this->isPastIntersection);
+                                    if (this->isIntersection)
+                                    {
+                                        std::vector<std::vector<cv::Point2f>> keepOnyStraightLine;
+                                        keepOnyStraightLine.push_back(lines[i]);
+                                        lines.clear();
+                                        lines = std::move(keepOnyStraightLine);
+                                        break;
+                                    }
+                                }
+                                
+                            
+
+                                #if 1 == ENABLE_TCP_OUTPUT 
+                                    this->drawLines(birdEyeViewWithPoints1,lines,cv::Scalar(0, 0, 255));
+                                    this->laptopTCP.sendFrame(birdEyeViewWithPoints1);
+                                #endif
+
+                                if ( 1 == config->enableFinishLineDetection){
+                                    if(!this->isFinishLineDetected){
+                                        for (int i = 0; i < lines.size(); i++){
+                                            std::cout << "Lines.size():" << lines.size() << "\n";
+                                            if (lines.size() > 2) {
+
+                                                // Loop through all finish lines (starting from index 2)
+                                                for (size_t i = 2; i < lines.size(); ++i) {
+                                                    // Compute the finish line vector
+                                                    cv::Point2f finishVec = lines[i][1] - lines[i][0];
+
+                                                    // Compute midpoint of finish line
+                                                    cv::Point2f finishMid = (lines[i][0] + lines[i][1]) * 0.5;
+
+                                                    // Find closest segments on left and right boundaries
+                                                    std::vector<cv::Point2f> leftSegment = closestSegmentOnCurve(lines[0], finishMid);
+                                                    std::vector<cv::Point2f> rightSegment = closestSegmentOnCurve(lines[1], finishMid);
+
+                                                    // Compute segment direction vectors
+                                                    cv::Point2f leftVec = leftSegment[1] - leftSegment[0];
+                                                    cv::Point2f rightVec = rightSegment[1] - rightSegment[0];
+
+                                                    // Compute angles
+                                                    double angleLeft = angleBetweenVectors(leftVec, finishVec);
+                                                    double angleRight = angleBetweenVectors(rightVec, finishVec);
+
+                                                    std::cout << "Finish Line " << (i - 1) << " Angle to Left: " << angleLeft << " degrees\n";
+                                                    std::cout << "Finish Line " << (i - 1) << " Angle to Right: " << angleRight << " degrees\n";
+
+                                                    if (std::abs(angleLeft - 90) < 5 || std::abs(angleRight - 90) < 5) {
+                                                        std::cout << "Finish Line " << (i - 1) << " is perpendicular to at least one boundary.\n";
+                                                        this->isFinishLineDetected = true;
+                                                        std::cout << " (in ifs) isFinishLineDetected: " << isFinishLineDetected << std::endl;
+                                                        break;
+                                                    } else {
+                                                        std::cout << "Finish Line " << (i - 1) << " is NOT perpendicular.\n";
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }else{
+                                    this->isFinishLineDetected = false;
+                                }
+                                
+
+                                if (this->isFinishLineDetected && lines.size() > 2){
+                                    
+                                    std::vector<std::vector<cv::Point2f>> keepLongestLine;
+                                    double longestLineSize = 0;
+                                    double tempLineSize = 0;
+                                    uint8_t longestLineIndex;
+
+                                    for(int i = 0; i < lines.size(); i++){
+                                        tempLineSize = calculateLineLength(lines[i]);
+                                        if(longestLineSize < tempLineSize)
+                                        {
+                                            longestLineSize = tempLineSize;
+                                            longestLineIndex = i;
+                                        }
+                                    }
+                                    keepLongestLine.push_back(lines[longestLineIndex]);
+                                    lines.clear();
+                                    lines = std::move(keepLongestLine);
+                                }
+
+                                for (int i = 0; i < lines.size(); i++){
+                                    this->extendLineToEdges(lines[i], birdsEyeViewWidth, birdsEyeViewHeight);
+                                    lines[i] = this->evenlySpacePoints(lines[i], curveSamplePoints);
+                                    if (this->isIntersection) {
+                                        std::vector<cv::Point2f> temp;
+                                        temp = lines[i]; 
+                                        lines.clear();
+                                        lines.emplace_back(temp); 
+                                        break;
+                                    }
+                                }
+                            }else{
+                                #if 1 == ENABLE_TCP_OUTPUT 
+                                    this->drawLines(birdEyeViewWithPoints1,lines,cv::Scalar(0, 0, 255));
+                                    this->laptopTCP.sendFrame(birdEyeViewWithPoints1);
+                                #endif
+                            }
+
+
+                            /*
+                                If car finds intersection it looks for the middle line 
+                                and keeps middle till it goes past intersection.
+                                Assigns middle line only once!
+                            */
+                        
+                            if (this->isPastIntersection){
+                                // * timer.start();
+                                this->getLeftRightLines(lines,this->leftLine,this->rightLine);
+                                // * timer.stop();
+                                // * std::cout << "getLeftRightLines Time: " << timer.getTimeMilli() << " ms" << std::endl;
+                                
+                                // * timer.start();
+                                this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);
+                                // * timer.stop();
+                                // * std::cout << "findMiddle Time: " << timer.getTimeMilli() << " ms" << std::endl;
+                                //std::cout << "Was here\n";
+                                // Used to handle the case when no point is found in the middle of the intersection
+                                if (this->isIntersection)
+                                        this->isPastIntersection = false;
+                                
+                            }
+                        #endif
+                        #if 1 == ENABLE_CAMERA_CALIBRATION 
+                            // TO CALIBRATE CAMERA
+                            cv::Point2f result;
+                            std::vector<cv::Point2f> interpolatedPoints;
+                            
+                            #if 1 == ENABLE_TCP_OUTPUT 
+                                this->laptopTCP.sendFrame(frame);
+                            #endif
+
+                            this->getLeftRightLines(lines,this->leftLine,this->rightLine);
+                            this->extendLineToEdges(this->leftLine, this->frameWidth, this->frameHeight + config->distanceErrorFromChassis);
+                            this->extendLineToEdges(this->rightLine, this->frameWidth, this->frameHeight + config->distanceErrorFromChassis);
+                            this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);
+                            
+                            std::cout << "this->leftLine, calibrateTopLine" << "\n";
+                            interpolatedPoints.push_back(interpolateClosestPoints(this->leftLine, config->calibrateTopLine));
+                            std::cout << "this->leftLine, calibrateBottomLine" << "\n";
+                            interpolatedPoints.push_back(interpolateClosestPoints(this->leftLine, config->calibrateBottomLine));
+                            std::cout << "this->rightLine, calibrateTopLine" << "\n";
+                            interpolatedPoints.push_back(interpolateClosestPoints(this->rightLine, config->calibrateTopLine));
+                            std::cout << "this->rightLine, calibrateBottomLine" << "\n";
+                            interpolatedPoints.push_back(interpolateClosestPoints(this->rightLine, config->calibrateBottomLine));
+                            std::cout << "this->allMidPoints, frameHeight" << "\n";
+                            interpolatedPoints.push_back(interpolateClosestPoints(this->allMidPoints, this->frameHeight + config->distanceErrorFromChassis));
+                            // Write interpolated points to a TXT file
+                            
+                            // Show Data on frame
+                            this->writePointsToTxt(interpolatedPoints, "interpolated_points.txt");
+                            this->initPerspectiveVariables();
+                            
+                            #if 1 == ENABLE_TCP_OUTPUT 
+                                this->drawPoints(outputImage, srcPoints, cv::Scalar(0, 255, 0));
+                                this->drawHorizontalFromHeight(outputImage,config->calibrateTopLine,cv::Scalar(255, 255, 255));
+                                this->drawHorizontalFromHeight(outputImage,config->calibrateBottomLine,cv::Scalar(255, 255, 255));
+                                this->laptopTCP.sendFrame(outputImage);
+                            #endif
+                        #else 
+                        
+                            cv::Size frameSize(birdsEyeViewWidth, birdsEyeViewHeight);
+
+                            // Initialize an empty image (black by default)
+                            cv::Mat birdEyeViewWithPoints = cv::Mat::zeros(frameSize, CV_8UC3); // 3 channels (color)
+                            timer.start();
+                            ppObject.computePurePursuit( this->allMidPoints, this->carInFramePositionBirdsEye, 
+                                                    this->pixelSizeInCm, this->carTopPoint);
+                            timer.stop();
+                            //std::cout << "computePurePursuit Time: " << timer.getTimeMilli() << " ms" << std::endl;
+                    
+                            //std::cout << "pixelSizeInCm: " << this->pixelSizeInCm << std::endl;                        
+                            std::cout << "TrackCurvature radius: " << ppObject.getTrackCurvatureRadius() << std::endl;
+                            //std::cout << "Calculated steeringAngleServo: " << ppObject.getSteeringAngleServo() << std::endl;
+                            //std::cout << "Calculated steeringAngleDegrees: " << ppObject.getSteeringAngleDegrees() << std::endl;
+                            std::cout << "Calculated speed: " << ppObject.getSpeed() << std::endl;
+                                                
+
+                            #if 1 == ENABLE_TEENSY_SERIAL
+                                std::string serialString = "";
+                                if (config->enableCarEngine){
+                                    serialString += "1;";
+                                }else{
+                                    serialString += "0;";
+                                }
+                                if (config->enableCarSteering){
+                                    //serialString += std::to_string(ppObject.getSteeringAngleServo()) + ";";
+                                    serialString += to_string_with_precision(ppObject.getSteeringAngleServo(),2) + ";";
+                                }else{
+                                    serialString +="0;";
+                                }
+                                    //serialString += std::to_string(ppObject.getSpeed()) + ";";
+                                    serialString += to_string_with_precision(ppObject.getSpeed(),2) + ";";
+
+                                if (this->isFinishLineDetected){
+                                    serialString +="1;";
+                                }else{
+                                    serialString +="0;";
+                                }
+                                serialString += std::to_string(distanceBeforeIssuesAppear) + ";";
+                                
+                                serialString += std::to_string(config->stoppingDistanceBeforeBox);
+                                
+                                serial.writeToSerial(serialString);
+                            #endif
+                        
+                            #if 1 == ENABLE_TCP_OUTPUT 
+                                cv::line(birdEyeViewWithPoints, carInFramePositionBirdsEye, ppObject.getLookAheadPoint(), cv::Scalar(123, 10, 255), 2); 
+                                cv::line(birdEyeViewWithPoints, carInFramePositionBirdsEye, carTopPoint, cv::Scalar(123, 10, 255), 2);  
+                                
+                                cv::circle(birdEyeViewWithPoints, ppObject.getLookAheadPoint(), 5, cv::Scalar(254, 34, 169), -1);
+                                this->drawCircle(birdEyeViewWithPoints, carInFramePositionBirdsEye, ppObject.getLookAheadDistanceInCm()/this->pixelSizeInCm, cv::Scalar(254, 34, 169));
+                                this->drawCircle(birdEyeViewWithPoints, carInFramePositionBirdsEye, (ppObject.getLookAheadDistanceInCm()+30)/this->pixelSizeInCm, cv::Scalar(0, 34, 169));
+                                cv::circle(birdEyeViewWithPoints, carInFramePositionBirdsEye, 5, cv::Scalar(254, 34, 169), -1);
+                            
+                                this->drawPoints(birdEyeViewWithPoints, dstPoints, cv::Scalar(0, 255, 255));
+                                //this->drawLineVector(birdEyeViewWithPoints,leftLine,cv::Scalar(0, 255, 0));
+                                //this->drawLineVector(birdEyeViewWithPoints,leftLine,cv::Scalar(0, 255, 0));
+                                for(int i = 0; i < lines.size(); i++){
+                                    this->drawLineVector(birdEyeViewWithPoints,lines[i],cv::Scalar(0, 255, 0));
+                                }
+                                this->drawLineVector(birdEyeViewWithPoints,allMidPoints,cv::Scalar(255, 255, 255));
+                                //this->drawLineVector(birdEyeViewWithPoints,rightLine,cv::Scalar(0, 0, 255));
+                                //this->laptopTCP.sendFrame(birdEyeViewWithPoints);
+                                
+
+                                std::vector<cv::Point2f> l_leftLine = this->perspectiveChangeLine(this->leftLine, MatrixInverseBirdsEyeView);
+                                std::vector<cv::Point2f> l_rightLine = this->perspectiveChangeLine(this->rightLine, MatrixInverseBirdsEyeView);
+                                std::vector<cv::Point2f> l_allMidPoints = this->perspectiveChangeLine(this->allMidPoints, MatrixInverseBirdsEyeView);
+                                cv::Point2f l_lookAheadPoint = this->perspectiveChangePoint(ppObject.getLookAheadPoint(), MatrixInverseBirdsEyeView);
+
+                                outputImage = cv::Mat::zeros(frame.size(),CV_8UC3);
+
+                                const int rowTopCutOffThreshold = static_cast<int>(outputImage.rows * config->topCutOffPercentageCustomConnected);
+                                const int rowLineStartThreshold = static_cast<int>(outputImage.rows * config->lineBottomStartRangeCustomConnected);  
+                                
+                                this->drawHorizontalFromHeight(outputImage,rowTopCutOffThreshold,cv::Scalar(0, 0, 255));
+                                this->drawHorizontalFromHeight(outputImage,rowLineStartThreshold,cv::Scalar(255, 0, 0));
+                                this->drawHorizontalFromHeight(outputImage,frameHeight * this->lineStartPointY,cv::Scalar(255, 255, 255));
+
+                                this->drawPoints(outputImage, srcPoints, cv::Scalar(0, 255, 255));
+                            
+                                std::vector<cv::Point2f> horizontalLine;
+                                horizontalLine.push_back(srcPoints[1]);
+                                horizontalLine.push_back(srcPoints[3]);
+                            
+                                //this->drawLineVector(outputImage,horizontalLine,cv::Scalar(0, 255, 255));
+
+                                cv::circle(outputImage, l_lookAheadPoint, 5, cv::Scalar(254, 34, 169), -1);
+                                cv::circle(outputImage, carInFramePosition, 5, cv::Scalar(254, 34, 169), -1);
+                            
+                                this->drawPoints(outputImage, l_leftLine, cv::Scalar(0, 255, 0));
+                                this->drawPoints(outputImage, l_rightLine, cv::Scalar(0, 0, 255));
+                                this->drawLineVector(outputImage,l_leftLine,cv::Scalar(0, 255, 0));
+                                this->drawLineVector(outputImage,l_allMidPoints,cv::Scalar(255, 255, 255));
+                                this->drawLineVector(outputImage,l_rightLine,cv::Scalar(0, 0, 255));
+                            
+                                //laptopTCP.sendFrame(outputImage);
+
+                                cv::cvtColor(frame, frame, cv::COLOR_GRAY2BGR);
+
+                                // Add the visualization (outputImage) on top of the original frame
+                                cv::Mat overlayedImage;
+                                cv::addWeighted(frame, overlayFrameWeight, outputImage, overlayFrameWeight, 0, overlayedImage);
+                                laptopTCP.sendFrame(overlayedImage);
+                            #endif
+                        #endif
+                    }
+                //}
                 
-                        std::cout << "pixelSizeInCm: " << this->pixelSizeInCm << std::endl;                        
-                        std::cout << "TrackCurvature radius: " << ppObject.getTrackCurvatureRadius() << std::endl;
-                        std::cout << "Calculated steeringAngleServo: " << ppObject.getSteeringAngleServo() << std::endl;
-                        std::cout << "Calculated steeringAngleDegrees: " << ppObject.getSteeringAngleDegrees() << std::endl;
-                        std::cout << "Calculated speed: " << ppObject.getSpeed() << std::endl;
-                                            
-                        #if 1 == ENABLE_TEENSY_SERIAL
-                            serial.writeToSerial(std::to_string(ppObject.getSteeringAngleServo()) + ";" + std::to_string(ppObject.getSpeed()));
-                        #endif
-                    
-                        #if 1 == ENABLE_TCP_OUTPUT 
-                            cv::line(birdEyeViewWithPoints, carInFramePositionBirdsEye, ppObject.getLookAheadPoint(), cv::Scalar(123, 10, 255), 2); 
-                            cv::line(birdEyeViewWithPoints, carInFramePositionBirdsEye, carTopPoint, cv::Scalar(123, 10, 255), 2);  
-                            
-                            cv::circle(birdEyeViewWithPoints, ppObject.getLookAheadPoint(), 5, cv::Scalar(254, 34, 169), -1);
-                            this->drawCircle(birdEyeViewWithPoints, carInFramePositionBirdsEye, ppObject.getLookAheadDistanceInCm()/this->pixelSizeInCm, cv::Scalar(254, 34, 169));
-                            cv::circle(birdEyeViewWithPoints, carInFramePositionBirdsEye, 5, cv::Scalar(254, 34, 169), -1);
-                        
-                            this->drawPoints(birdEyeViewWithPoints, dstPoints, cv::Scalar(0, 255, 255));
-                            this->drawLineVector(birdEyeViewWithPoints,leftLine,cv::Scalar(0, 255, 0));
-                            this->drawLineVector(birdEyeViewWithPoints,allMidPoints,cv::Scalar(255, 255, 255));
-                            this->drawLineVector(birdEyeViewWithPoints,rightLine,cv::Scalar(0, 0, 255));
-                            this->laptopTCP.sendFrame(birdEyeViewWithPoints);
-                            
-
-                            std::vector<cv::Point2f> l_leftLine = this->perspectiveChangeLine(this->leftLine, MatrixInverseBirdsEyeView);
-                            std::vector<cv::Point2f> l_rightLine = this->perspectiveChangeLine(this->rightLine, MatrixInverseBirdsEyeView);
-                            std::vector<cv::Point2f> l_allMidPoints = this->perspectiveChangeLine(this->allMidPoints, MatrixInverseBirdsEyeView);
-                            cv::Point2f l_lookAheadPoint = this->perspectiveChangePoint(ppObject.getLookAheadPoint(), MatrixInverseBirdsEyeView);
-
-                            outputImage = cv::Mat::zeros(frame.size(),CV_8UC3);
-
-                            const int rowTopCutOffThreshold = static_cast<int>(outputImage.rows * topCutOffPercentageCustomConnected);
-                            const int rowLineStartThreshold = static_cast<int>(outputImage.rows * lineBottomStartRangeCustomConnected);  
-                            
-                            this->drawHorizontalFromHeight(outputImage,rowTopCutOffThreshold,cv::Scalar(0, 0, 255));
-                            this->drawHorizontalFromHeight(outputImage,rowLineStartThreshold,cv::Scalar(255, 0, 0));
-
-                            this->drawPoints(outputImage, srcPoints, cv::Scalar(0, 255, 255));
-                        
-                            std::vector<cv::Point2f> horizontalLine;
-                            horizontalLine.push_back(srcPoints[1]);
-                            horizontalLine.push_back(srcPoints[3]);
-                        
-                            //this->drawLineVector(outputImage,horizontalLine,cv::Scalar(0, 255, 255));
-
-                            cv::circle(outputImage, l_lookAheadPoint, 5, cv::Scalar(254, 34, 169), -1);
-                            cv::circle(outputImage, carInFramePosition, 5, cv::Scalar(254, 34, 169), -1);
-                        
-                            this->drawPoints(outputImage, l_leftLine, cv::Scalar(0, 255, 0));
-                            this->drawPoints(outputImage, l_rightLine, cv::Scalar(0, 0, 255));
-                            this->drawLineVector(outputImage,l_leftLine,cv::Scalar(0, 255, 0));
-                            this->drawLineVector(outputImage,l_allMidPoints,cv::Scalar(255, 255, 255));
-                            this->drawLineVector(outputImage,l_rightLine,cv::Scalar(0, 0, 255));
-                        
-                            //laptopTCP.sendFrame(outputImage);
-
-                            cv::cvtColor(frame, frame, cv::COLOR_GRAY2BGR);
-
-                            // Add the visualization (outputImage) on top of the original frame
-                            cv::Mat overlayedImage;
-                            cv::addWeighted(frame, overlayFrameWeight, outputImage, overlayFrameWeight, 0, overlayedImage);
-                            laptopTCP.sendFrame(overlayedImage);
-                        #endif
-                    #endif
-                }
             }
         } catch (const std::exception& e) {
             std::cerr << "Error during frame processing: " << e.what() << std::endl;
@@ -575,7 +737,7 @@ cv::Mat CameraProcessing::skeletonizeFrame(cv::Mat& thresholdedImage) {
 // Apply color segmentation to isolate specific features in the image
 cv::Mat CameraProcessing::segmentEdges(const cv::Mat& frame) {
     cv::Mat thresholdFrame;
-    cv::threshold(frame, thresholdFrame, thresholdValue, maxThresholdValue, cv::THRESH_BINARY);
+    cv::threshold(frame, thresholdFrame, config->thresholdValue, maxThresholdValue, cv::THRESH_BINARY);
     cv::bitwise_not(thresholdFrame, thresholdFrame);
     return thresholdFrame;
 }
@@ -592,6 +754,25 @@ std::vector<std::vector<cv::Point2f>> CameraProcessing::findLines(const cv::Mat&
     if (lines.size() > 4) {
         lines.resize(4);
     }
+
+    if (lines.size() <= 2){
+        std::vector<std::vector<cv::Point2f>> newLines;
+        double minLineLength = 0;
+        double tempLineSize = 400;
+        uint8_t longestLineIndex;
+
+        for(int i = 0; i < lines.size(); i++){
+            tempLineSize = calculateLineLength(lines[i]);
+            std::cout << "tempLineSize: " <<  tempLineSize << "\n";
+            if( minLineLength < tempLineSize)
+            {
+                newLines.push_back(lines[i]);
+            }
+        }
+        
+        lines.clear();
+        lines = std::move(newLines);
+    }
     
     return lines;
 }
@@ -602,8 +783,8 @@ int CameraProcessing::customConnectedComponentsWithThreshold(const cv::Mat& bina
     labelImage = cv::Mat::zeros(binaryImage.size(), CV_32S); // Initialize label matrix
     lines.clear(); // Clear any existing lines
 
-    const int rowTopCutOffThreshold = static_cast<int>(binaryImage.rows * topCutOffPercentageCustomConnected); 
-    const int rowLineStartThreshold = static_cast<int>(binaryImage.rows * lineBottomStartRangeCustomConnected); 
+    const int rowTopCutOffThreshold = static_cast<int>(binaryImage.rows * config->topCutOffPercentageCustomConnected); 
+    const int rowLineStartThreshold = static_cast<int>(binaryImage.rows * config->lineBottomStartRangeCustomConnected); 
 
     int label = 1; // Start labeling from 1
     std::vector<cv::Point2f> neighborhood = generateNeighborhood(radius); // Generate dynamic neighborhood
@@ -642,7 +823,7 @@ int CameraProcessing::customConnectedComponentsWithThreshold(const cv::Mat& bina
                     }
                 }
 
-                if (pixelCount < lineMinPixelCount) {
+                if (pixelCount < config->lineMinPixelCount) {
                     for (const auto& p : componentPixels) {
                         labelImage.at<int>(p.y, p.x) = 0;
                     }
@@ -825,14 +1006,16 @@ bool CameraProcessing::are2PointsHorizontal(const cv::Point2f& p1, const cv::Poi
 
     // Calculate the slope
     double slope = deltaY / deltaX;
+    std::cout<< "Slope:" << slope << "\n";
     // Check if the slope is close to zero (indicating a horizontal line)
     return std::abs(slope) <= slopeThreshold;
 }
 // Function to remove horizontal sections if a 90-degree turn is detected
-bool CameraProcessing::removeHorizontalIf90Turn(std::vector<cv::Point2f>& line)
+bool CameraProcessing::removeHorizontalIf90Turn(std::vector<cv::Point2f>& line, bool isPastIntersection)
 {
     bool has90DegreeTurn = false;
     std::vector<cv::Point2f> result;
+    uint8_t index90DegreeTurn;
 
     double maxAngle = 0.0; // Variable to store the maximum angle
 
@@ -842,36 +1025,47 @@ bool CameraProcessing::removeHorizontalIf90Turn(std::vector<cv::Point2f>& line)
         double angle = std::abs(calculateSignedAngle(line[i - 1], line[i], line[i + 1])* 180.0 / CV_PI);
         maxAngle = std::max(maxAngle, angle); // Update maxAngle if the current angle is larger
 
-        if (angle > min90DegreeAngleRange && angle < max90DegreeAngleRange) // Close to 90 degrees
+        if (angle > config->min90DegreeAngleRange && angle < config->max90DegreeAngleRange) // Close to 90 degrees
         {  
             has90DegreeTurn = true;
-            //std::cout << "Angle(has90DegreeTurn): " << angle << std::endl;
+            index90DegreeTurn = i;
+            std::cout << "Angle(has90DegreeTurn): " << angle << std::endl;
             break; // You may break early if you're only checking for 90-degree turns
         }
+        
+        std::cout << "Angle: " << angle << std::endl;
     }
 
     // Print the maximum angle after the loop
-    std::cout << "Maximum angle detected: " << maxAngle << " degrees" << std::endl;
+    //std::cout << "Maximum angle detected: " << maxAngle << " degrees" << std::endl;
 
 
     // If there is a 90-degree turn, remove the horizontal parts
     if (has90DegreeTurn) 
     {
-        
-        for (int i = 1; i < line.size(); ++i) 
-        {
-            if (!are2PointsHorizontal(line[i - 1], line[i], horizontalSlopeThreshold)) 
+        std::cout << "isPastIntersection: " << isPastIntersection << std::endl;
+        if (isPastIntersection){
+            for (int i = 0; i <= index90DegreeTurn; i++) 
             {
-                // Add the starting point of the non-horizontal segment
-                if (result.empty() || result.back() != line[i - 1]) 
+                result.push_back(line[i]);
+            }
+        }
+        else{
+            for (int i = 1; i < line.size(); ++i) 
+            {
+                if (!are2PointsHorizontal(line[i - 1], line[i], horizontalSlopeThreshold)) 
                 {
-                    result.push_back(line[i - 1]);
-                }
+                    // Add the starting point of the non-horizontal segment
+                    if (result.empty() || result.back() != line[i - 1]) 
+                    {
+                        result.push_back(line[i - 1]);
+                    }
 
-                // Add the endpoint of the non-horizontal segment
-                if (result.empty() || result.back() != line[i]) 
-                {
-                    result.push_back(line[i]);
+                    // Add the endpoint of the non-horizontal segment
+                    if (result.empty() || result.back() != line[i]) 
+                    {
+                        result.push_back(line[i]);
+                    }
                 }
             }
         }
@@ -914,7 +1108,7 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
     // std::cout << " firstPointRightLine: " << firstPointRightLine << "\n";
     // std::cout << " firstPointSingleLine: " << firstPointSingleLine << "\n";
     // std::cout << " ---------------------------------\n";
-
+   
 
     if (lines.size() >= 2) {
         firstPointLineA = lines[0][0];
@@ -931,19 +1125,19 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
                                     + alpha * abs(firstPointLineB.y - firstPointRightLine.y);
 
 
-        std::cout <<" weightedDistAtoLeft" << weightedDistAtoLeft << std::endl;
-        std::cout <<" weightedDistAtoRight" << weightedDistAtoRight << std::endl;
-        std::cout <<" weightedDistAtoLeft" << weightedDistBtoLeft << std::endl;
-        std::cout <<" weightedDistAtoRight" << weightedDistBtoRight << std::endl;
+        // std::cout <<" weightedDistAtoLeft" << weightedDistAtoLeft << std::endl;
+        // std::cout <<" weightedDistAtoRight" << weightedDistAtoRight << std::endl;
+        // std::cout <<" weightedDistAtoLeft" << weightedDistBtoLeft << std::endl;
+        // std::cout <<" weightedDistAtoRight" << weightedDistBtoRight << std::endl;
         // Check for impostors
         if ((weightedDistAtoLeft < weightedDistAtoRight && weightedDistBtoLeft < weightedDistBtoRight) || 
             (weightedDistAtoRight < weightedDistAtoLeft && weightedDistBtoRight < weightedDistBtoLeft)) 
         {
-            std::cout << "Distances: " << std::endl;
-            std::cout << "weightedDistAtoLeft: " << weightedDistAtoLeft << std::endl;
-            std::cout << "weightedDistAtoRight: " << weightedDistAtoRight << std::endl;
-            std::cout << "weightedDistBtoLeft: " << weightedDistBtoLeft << std::endl;
-            std::cout << "weightedDistBtoRight: " << weightedDistBtoRight << std::endl;
+            // std::cout << "Distances: " << std::endl;
+            // std::cout << "weightedDistAtoLeft: " << weightedDistAtoLeft << std::endl;
+            // std::cout << "weightedDistAtoRight: " << weightedDistAtoRight << std::endl;
+            // std::cout << "weightedDistBtoLeft: " << weightedDistBtoLeft << std::endl;
+            // std::cout << "weightedDistBtoRight: " << weightedDistBtoRight << std::endl;
 
             double smallestDistance = weightedDistAtoLeft;
             std::string smallestType = "AtoLeft";
@@ -962,15 +1156,17 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
                 smallestType = "BtoRight";
             }
 
-            std::cout << "Smallest distance: " << smallestDistance << " (" << smallestType << ")" << std::endl;
-
+            // std::cout << "Smallest distance: " << smallestDistance << " (" << smallestType << ")" << std::endl;
+            
+            // std::cout << "config->trackLaneWidthOffset:" << config->trackLaneWidthOffset << std::endl;
+            // std::cout << "with pixelsize:" << (config->trackLaneWidthOffset * pixelSizeInCm) << std::endl;
             if (smallestType == "AtoLeft") {
                 // Line A is closest to the left
-                std::cout << "Classifying Line A as the left line." << std::endl;
+                // std::cout << "Classifying Line A as the left line." << std::endl;
                 leftFitted = lines[0];
                 rightFitted.clear();
                 for (const auto& point : leftFitted) {
-                    shiftedPoint = cv::Point2f(point.x + trackLaneWidthInPixel, point.y); // Mirror left to right
+                    shiftedPoint = cv::Point2f(point.x + trackLaneWidthInPixel + (config->trackLaneWidthOffset * pixelSizeInCm), point.y); // Mirror left to right
                     rightFitted.push_back(shiftedPoint);
                 }
                 firstPointLeftLine = firstPointLineA; // Update historical left point
@@ -980,7 +1176,7 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
                 rightFitted = lines[0];
                 leftFitted.clear();
                 for (const auto& point : rightFitted) {
-                    shiftedPoint = cv::Point2f(point.x - trackLaneWidthInPixel, point.y); // Mirror right to left
+                    shiftedPoint = cv::Point2f(point.x - trackLaneWidthInPixel - (config->trackLaneWidthOffset * pixelSizeInCm), point.y); // Mirror right to left
                     leftFitted.push_back(shiftedPoint);
                 }
                 firstPointRightLine = firstPointLineA; // Update historical right point
@@ -990,7 +1186,7 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
                 leftFitted = lines[1];
                 rightFitted.clear();
                 for (const auto& point : leftFitted) {
-                    shiftedPoint = cv::Point2f(point.x + trackLaneWidthInPixel, point.y); // Mirror left to right
+                    shiftedPoint = cv::Point2f(point.x + trackLaneWidthInPixel + (config->trackLaneWidthOffset * pixelSizeInCm), point.y); // Mirror left to right
                     rightFitted.push_back(shiftedPoint);
                 }
                 firstPointLeftLine = firstPointLineB; // Update historical left point
@@ -1000,7 +1196,7 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
                 rightFitted = lines[1];
                 leftFitted.clear();
                 for (const auto& point : rightFitted) {
-                    shiftedPoint = cv::Point2f(point.x - trackLaneWidthInPixel, point.y); // Mirror right to left
+                    shiftedPoint = cv::Point2f(point.x - trackLaneWidthInPixel - (config->trackLaneWidthOffset * pixelSizeInCm), point.y); // Mirror right to left
                     leftFitted.push_back(shiftedPoint);
                 }
                 firstPointRightLine = firstPointLineB; // Update historical right point
@@ -1166,8 +1362,8 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
                                         + alpha * std::abs(pointFront.y - firstPointRightLine.y);
 
             // Output debug information
-            std::cout << "Weighted Distance to Left: " << weightedDistToLeft << std::endl;
-            std::cout << "Weighted Distance to Right: " << weightedDistToRight << std::endl;
+            //std::cout << "Weighted Distance to Left: " << weightedDistToLeft << std::endl;
+            //std::cout << "Weighted Distance to Right: " << weightedDistToRight << std::endl;
 
             // Classify the line as left or right based on weighted distances
             if (weightedDistToLeft < weightedDistToRight) {
@@ -1175,7 +1371,7 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
                 leftFitted = lines[0];
                 rightFitted.clear();
                 for (const auto& point : leftFitted) {
-                    shiftedPoint = cv::Point2f(point.x + trackLaneWidthInPixel, point.y);
+                    shiftedPoint = cv::Point2f(point.x + trackLaneWidthInPixel + (config->trackLaneWidthOffset * pixelSizeInCm), point.y);
                     rightFitted.push_back(shiftedPoint);
                 }
                 firstPointLeftLine = pointFront; // Update historical left point
@@ -1185,7 +1381,7 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
                 rightFitted = lines[0];
                 leftFitted.clear();
                 for (const auto& point : rightFitted) {
-                    shiftedPoint = cv::Point2f(point.x - trackLaneWidthInPixel, point.y);
+                    shiftedPoint = cv::Point2f(point.x - trackLaneWidthInPixel - (config->trackLaneWidthOffset * pixelSizeInCm), point.y);
                     leftFitted.push_back(shiftedPoint);
                 }
                 firstPointRightLine = pointFront; // Update historical right point
@@ -1250,6 +1446,29 @@ cv::Point2f CameraProcessing::interpolateClosestPoints(const std::vector<cv::Poi
     return cv::Point2f(interpolatedX, targetY);
 }
 
+// Function that adds up segments size
+double CameraProcessing::calculateLineLength(const std::vector<cv::Point2f>& curve){
+    double size = 0;
+    for (int i = 1; i < curve.size(); i++){
+        size += euclideanDistance(curve[i-1],curve[i]);
+    }
+    return size;
+}
+
+// Functions to read Specific Data From Recieved Data via Serial
+uint16_t CameraProcessing::getDistanceFromCarsBumper(){
+    uint16_t value = 0;
+    std::string receivedData = serial.getReceivedData();
+    size_t pos = receivedData.find(';');
+
+    std::cout << "receivedData value: " << receivedData << std::endl;
+    if (pos != std::string::npos) {
+        value = std::stoi(receivedData.substr(pos + 1));
+        //std::cout << "Extracted value: " << value << std::endl;
+    }
+    return (value - config->distanceFromSensorToBumper);
+}
+
 // Perspective transform related methods
 void CameraProcessing::initPerspectiveVariables() {
     auto loadedPoints = readPointsFromTxt("interpolated_points.txt");
@@ -1264,28 +1483,28 @@ void CameraProcessing::initPerspectiveVariables() {
     dstPoints = {
         cv::Point2f(
             birdsEyeViewWidth / 2 - widthDstPoints / 2,
-            birdsEyeViewHeight - heightDstPoints - distanceErrorFromChassis
+            birdsEyeViewHeight - heightDstPoints - config->distanceErrorFromChassis
         ), // Top-left corner
         cv::Point2f(
             birdsEyeViewWidth / 2 - widthDstPoints / 2,
-            birdsEyeViewHeight - distanceErrorFromChassis
+            birdsEyeViewHeight - config->distanceErrorFromChassis
         ), // Bottom-left corner
         cv::Point2f(
             birdsEyeViewWidth / 2 + widthDstPoints / 2,
-            birdsEyeViewHeight - heightDstPoints - distanceErrorFromChassis
+            birdsEyeViewHeight - heightDstPoints - config->distanceErrorFromChassis
         ), // Top-right corner
         cv::Point2f(
             birdsEyeViewWidth / 2 + widthDstPoints / 2,
-            birdsEyeViewHeight - distanceErrorFromChassis
+            birdsEyeViewHeight - config->distanceErrorFromChassis
         ) // Bottom-right corner
     };
 
     this->trackLaneWidthInPixel = euclideanDistance(dstPoints[3], dstPoints[1]) ;//+ 20;   //Error mitigation +10
     this->trackLaneWidthInCm = trackWidthInCm;
     this->pixelSizeInCm = trackLaneWidthInCm / trackLaneWidthInPixel;
-    std::cout << "trackLaneWidthInCm: " << trackLaneWidthInCm << std::endl;
-    std::cout << "trackLaneWidthInPixel: " << trackLaneWidthInPixel << std::endl;
-    std::cout << "pixelSizeInCm: " << pixelSizeInCm << std::endl;
+    // std::cout << "trackLaneWidthInCm: " << trackLaneWidthInCm << std::endl;
+    // std::cout << "trackLaneWidthInPixel: " << trackLaneWidthInPixel << std::endl;
+    // std::cout << "pixelSizeInCm: " << pixelSizeInCm << std::endl;
     this->MatrixBirdsEyeView = cv::getPerspectiveTransform(srcPoints, dstPoints);
     this->MatrixInverseBirdsEyeView = this->MatrixBirdsEyeView.inv();
     

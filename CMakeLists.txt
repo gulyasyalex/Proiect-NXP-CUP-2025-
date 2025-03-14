@@ -4,15 +4,15 @@ project("DEBIX")
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
+set(CMAKE_BUILD_TYPE Debug)
 
 # Find OpenCV package (no need to set OpenCV_DIR explicitly on Linux if it's installed correctly)
-find_package(OpenCV REQUIRED)
+
 find_package(PkgConfig REQUIRED)
+find_package(OpenCV REQUIRED)
 find_package(CURL REQUIRED)
 #pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
-
-
+pkg_check_modules(GPIOD REQUIRED libgpiod)
 
 # Include directories from OpenCV
 include_directories(
@@ -40,5 +40,6 @@ target_link_libraries(DEBIX
     ${CURL_LIBRARIES}
     ${LIBUSB_LIBRARIES}  
     serial
+    gpiod
     )
 

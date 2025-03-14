@@ -16,6 +16,7 @@ public:
     explicit TcpConnection(int port);
     int getPort() const;
     void sendFrame(const cv::Mat& frame);
+    std::string receiveData();
 };
 
 TcpConnection::TcpConnection(int port) : port(port), socket(io_context) {
@@ -43,5 +44,22 @@ void TcpConnection::sendFrame(const cv::Mat& frame) {
     // Send the frame data
     boost::asio::write(this->socket, boost::asio::buffer(buffer.data(), buffer.size()));
 }
+
+std::string TcpConnection::receiveData() {
+    char buffer[16];  // Expecting "1;steering;speed\n"
+    std::string receivedData;
+
+    try {
+        size_t bytesRead = socket.read_some(boost::asio::buffer(buffer, sizeof(buffer)));
+        if (bytesRead > 0) {
+            receivedData.assign(buffer, bytesRead);
+        }
+    } catch (std::exception &e) {
+        std::cerr << "Error receiving data: " << e.what() << std::endl;
+    }
+
+    return receivedData;
+}
+
 
 #endif

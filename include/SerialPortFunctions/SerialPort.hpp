@@ -15,6 +15,7 @@ namespace debix{
             LibSerial::SerialPort serialPort;
             std::mutex serialMutex;
             std::thread serialReadThread;
+            std::string receivedData;
 
             SerialPort() = default;
             ~SerialPort() 
@@ -40,6 +41,9 @@ namespace debix{
             void startSerialRead();
             void stopSerialRead();
             void connectTeensy(const std::string& portName) ;
+            std::string getReceivedData(){
+                return this->receivedData;
+            };
     };
 }
 
@@ -71,9 +75,11 @@ void debix::SerialPort::readFromSerial() {
     while (this->running) {
         try {
             if (serialPort.IsDataAvailable()) {
-                std::string receivedData;
-                serialPort.ReadLine(receivedData, '\n', 50);
-                if (!receivedData.empty()) {
+                // ActualSpeed; DistanceFromLidarInCm
+                std::string localReceivedData;
+                serialPort.ReadLine(localReceivedData, '\n', 50);
+                if (!localReceivedData.empty()) {
+                    this->receivedData = localReceivedData;
                     //std::cout << "[RX] Received: " << receivedData;
                 }
             } else {
