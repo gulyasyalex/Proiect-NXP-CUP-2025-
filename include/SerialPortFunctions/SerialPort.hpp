@@ -65,7 +65,7 @@ void debix::SerialPort::writeToSerial(const std::string &data) {
     std::lock_guard<std::mutex> lock(serialMutex);  // Ensure thread safety
     try {
         serialPort.Write(data + "\n");  // Append newline for easier reading
-        std::cout << "[TX] Sent: " << data << std::endl;
+        //std::cout << "[TX] Sent: " << data << std::endl;
     } catch (const std::exception &e) {
         std::cerr << "Error writing to serial port: " << e.what() << std::endl;
     }

@@ -75,13 +75,13 @@ int main() {
     global_config->enableCameraThresholdCheck = ENABLE_CAMERA_THRESHOLD_CHECK;
     global_config->enableFinishLineDetection = ENABLE_FINISH_LINE_DETECTION;
     global_config->thresholdValue = DEFAULT_THRESHOLD_VALUE;
-    global_config->calibrateTopLine = DEFAULT_CALIBRATE_TOP_LINE;
-    global_config->calibrateBottomLine = DEFAULT_CALIBRATE_BOTTOM_LINE;
     global_config->distanceErrorFromChassis = DEFAULT_DISTANCE_ERROR_FROM_CHASSIS;
     global_config->lineMinPixelCount = DEFAULT_LINE_MIN_PIXEL_COUNT;
     global_config->distanceFromSensorToBumper = DEFAULT_DISTANCE_FROM_SENSOR_TO_BUMPER;
     global_config->stoppingDistanceBeforeBox = DEFAULT_STOPPING_DISTANCE_BEFORE_BOX;
 
+    global_config->calibrateTopLinePerc = DEFAULT_CALIBRATE_TOP_LINE;
+    global_config->calibrateBottomLinePerc = DEFAULT_CALIBRATE_BOTTOM_LINE;
     global_config->trackLaneWidthOffset = DEFAULT_TRACK_LANE_WIDTH_OFFSET;
     global_config->topImageCutPercentage = DEFAULT_TOP_IMAGE_CUT_PERCENTAGE;
     global_config->topCutOffPercentageCustomConnected = DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED;
@@ -108,15 +108,16 @@ int main() {
             << raw_config->enableCarSteering << " "
             << raw_config->enableCameraThresholdCheck << " "
             << raw_config->thresholdValue << " "
-            << raw_config->calibrateTopLine << " "
-            << raw_config->calibrateBottomLine << " "
             << raw_config->distanceErrorFromChassis << " "
             << raw_config->lineMinPixelCount << " "
             << raw_config->distanceFromSensorToBumper << " "
             << raw_config->stoppingDistanceBeforeBox << std::endl;
 
     std::cout << "Doubles: ";
-    std::cout << raw_config->topImageCutPercentage << " "
+    std::cout << raw_config->calibrateTopLinePerc << " "
+            << raw_config->calibrateBottomLinePerc << " " << " "
+            << raw_config->trackLaneWidthOffset << " "
+            << raw_config->topImageCutPercentage << " "
             << raw_config->topCutOffPercentageCustomConnected << " "
             << raw_config->lineBottomStartRangeCustomConnected << " "
             << raw_config->min90DegreeAngleRange << " "
@@ -139,12 +140,14 @@ std::cout << "enableCarEngine: " << offsetof(SharedConfig, enableCarEngine) << s
 std::cout << "enableCarSteering: " << offsetof(SharedConfig, enableCarSteering) << std::endl;
 std::cout << "enableCameraThresholdCheck: " << offsetof(SharedConfig, enableCameraThresholdCheck) << std::endl;
 std::cout << "thresholdValue: " << offsetof(SharedConfig, thresholdValue) << std::endl;
-std::cout << "calibrateTopLine: " << offsetof(SharedConfig, calibrateTopLine) << std::endl;
-std::cout << "calibrateBottomLine: " << offsetof(SharedConfig, calibrateBottomLine) << std::endl;
 std::cout << "distanceErrorFromChassis: " << offsetof(SharedConfig, distanceErrorFromChassis) << std::endl;
 std::cout << "lineMinPixelCount: " << offsetof(SharedConfig, lineMinPixelCount) << std::endl;
 std::cout << "distanceFromSensorToBumper: " << offsetof(SharedConfig, distanceFromSensorToBumper) << std::endl;
 std::cout << "stoppingDistanceBeforeBox: " << offsetof(SharedConfig, stoppingDistanceBeforeBox) << std::endl;
+
+std::cout << "calibrateTopLinePerc: " << offsetof(SharedConfig, calibrateTopLinePerc) << std::endl;
+std::cout << "calibrateBottomLinePerc: " << offsetof(SharedConfig, calibrateBottomLinePerc) << std::endl;
+std::cout << "trackLaneWidthOffset: " << offsetof(SharedConfig, trackLaneWidthOffset) << std::endl;
 std::cout << "topImageCutPercentage: " << offsetof(SharedConfig, topImageCutPercentage) << std::endl;
 std::cout << "topCutOffPercentageCustomConnected: " << offsetof(SharedConfig, topCutOffPercentageCustomConnected) << std::endl;
 std::cout << "lineBottomStartRangeCustomConnected: " << offsetof(SharedConfig, lineBottomStartRangeCustomConnected) << std::endl;

@@ -19,13 +19,25 @@ extern debix::SerialPort& serial;
 /*
 
 for indoor track
-72 99
--32 229
-238 99
-378 229
-174 239
+84 99
+-49 229
+242 99
+353 229
+151 239
 
+240x180
+35 73
+-57 171
+163 73
+250 171
+96 179
 
+200x150
+44 61
+-22 142
+164 61
+235 142
+106 149
 
 for B020 curved track
 74 84
@@ -49,34 +61,34 @@ for B020 curved track
 // Range field is added for the LCD limits !!DO NOT DELETE
 #pragma pack(push, 1)  // Disable struct padding
 struct SharedConfig {
-    int enableCarEngine;                                    //Range: 0-1
-    int enableCarSteering;                                  //Range: 0-1
-    int enableCameraThresholdCheck;                         //Range: 0-1
-    int enableFinishLineDetection;                          //Range: 0-1
-    int thresholdValue;                                     //Range: 0-255
-    int calibrateTopLine;                                   //Range: 0-240
-    int calibrateBottomLine;                                //Range: 0-240
-    int distanceErrorFromChassis;                           //Range: 0-240
-    int lineMinPixelCount;                                  //Range: 0-255
-    int distanceFromSensorToBumper;                         //Range: 0-30
-    int stoppingDistanceBeforeBox;                          //Range: 1-9
+    int enableCarEngine;                                    //Range: 0 - 1
+    int enableCarSteering;                                  //Range: 0 - 1
+    int enableCameraThresholdCheck;                         //Range: 0 - 1
+    int enableFinishLineDetection;                          //Range: 0 - 1
+    int thresholdValue;                                     //Range: 0 - 255
+    int distanceErrorFromChassis;                           //Range: 0 - 240
+    int lineMinPixelCount;                                  //Range: 0 - 255
+    int distanceFromSensorToBumper;                         //Range: 0 - 30
+    int stoppingDistanceBeforeBox;                          //Range: 1 - 9
     char _padding[4];
-    double trackLaneWidthOffset;                            //Range: 0-200
-    double topImageCutPercentage;                           //Range: 0-240
-    double topCutOffPercentageCustomConnected;              //Range: 0-1
-    double lineBottomStartRangeCustomConnected;             //Range: 0-1
-    double min90DegreeAngleRange;                           //Range: 0-90
-    double max90DegreeAngleRange;                           //Range: 90-180
-    double servoTurnAdjustmentCoefficient;                  //Range: 0-5
-    double minSpeed;                                        //Range: 0-215
-    double maxSpeed;                                        //Range: 0-215
-    double curvatureFactor;                                 //Range: 0-200
-    double k_min;                                           //Range: 0-1
-    double k_max;                                           //Range: 0-1
-    double R_minInCm;                                       //Range: 0-2000
-    double R_maxInCm;                                       //Range: 0-2000
-    double minLookAheadInCm;                                //Range: 0-100
-    double maxLookAheadInCm;                                //Range: 0-100
+    double calibrateTopLinePerc;                            //Range: 0 - 100
+    double calibrateBottomLinePerc;                         //Range: 0 - 100
+    double trackLaneWidthOffset;                            //Range: -100 - 200
+    double topImageCutPercentage;                           //Range: 0 - 240
+    double topCutOffPercentageCustomConnected;              //Range: 0 - 1
+    double lineBottomStartRangeCustomConnected;             //Range: 0 - 1
+    double min90DegreeAngleRange;                           //Range: 0 - 90
+    double max90DegreeAngleRange;                           //Range: 90 - 180
+    double servoTurnAdjustmentCoefficient;                  //Range: 0 - 5
+    double minSpeed;                                        //Range: 0 - 215
+    double maxSpeed;                                        //Range: 0 - 215
+    double curvatureFactor;                                 //Range: 0 - 200
+    double k_min;                                           //Range: 0 - 1
+    double k_max;                                           //Range: 0 - 1
+    double R_minInCm;                                       //Range: 0 - 2000
+    double R_maxInCm;                                       //Range: 0 - 2000
+    double minLookAheadInCm;                                //Range: 0 - 100
+    double maxLookAheadInCm;                                //Range: 0 - 100
 };
 #pragma pack(pop)  // Restore default padding
 
@@ -86,15 +98,15 @@ struct SharedConfig {
 #define DEFAULT_ENABLE_CAR_ENGINE 1
 #define DEFAULT_ENABLE_CAR_STEERING 1
 #define DEFAULT_THRESHOLD_VALUE 55
-#define DEFAULT_CALIBRATE_TOP_LINE 100
-#define DEFAULT_CALIBRATE_BOTTOM_LINE 230
 #define DEFAULT_DISTANCE_ERROR_FROM_CHASSIS 0
 #define DEFAULT_LINE_MIN_PIXEL_COUNT 70
 #define DEFAULT_DISTANCE_FROM_SENSOR_TO_BUMPER 7
 #define DEFAULT_STOPPING_DISTANCE_BEFORE_BOX 15
 
 // Double values
-#define DEFAULT_TRACK_LANE_WIDTH_OFFSET 47.0
+#define DEFAULT_CALIBRATE_TOP_LINE 41.6 //100
+#define DEFAULT_CALIBRATE_BOTTOM_LINE 95.8 //230
+#define DEFAULT_TRACK_LANE_WIDTH_OFFSET 0.0
 #define DEFAULT_TOP_IMAGE_CUT_PERCENTAGE 0.0
 #define DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 0.35
 #define DEFAULT_LINE_BOTTOM_START_RANGE_CUSTOM_CONNECTED 0.45
@@ -102,7 +114,7 @@ struct SharedConfig {
 #define DEFAULT_MAX_90_DEGREE_ANGLE_RANGE 120.0
 #define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 1.0
 #define DEFAULT_MIN_SPEED 20.0
-#define DEFAULT_MAX_SPEED 100.0
+#define DEFAULT_MAX_SPEED 200.0
 #define DEFAULT_CURVATURE_FACTOR 13.0
 #define DEFAULT_K_MIN 0.1
 #define DEFAULT_K_MAX 0.4
@@ -171,8 +183,12 @@ double maxLookAheadInCm = 40.0;                      // Maximum lookahead distan
 // Used to setup Camera
 constexpr int captureFrameWidth = 320;
 constexpr int captureFrameHeight = 240;
-constexpr int resizeFrameWidth = 320;
-constexpr int resizeFrameHeight = 240;
+constexpr int captureTotalPixels = captureFrameWidth * captureFrameHeight;
+
+constexpr int resizeFrameWidth = 200;//240;//320;
+constexpr int resizeFrameHeight = 150;//180;//240;
+constexpr int resizeTotalPixels = resizeFrameWidth * resizeFrameHeight;
+constexpr double ScalingFactor = static_cast<double>(resizeTotalPixels) / captureTotalPixels;
 constexpr int captureFps = 100;
 cv::Point2f undefinedPoint = cv::Point2f(1000,0);
 
@@ -186,13 +202,14 @@ constexpr double birdsEyeViewHeight = 400;
 
 constexpr int maxThresholdValue = 255;
 // Used in fitPolinomial()
-constexpr int fitPolyWindowSize = 35;  
+constexpr int fitPolyWindowSize = static_cast<int>(35 * ScalingFactor);  
 constexpr double fitPolyEpsilon = 10.0;                          // Epsilon value for curve approximation
+
+constexpr double APPROACHING_INTERSECTION_minLineLength = 80.0;  
 
 // Used in findMiddle()
 constexpr int curveSamplePoints = 15;                           // 15 Number of points to sample the curve(High number equals more complexity)
 
-constexpr int  finishLineSizeInPixels = 50;                         // One line is approx 10cm
 // Used in are2PointsHorizontal()
 constexpr double horizontalSlopeThreshold = 1;                  // Absolute value to handle horizontal line cutoffs
 

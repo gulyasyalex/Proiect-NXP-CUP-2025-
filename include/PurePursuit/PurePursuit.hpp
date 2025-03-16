@@ -136,8 +136,7 @@ void PurePursuit::computePurePursuit(std::vector<cv::Point2f> allMidPoints,
     lookAheadPoint = findHighestIntersection(allMidPoints, carInFramePositionBirdsEye, lookAheadDistanceInCm/pixelSizeInCm);  
     angleHeadingTarget = calculateSignedAngle(carTopPoint, carInFramePositionBirdsEye, lookAheadPoint);
     
-    speed = CalculateCarSpeed(config->minSpeed, config->maxSpeed, wheelBaseInCm, 0.4, 981, angleHeadingTarget);
-    std::cout << "(Constantin) speed:" << speed << "\n";
+    speed = CalculateCarSpeed(config->minSpeed, config->maxSpeed, wheelBaseInCm, 0.7, 981, angleHeadingTarget);
 
     steeringAngleServo = calculateServoValue(angleHeadingTarget, lookAheadDistanceInCm);                 
 }
