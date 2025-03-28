@@ -58,7 +58,7 @@ class PurePursuit {
 private:
     double trackCurvatureRadius;
     double speed = 0;
-    double lookAheadDistanceInCm;
+    double lookAheadDistanceInCm = 0;
     double steeringAngleDegrees;
     double steeringAngleServo;
     cv::Point2f lookAheadPoint;
@@ -73,7 +73,7 @@ public:
                                 double pixelSizeInCm, cv::Point2f carTopPoint);
     double adjustSpeed(double trackCurvatureRadius, double currentSpeed);
     double computeLookAheadDistance(double trackCurvatureRadius, std::vector<cv::Point2f> allMidPoints,
-                                cv::Point2f carInFramePositionBirdsEye,double pixelSizeInCm);
+                                cv::Point2f carInFramePositionBirdsEye,double pixelSizeInCm, double speed);
     cv::Point2f findHighestIntersection(const std::vector<cv::Point2f>& curve, 
                                     const cv::Point2f& circleCenter, double circleRadius); 
                                     
@@ -127,18 +127,18 @@ void PurePursuit::computePurePursuit(std::vector<cv::Point2f> allMidPoints,
                                 cv::Point2f carInFramePositionBirdsEye,
                                 double pixelSizeInCm, cv::Point2f carTopPoint){
     // Track Curvature is used in speed and lookahead distance formulas
-    trackCurvatureRadius = computeCurvatureRadiusInFrontOfCar(allMidPoints, carInFramePositionBirdsEye, ((lookAheadDistanceInCm+30)*pixelSizeInCm));
+    this->trackCurvatureRadius = computeCurvatureRadiusInFrontOfCar(allMidPoints, carInFramePositionBirdsEye, ((this->lookAheadDistanceInCm+30)*pixelSizeInCm));
     
     //speed = adjustSpeed(trackCurvatureRadius, speed);
-    lookAheadDistanceInCm = computeLookAheadDistance(trackCurvatureRadius, allMidPoints,
-                                         carInFramePositionBirdsEye, pixelSizeInCm);
+    this->lookAheadDistanceInCm = computeLookAheadDistance(trackCurvatureRadius, allMidPoints,
+                                         carInFramePositionBirdsEye, pixelSizeInCm, this->speed);
     // std::cout << "lookAheadDistanceInCm:" << lookAheadDistanceInCm << std::endl;
-    lookAheadPoint = findHighestIntersection(allMidPoints, carInFramePositionBirdsEye, lookAheadDistanceInCm/pixelSizeInCm);  
-    angleHeadingTarget = calculateSignedAngle(carTopPoint, carInFramePositionBirdsEye, lookAheadPoint);
+    this->lookAheadPoint = findHighestIntersection(allMidPoints, carInFramePositionBirdsEye, lookAheadDistanceInCm/pixelSizeInCm);  
+    this->angleHeadingTarget = calculateSignedAngle(carTopPoint, carInFramePositionBirdsEye, this->lookAheadPoint);
     
-    speed = CalculateCarSpeed(config->minSpeed, config->maxSpeed, wheelBaseInCm, 0.7, 981, angleHeadingTarget);
+    this->speed = CalculateCarSpeed(config->minSpeed, config->maxSpeed, wheelBaseInCm, config->corneringSpeedCoefficient, 981, this->angleHeadingTarget);
 
-    steeringAngleServo = calculateServoValue(angleHeadingTarget, lookAheadDistanceInCm);                 
+    this->steeringAngleServo = calculateServoValue(this->angleHeadingTarget, this->lookAheadDistanceInCm);                 
 }
 
 double PurePursuit::adjustSpeed(double trackCurvatureRadius, double currentSpeed) {
@@ -157,14 +157,18 @@ double PurePursuit::adjustSpeed(double trackCurvatureRadius, double currentSpeed
 
 
 double PurePursuit::computeLookAheadDistance(double trackCurvatureRadius, std::vector<cv::Point2f> allMidPoints,
-                                cv::Point2f carInFramePositionBirdsEye, double pixelSizeInCm) {
+                                cv::Point2f carInFramePositionBirdsEye, double pixelSizeInCm, double speed) {
 
     // std::cout << "trackCurvatureRadius before K: " << trackCurvatureRadius << "\n";
     
     static double k = computeK(trackCurvatureRadius);  // Initialize once
-    k = 0.8 * k + 0.2 * computeK(trackCurvatureRadius);  // Update with smoothing
 
-    // std::cout << "Computed K: " << k << "\n";
+    /* Warning: We enter a corner with e.g. 270cm/s and we want minLookAhead to be 40cm
+     *          k must be 0.148 so we have it configured as 14.8 and we divide by 100 (DO NOT CHANGE)
+     */
+    //k = (0.8 * k + 0.2 * computeK(trackCurvatureRadius));  // Update with smoothing
+    k = computeK(trackCurvatureRadius);
+    k = k / 100;
     double minimumDistance = pixelSizeInCm * shortestDistanceToCurve(allMidPoints, carInFramePositionBirdsEye);
 
     double lookAheadDistance = k * speed + minimumDistance;
@@ -236,8 +240,8 @@ double PurePursuit::computeK(double R)
 
     // Linear interpolation between k_min and k_max
     double ratio = (R - config->R_minInCm) / (config->R_maxInCm - config->R_minInCm);
-    // std::cout << "Compute K Ratio: " << ratio << "\n";
-    return config->k_min + ratio * (config->k_max - config->k_min);
+    double k = config->k_min + ratio * (config->k_max - config->k_min);
+    return k;
 }
 
 // Function to calculate servo value

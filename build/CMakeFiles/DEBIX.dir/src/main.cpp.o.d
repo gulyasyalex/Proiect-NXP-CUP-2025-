@@ -241,6 +241,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: \
  /usr/include/c++/11/atomic /usr/include/c++/11/mutex \
  /usr/include/c++/11/bits/std_mutex.h \
  /usr/include/c++/11/bits/unique_lock.h \
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/SerialPortFunctions/WriteAllWithTimeout.hpp \
+ /usr/include/c++/11/cstring /usr/include/string.h /usr/include/strings.h \
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/CameraProcessing.hpp \
  /usr/include/opencv4/opencv2/opencv.hpp \
  /usr/include/opencv4/opencv2/opencv_modules.hpp \
@@ -266,8 +268,7 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: \
  /usr/include/c++/11/bits/algorithmfwd.h \
  /usr/include/c++/11/bits/stl_heap.h \
  /usr/include/c++/11/bits/uniform_int_dist.h \
- /usr/include/opencv4/opencv2/core/cvstd.hpp /usr/include/c++/11/cstring \
- /usr/include/string.h /usr/include/strings.h /usr/include/c++/11/cmath \
+ /usr/include/opencv4/opencv2/core/cvstd.hpp /usr/include/c++/11/cmath \
  /usr/include/math.h /usr/include/aarch64-linux-gnu/bits/math-vector.h \
  /usr/include/aarch64-linux-gnu/bits/libm-simd-decl-stubs.h \
  /usr/include/aarch64-linux-gnu/bits/flt-eval-method.h \

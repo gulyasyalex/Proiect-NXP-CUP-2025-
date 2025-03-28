@@ -70,25 +70,27 @@ int main() {
     memset(global_config.get(), 0, SHM_SIZE);
 
     // Initialize values
+    global_config->startRace = DEFAULT_START_RACE;
     global_config->enableCarEngine = DEFAULT_ENABLE_CAR_ENGINE;
     global_config->enableCarSteering = DEFAULT_ENABLE_CAR_STEERING;
     global_config->enableCameraThresholdCheck = ENABLE_CAMERA_THRESHOLD_CHECK;
     global_config->enableFinishLineDetection = ENABLE_FINISH_LINE_DETECTION;
     global_config->thresholdValue = DEFAULT_THRESHOLD_VALUE;
     global_config->distanceErrorFromChassis = DEFAULT_DISTANCE_ERROR_FROM_CHASSIS;
-    global_config->lineMinPixelCount = DEFAULT_LINE_MIN_PIXEL_COUNT;
-    global_config->distanceFromSensorToBumper = DEFAULT_DISTANCE_FROM_SENSOR_TO_BUMPER;
-    global_config->stoppingDistanceBeforeBox = DEFAULT_STOPPING_DISTANCE_BEFORE_BOX;
+    global_config->lineMinPixelCount = _minLinePixelCount;
+    global_config->distanceSensorError = DEFAULT_DISTANCE_FROM_SENSOR_ERROR;
+    global_config->stoppingDistanceBoxFrontEnd = DEFAULT_STOPPING_DISTANCE_BOX_FRONT_END;
 
     global_config->calibrateTopLinePerc = DEFAULT_CALIBRATE_TOP_LINE;
     global_config->calibrateBottomLinePerc = DEFAULT_CALIBRATE_BOTTOM_LINE;
     global_config->trackLaneWidthOffset = DEFAULT_TRACK_LANE_WIDTH_OFFSET;
     global_config->topImageCutPercentage = DEFAULT_TOP_IMAGE_CUT_PERCENTAGE;
     global_config->topCutOffPercentageCustomConnected = DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED;
-    global_config->lineBottomStartRangeCustomConnected = DEFAULT_LINE_BOTTOM_START_RANGE_CUSTOM_CONNECTED;
-    global_config->min90DegreeAngleRange = DEFAULT_MIN_90_DEGREE_ANGLE_RANGE;
-    global_config->max90DegreeAngleRange = DEFAULT_MAX_90_DEGREE_ANGLE_RANGE;
+    global_config->bottomCutOffPercentageCustomConnected = DEFAULT_BOTTOM_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED;
+    global_config->line90DegreeAngleRange = DEFAULT_LINE_90_DEGREE_ANGLE_RANGE;
+    global_config->finishLineAngleRange = DEFAULT_FINISH_LINE_ANGLE_RANGE;
     global_config->servoTurnAdjustmentCoefficient = DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT;
+    global_config->corneringSpeedCoefficient = DEFAULT_CORNERING_SPEED_COEFFICIENT;
     global_config->minSpeed = DEFAULT_MIN_SPEED;
     global_config->maxSpeed = DEFAULT_MAX_SPEED;
     global_config->curvatureFactor = DEFAULT_CURVATURE_FACTOR;
@@ -98,20 +100,24 @@ int main() {
     global_config->R_maxInCm = DEFAULT_R_MAX_IN_CM;
     global_config->minLookAheadInCm = DEFAULT_MIN_LOOKAHEAD_IN_CM;
     global_config->maxLookAheadInCm = DEFAULT_MAX_LOOKAHEAD_IN_CM;
+    global_config->waitBeforeStartSeconds = DEFAULT_WAIT_BEFORE_START_SECONDS;                      
+    global_config->straightWheelTimerSeconds = DEFAULT_STRAIGHT_WHEEL_TIMER_SECONDS;                   
 
     std::cout << "Shared memory initialized with defaults: " << std::endl;
 
     SharedConfig* raw_config = global_config.get();  // Get raw pointer from shared_ptr
 
     std::cout << "\nIntegers: ";
-    std::cout << raw_config->enableCarEngine << " "
+    std::cout << raw_config->startRace << " "
+            << raw_config->enableCarEngine << " "
             << raw_config->enableCarSteering << " "
             << raw_config->enableCameraThresholdCheck << " "
+            << raw_config->enableFinishLineDetection << " "
             << raw_config->thresholdValue << " "
             << raw_config->distanceErrorFromChassis << " "
             << raw_config->lineMinPixelCount << " "
-            << raw_config->distanceFromSensorToBumper << " "
-            << raw_config->stoppingDistanceBeforeBox << std::endl;
+            << raw_config->distanceSensorError << " "
+            << raw_config->stoppingDistanceBoxFrontEnd << std::endl;
 
     std::cout << "Doubles: ";
     std::cout << raw_config->calibrateTopLinePerc << " "
@@ -119,10 +125,11 @@ int main() {
             << raw_config->trackLaneWidthOffset << " "
             << raw_config->topImageCutPercentage << " "
             << raw_config->topCutOffPercentageCustomConnected << " "
-            << raw_config->lineBottomStartRangeCustomConnected << " "
-            << raw_config->min90DegreeAngleRange << " "
-            << raw_config->max90DegreeAngleRange << " "
+            << raw_config->bottomCutOffPercentageCustomConnected << " "
+            << raw_config->line90DegreeAngleRange << " "
+            << raw_config->finishLineAngleRange << " "
             << raw_config->servoTurnAdjustmentCoefficient << " "
+            << raw_config->corneringSpeedCoefficient << " "
             << raw_config->minSpeed << " "
             << raw_config->maxSpeed << " "
             << raw_config->curvatureFactor << " "
@@ -131,38 +138,45 @@ int main() {
             << raw_config->R_minInCm << " "
             << raw_config->R_maxInCm << " "
             << raw_config->minLookAheadInCm << " "
-            << raw_config->maxLookAheadInCm << std::endl;
+            << raw_config->maxLookAheadInCm << " "
+            << raw_config->waitBeforeStartSeconds << " "
+            << raw_config->straightWheelTimerSeconds << std::endl;
 
-std::cout << "sizeof(SharedConfig): " << sizeof(SharedConfig) << " bytes" << std::endl;
+    std::cout << "sizeof(SharedConfig): " << sizeof(SharedConfig) << " bytes" << std::endl;
 
-std::cout << "Offsets in SharedConfig:" << std::endl;
-std::cout << "enableCarEngine: " << offsetof(SharedConfig, enableCarEngine) << std::endl;
-std::cout << "enableCarSteering: " << offsetof(SharedConfig, enableCarSteering) << std::endl;
-std::cout << "enableCameraThresholdCheck: " << offsetof(SharedConfig, enableCameraThresholdCheck) << std::endl;
-std::cout << "thresholdValue: " << offsetof(SharedConfig, thresholdValue) << std::endl;
-std::cout << "distanceErrorFromChassis: " << offsetof(SharedConfig, distanceErrorFromChassis) << std::endl;
-std::cout << "lineMinPixelCount: " << offsetof(SharedConfig, lineMinPixelCount) << std::endl;
-std::cout << "distanceFromSensorToBumper: " << offsetof(SharedConfig, distanceFromSensorToBumper) << std::endl;
-std::cout << "stoppingDistanceBeforeBox: " << offsetof(SharedConfig, stoppingDistanceBeforeBox) << std::endl;
+    std::cout << "Offsets in SharedConfig:" << std::endl;
+    std::cout << "startRace: " << offsetof(SharedConfig, startRace) << std::endl;
+    std::cout << "enableCarEngine: " << offsetof(SharedConfig, enableCarEngine) << std::endl;
+    std::cout << "enableCarSteering: " << offsetof(SharedConfig, enableCarSteering) << std::endl;
+    std::cout << "enableCameraThresholdCheck: " << offsetof(SharedConfig, enableCameraThresholdCheck) << std::endl;
+    std::cout << "enableFinishLineDetection: " << offsetof(SharedConfig, enableFinishLineDetection) << std::endl;
+    std::cout << "thresholdValue: " << offsetof(SharedConfig, thresholdValue) << std::endl;
+    std::cout << "distanceErrorFromChassis: " << offsetof(SharedConfig, distanceErrorFromChassis) << std::endl;
+    std::cout << "lineMinPixelCount: " << offsetof(SharedConfig, lineMinPixelCount) << std::endl;
+    std::cout << "distanceSensorError: " << offsetof(SharedConfig, distanceSensorError) << std::endl;
+    std::cout << "stoppingDistanceBoxFrontEnd: " << offsetof(SharedConfig, stoppingDistanceBoxFrontEnd) << std::endl;
 
-std::cout << "calibrateTopLinePerc: " << offsetof(SharedConfig, calibrateTopLinePerc) << std::endl;
-std::cout << "calibrateBottomLinePerc: " << offsetof(SharedConfig, calibrateBottomLinePerc) << std::endl;
-std::cout << "trackLaneWidthOffset: " << offsetof(SharedConfig, trackLaneWidthOffset) << std::endl;
-std::cout << "topImageCutPercentage: " << offsetof(SharedConfig, topImageCutPercentage) << std::endl;
-std::cout << "topCutOffPercentageCustomConnected: " << offsetof(SharedConfig, topCutOffPercentageCustomConnected) << std::endl;
-std::cout << "lineBottomStartRangeCustomConnected: " << offsetof(SharedConfig, lineBottomStartRangeCustomConnected) << std::endl;
-std::cout << "min90DegreeAngleRange: " << offsetof(SharedConfig, min90DegreeAngleRange) << std::endl;
-std::cout << "max90DegreeAngleRange: " << offsetof(SharedConfig, max90DegreeAngleRange) << std::endl;
-std::cout << "servoTurnAdjustmentCoefficient: " << offsetof(SharedConfig, servoTurnAdjustmentCoefficient) << std::endl;
-std::cout << "minSpeed: " << offsetof(SharedConfig, minSpeed) << std::endl;
-std::cout << "maxSpeed: " << offsetof(SharedConfig, maxSpeed) << std::endl;
-std::cout << "curvatureFactor: " << offsetof(SharedConfig, curvatureFactor) << std::endl;
-std::cout << "k_min: " << offsetof(SharedConfig, k_min) << std::endl;
-std::cout << "k_max: " << offsetof(SharedConfig, k_max) << std::endl;
-std::cout << "R_minInCm: " << offsetof(SharedConfig, R_minInCm) << std::endl;
-std::cout << "R_maxInCm: " << offsetof(SharedConfig, R_maxInCm) << std::endl;
-std::cout << "minLookAheadInCm: " << offsetof(SharedConfig, minLookAheadInCm) << std::endl;
-std::cout << "maxLookAheadInCm: " << offsetof(SharedConfig, maxLookAheadInCm) << std::endl;
+    std::cout << "calibrateTopLinePerc: " << offsetof(SharedConfig, calibrateTopLinePerc) << std::endl;
+    std::cout << "calibrateBottomLinePerc: " << offsetof(SharedConfig, calibrateBottomLinePerc) << std::endl;
+    std::cout << "trackLaneWidthOffset: " << offsetof(SharedConfig, trackLaneWidthOffset) << std::endl;
+    std::cout << "topImageCutPercentage: " << offsetof(SharedConfig, topImageCutPercentage) << std::endl;
+    std::cout << "topCutOffPercentageCustomConnected: " << offsetof(SharedConfig, topCutOffPercentageCustomConnected) << std::endl;
+    std::cout << "bottomCutOffPercentageCustomConnected: " << offsetof(SharedConfig, bottomCutOffPercentageCustomConnected) << std::endl;
+    std::cout << "line90DegreeAngleRange: " << offsetof(SharedConfig, line90DegreeAngleRange) << std::endl;
+    std::cout << "finishLineAngleRange: " << offsetof(SharedConfig, finishLineAngleRange) << std::endl;
+    std::cout << "servoTurnAdjustmentCoefficient: " << offsetof(SharedConfig, servoTurnAdjustmentCoefficient) << std::endl;
+    std::cout << "corneringSpeedCoefficient: " << offsetof(SharedConfig, corneringSpeedCoefficient) << std::endl;
+    std::cout << "minSpeed: " << offsetof(SharedConfig, minSpeed) << std::endl;
+    std::cout << "maxSpeed: " << offsetof(SharedConfig, maxSpeed) << std::endl;
+    std::cout << "curvatureFactor: " << offsetof(SharedConfig, curvatureFactor) << std::endl;
+    std::cout << "k_min: " << offsetof(SharedConfig, k_min) << std::endl;
+    std::cout << "k_max: " << offsetof(SharedConfig, k_max) << std::endl;
+    std::cout << "R_minInCm: " << offsetof(SharedConfig, R_minInCm) << std::endl;
+    std::cout << "R_maxInCm: " << offsetof(SharedConfig, R_maxInCm) << std::endl;
+    std::cout << "minLookAheadInCm: " << offsetof(SharedConfig, minLookAheadInCm) << std::endl;
+    std::cout << "maxLookAheadInCm: " << offsetof(SharedConfig, maxLookAheadInCm) << std::endl;
+    std::cout << "waitBeforeStartSeconds: " << offsetof(SharedConfig, waitBeforeStartSeconds) << std::endl;
+    std::cout << "straightWheelTimerSeconds: " << offsetof(SharedConfig, straightWheelTimerSeconds) << std::endl;
 
     std::cout << "sizeof(SharedConfig): " << sizeof(SharedConfig) << " bytes" << std::endl;
 

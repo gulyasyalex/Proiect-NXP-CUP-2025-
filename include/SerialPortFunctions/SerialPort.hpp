@@ -7,6 +7,7 @@
 #include <atomic>
 #include <mutex>
 #include <chrono>
+#include "WriteAllWithTimeout.hpp"
 
 namespace debix{
     class SerialPort{
@@ -62,14 +63,19 @@ void debix::SerialPort::initializeSerialPort(const std::string& portName) {
 }
 
 void debix::SerialPort::writeToSerial(const std::string &data) {
-    std::lock_guard<std::mutex> lock(serialMutex);  // Ensure thread safety
+    std::lock_guard<std::mutex> lock(serialMutex);
     try {
-        serialPort.Write(data + "\n");  // Append newline for easier reading
-        //std::cout << "[TX] Sent: " << data << std::endl;
+        int fd = serialPort.GetFileDescriptor();
+        if (!writeAllWithTimeout(fd, data + "\n", 100)) {
+            std::cerr << "[Serial] Write timed out.\n";
+        } else {
+            std::cout << "[TX] Sent: " << data << std::endl;
+        }
     } catch (const std::exception &e) {
         std::cerr << "Error writing to serial port: " << e.what() << std::endl;
     }
 }
+
 
 void debix::SerialPort::readFromSerial() {
     while (this->running) {
