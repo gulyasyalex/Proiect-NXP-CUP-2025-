@@ -62,6 +62,8 @@ void debix::SerialPort::initializeSerialPort(const std::string& portName) {
     }
 }
 
+/* Expected format: "<enableCarEngine>;<servoAngle>;<speed>;<isFinishLineDetected>;
+                    <distanceBeforeIssuesAppear>;<stoppingDistanceBoxLidar>;<afterFinishLineSpeed>"*/
 void debix::SerialPort::writeToSerial(const std::string &data) {
     std::lock_guard<std::mutex> lock(serialMutex);
     try {

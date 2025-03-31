@@ -9,7 +9,7 @@ extern debix::SerialPort& serial;
 #define ENABLE_CAMERA_CALIBRATION 0
 #define ENABLE_CAMERA_THRESHOLD_CHECK 0
 #define ENABLE_CAMERA_STREAMING 1
-#define ENABLE_TCP_OUTPUT 1
+#define ENABLE_TCP_OUTPUT 0
 #define ENABLE_TEENSY_SERIAL 1
 #define ENABLE_FINISH_LINE_DETECTION 1
 #define DEFAULT_START_RACE 0  // When set to 1 car starts 
@@ -76,11 +76,12 @@ struct SharedConfig {
     double calibrateTopLinePerc;                            //Range: 0 - 100
     double calibrateBottomLinePerc;                         //Range: 0 - 100
     double trackLaneWidthOffset;                            //Range: -100 - 200
-    double topImageCutPercentage;                           //Range: 0 - 240
+    double topImageCutPercentage;                           //Range: 0 - 1
+    double bottomImageCutPercentage;                           //Range: 0 - 1
     double topCutOffPercentageCustomConnected;              //Range: 0 - 1
-    double bottomCutOffPercentageCustomConnected;           //Range: 0 - 1
     double line90DegreeAngleRange;                          //Range: 0 - 90
     double finishLineAngleRange;                            //Range: 90 - 180
+    double afterFinishLineSpeed;                            //Range: 0 - 350
     double servoTurnAdjustmentCoefficient;                  //Range: 0 - 5
     double corneringSpeedCoefficient;                       //Range: 0 - 2
     double minSpeed;                                        //Range: 0 - 350
@@ -93,7 +94,7 @@ struct SharedConfig {
     double minLookAheadInCm;                                //Range: 0 - 100
     double maxLookAheadInCm;                                //Range: 0 - 100
     double waitBeforeStartSeconds;                          //Range: 0 - 10
-    double straightWheelTimerSeconds;                       //Range: 0 - 2
+    double straightWheelTimerSeconds;                       //Range: 0 - 5
 };
 #pragma pack(pop)  // Restore default padding
 
@@ -101,7 +102,7 @@ struct SharedConfig {
 // ---------------------------------------- USED IN SHARED MEMORY ----------------------------------------------------------
 // Integer values
 #define DEFAULT_ENABLE_CAR_ENGINE 0
-#define DEFAULT_ENABLE_CAR_STEERING 0
+#define DEFAULT_ENABLE_CAR_STEERING 1
 #define DEFAULT_THRESHOLD_VALUE 51
 #define DEFAULT_DISTANCE_ERROR_FROM_CHASSIS 0
 #define DEFAULT_LINE_MIN_PIXEL_COUNT 70 
@@ -113,21 +114,23 @@ struct SharedConfig {
 #define DEFAULT_CALIBRATE_BOTTOM_LINE 95.8 //230
 #define DEFAULT_TRACK_LANE_WIDTH_OFFSET 0.0
 #define DEFAULT_TOP_IMAGE_CUT_PERCENTAGE 0.0
+#define DEFAULT_BOTTOM_IMAGE_CUT_PERCENTAGE 0.35
 #define DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 0.45 // Cuts pixels from first 45% of image 
-#define DEFAULT_BOTTOM_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 0.65
+#define DEFAULT_BOTTOM_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 1 //0.65
 #define DEFAULT_LINE_90_DEGREE_ANGLE_RANGE 20.0                          // abs(degree-90) < range
 #define DEFAULT_FINISH_LINE_ANGLE_RANGE 15.0
+#define DEFAULT_AFTER_FINISH_LINE_SPEED 50.0
 #define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 1.0
 #define DEFAULT_CORNERING_SPEED_COEFFICIENT 0.9
-#define DEFAULT_MIN_SPEED 115.0
-#define DEFAULT_MAX_SPEED 270.0
+#define DEFAULT_MIN_SPEED 150.0
+#define DEFAULT_MAX_SPEED 250.0
 #define DEFAULT_CURVATURE_FACTOR 13.0
 #define DEFAULT_K_MIN 14.8
 #define DEFAULT_K_MAX 18.5
 #define DEFAULT_R_MIN_IN_CM 20.0
 #define DEFAULT_R_MAX_IN_CM 3000.0
 #define DEFAULT_MIN_LOOKAHEAD_IN_CM 40.0
-#define DEFAULT_MAX_LOOKAHEAD_IN_CM 50.0
+#define DEFAULT_MAX_LOOKAHEAD_IN_CM 55.0
 #define DEFAULT_WAIT_BEFORE_START_SECONDS 5.0
 #define DEFAULT_STRAIGHT_WHEEL_TIMER_SECONDS 2.0
 
@@ -214,7 +217,7 @@ constexpr double birdsEyeViewWidth = 370;
 constexpr double birdsEyeViewHeight = 400;
 
 constexpr int maxThresholdValue = 255;
-constexpr double APPROACHING_INTERSECTION_minLineLength = 80;  
+constexpr double APPROACHING_INTERSECTION_minLineLength = 75;  
 
 constexpr int distanceMedianFilterSampleSize = 5;
 

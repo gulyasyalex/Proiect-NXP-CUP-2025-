@@ -48,12 +48,14 @@ class CameraProcessing {
         double trackLaneWidthInPixel;
         double trackLaneWidthInCm;
         double pixelSizeInCm;
-        TcpConnection laptopTCP{9999};
+        #if 1 == ENABLE_TCP_OUTPUT 
+            TcpConnection laptopTCP{9999};
+        #endif
 
         bool isValidLines = true;
         bool isIntersection = false;      // Used to check if we are really in an intersection
         bool is90DegreeLine = false;        // Used to check if we have an intersection on the racetrack, a crosspath
-        double lineStartPointY = 0.7;       // birdsEyeViewHeight * lineStartPointY = Y threshold
+        double lineStartPointY = 0.8;       // birdsEyeViewHeight * lineStartPointY = Y threshold
 
         bool isFinishLineDetected = false;
         /* NOTE: this boolean is used to block the frameProcessing algorithm after the box is closer then certain distance */
@@ -75,7 +77,7 @@ class CameraProcessing {
             BOX_DETECTION
         };
         
-        State currentState = FOLLOWING_LINE;
+        State currentState = APPROACHING_INTERSECTION;
 
     public:
         std::atomic<bool> running{false};
@@ -107,13 +109,15 @@ class CameraProcessing {
         cv::Mat resizeImage(const cv::Mat& frame, int providedFrameWidth, int providedFrameHeight);
         // Cuts pixel rows from image's top part
         cv::Mat cropFrameTop(const cv::Mat& frame, double l_topCutOffPercentage);
+        // Cuts pixel rows from image's bottom part
+        cv::Mat cropFrameBottom(const cv::Mat& frame, double l_bottomCutOffPercentage);
         cv::Mat skeletonizeFrame(cv::Mat& thresholdedImage);
         // Apply color segmentation to isolate specific features in the image
         cv::Mat segmentEdges(const cv::Mat& frame);
         // Function to find lines in a skeletonized frame
-        std::vector<std::vector<cv::Point2f>> findLines(const cv::Mat& thresholdedImage, State currentState);        
+        std::vector<std::vector<cv::Point2f>> findLines(const cv::Mat& thresholdedImage, State currentState, const int rowTopCutOffThreshold);        
         int customConnectedComponentsWithThreshold(const cv::Mat& binaryImage, cv::Mat& labelImage, int radius,
-             std::vector<std::vector<cv::Point2f>>& lines, State currentState);
+             std::vector<std::vector<cv::Point2f>>& lines, State currentState, const int rowTopCutOffThreshold);
         // Function to smooth a vector of points using a moving average filter used in fitPolinomial
         std::vector<cv::Point2f> smoothPoints(const std::vector<cv::Point2f>& points, int windowSize);
         // Function to fit a polynomial to a set of points and return interpolated points
@@ -311,6 +315,8 @@ void CameraProcessing::processFrames() {
     double timeStart = cv::getTickCount();
 
     bool isStatusLedOn = false;
+    bool isStartLineSetup = true;
+    int rowTopCutOffThreshold;
 
     this->initPerspectiveVariables();
     while (this->running) {
@@ -351,12 +357,23 @@ void CameraProcessing::processFrames() {
                 {
                     isStatusLedOn = false;
                 }
+
+                /* WARNING: distanceBeforeIssuesAppear Is the distance where the car still sees the track and not the box in FOV*/
+                if (this->isFinishLineDetected && (getDistanceFromCarsBumper() < distanceBeforeIssuesAppear))
+                {
+                    isObjectCloserThanDistanceBeforeIssuesAppear = true;
+                }
+                else
+                {
+                    isObjectCloserThanDistanceBeforeIssuesAppear = false;
+                }
+                
                 /* NOTE: When modifying this bool from the menu, the car can restart the whole process */
                 if ( 0 == config->enableFinishLineDetection)
                 {
                     this->isFinishLineDetected = false;
                     this->isObjectCloserThanDistanceBeforeIssuesAppear = false;
-                    this->currentState = FOLLOWING_LINE;
+                    this->currentState = APPROACHING_INTERSECTION;
                 }
                 /* NOTE: this boolean is used to block the frameProcessing algorithm after the box is closer then certain distance */
                 if(this->isObjectCloserThanDistanceBeforeIssuesAppear)
@@ -367,15 +384,10 @@ void CameraProcessing::processFrames() {
                 }
                 else
                 {
-                
-                    /* WARNING: distanceBeforeIssuesAppear Is the distance where the car still sees the track and not the box in FOV*/
-                    if (this->isFinishLineDetected && (getDistanceFromCarsBumper() < distanceBeforeIssuesAppear))
-                    {
-                        isObjectCloserThanDistanceBeforeIssuesAppear = true;
-                    }
                     // * cv::TickMeter timer;
                     // * timer.start();
                     cv::Mat thresholdFrame = this->segmentEdges(frame);
+                    rowTopCutOffThreshold = static_cast<int>(frame.rows * config->topCutOffPercentageCustomConnected); 
                     // * timer.stop();
                     // * std::cout << "segmentEdges Time: " << timer.getTimeMilli() << " ms" << std::endl;
                     
@@ -386,36 +398,8 @@ void CameraProcessing::processFrames() {
                     } 
                     else 
                     {
-                        cv::Mat skeleton = this->skeletonizeFrame(thresholdFrame); 
-
-                        std::vector<std::vector<cv::Point2f>> lines = this->findLines(skeleton, this->currentState);
-
-                        cv::Mat outputImage = cv::Mat::zeros(frame.size(), CV_8UC3);
-                        
-                        #if 1 == ENABLE_TCP_OUTPUT 
-                            this->drawLines(outputImage,lines,cv::Scalar(255, 0, 0));
-                            /*for (const auto& line : lines){
-                                //drawPoints(outputImage, line, cv::Scalar(255, 0, 0));
-                                for (const auto& point : line){
-                                    std::cout << "Point.x:" << point.x << " Point.y:" << point.y << std::endl;
-                                }
-                            }*/
-                            //laptopTCP.sendFrame(outputImage);
-                        #endif
-                        
-                        for (int i = 0; i < lines.size(); i++){  
-                            lines[i] = this->fitPolinomial(lines[i],false);
-                        }
-                        
-                        #if 1 == ENABLE_TCP_OUTPUT 
-                            this->drawLines(outputImage,lines,cv::Scalar(0, 0, 255));
-                            this->laptopTCP.sendFrame(outputImage);
-                        #endif
-
                         #if 1 != ENABLE_CAMERA_CALIBRATION 
-                                                        
-                            cv::Size frameSize1(birdsEyeViewWidth, birdsEyeViewHeight);
-                            cv::Mat birdEyeViewWithPoints1 = cv::Mat::zeros(frameSize1, CV_8UC3);
+                            
                             
                             if (config->startRace){
                                 static auto startTime = std::chrono::steady_clock::now();
@@ -424,6 +408,7 @@ void CameraProcessing::processFrames() {
 
                                 double totalWaitMillis = (config->waitBeforeStartSeconds + config->straightWheelTimerSeconds) * 1000.0;
                                 // INFO: e.g. CAR waits for 5 seconds then starts engine
+                                
                                 if (elapsedMillis >= (config->waitBeforeStartSeconds * 1000.0)) 
                                 {
                                     config->enableCarEngine = true;
@@ -436,12 +421,36 @@ void CameraProcessing::processFrames() {
                                     config->enableCarSteering = true;
                                     config->enableFinishLineDetection = true;
                                     config->startRace = false;
-                                    /* WARNING: bottomCutOff is calculated as follows
-                                     *          bottomCutOff = percentage * image_height 
-                                     */
-                                    config->bottomCutOffPercentageCustomConnected = 1; 
+                                    this->currentState = FOLLOWING_LINE;
                                 }
                             }
+                        #endif
+                        cv::Mat skeleton = this->skeletonizeFrame(thresholdFrame); 
+
+                        std::vector<std::vector<cv::Point2f>> lines = this->findLines(skeleton, this->currentState, rowTopCutOffThreshold);
+
+                        cv::Mat outputImage = cv::Mat::zeros(frame.size(), CV_8UC3);
+                        
+                        #if 1 == ENABLE_TCP_OUTPUT 
+                            this->drawLines(outputImage,lines,cv::Scalar(255, 0, 0));
+                            /*for (const auto& line : lines){
+                                //drawPoints(outputImage, line, cv::Scalar(255, 0, 0));
+                                for (const auto& point : line){
+                                    std::cout << "Point.x:" << point.x << " Point.y:" << point.y << std::endl;
+                                }
+                            }*/
+                            //this->laptopTCP.sendFrame(outputImage);
+                        #endif
+                        for (int i = 0; i < lines.size(); i++){  
+                            lines[i] = this->fitPolinomial(lines[i],false);
+                        }
+                        
+                        #if 1 == ENABLE_TCP_OUTPUT 
+                            this->drawLines(outputImage,lines,cv::Scalar(0, 0, 255));
+                            this->laptopTCP.sendFrame(outputImage);
+                        #endif
+
+                        #if 1 != ENABLE_CAMERA_CALIBRATION 
                             switch (currentState)
                             {
                                 case FOLLOWING_LINE:
@@ -573,9 +582,9 @@ void CameraProcessing::processFrames() {
                                     }
 
                                     
-                                    std::cout << "Line size():" << lines.size() << "\n";
-                                    std::cout << "isIntersection:" << this->isIntersection << "\n";
-                                    std::cout << "isValidLines:" << isValidLines << "\n";
+                                    //std::cout << "Line size():" << lines.size() << "\n";
+                                    //std::cout << "isIntersection:" << this->isIntersection << "\n";
+                                    //std::cout << "isValidLines:" << isValidLines << "\n";
                                     if(this->isIntersection && isValidLines)
                                     {
                                         currentState = IN_INTERSECTION;
@@ -859,12 +868,17 @@ void CameraProcessing::processFrames() {
                                 
                                 if(isStatusLedOn)
                                 {
-                                    serialString +="1";
+                                    serialString +="1;";
                                 }
                                 else
                                 {
-                                    serialString +="0";
+                                    serialString +="0;";
                                 }
+
+                                
+                                serialString += std::to_string(config->afterFinishLineSpeed);
+                                std::cout << "called writeToSerial\n";
+                                
                                 serial.writeToSerial(serialString);
                             #endif
                         
@@ -892,11 +906,8 @@ void CameraProcessing::processFrames() {
 
                                 outputImage = cv::Mat::zeros(frame.size(),CV_8UC3);
 
-                                const int rowTopCutOffThreshold = static_cast<int>(outputImage.rows * config->topCutOffPercentageCustomConnected);
-                                const int bottomTopCutOffThreshold = static_cast<int>(outputImage.rows * config->bottomCutOffPercentageCustomConnected);
                                 
                                 this->drawHorizontalFromHeight(outputImage,rowTopCutOffThreshold,cv::Scalar(0, 0, 255));
-                                this->drawHorizontalFromHeight(outputImage,bottomTopCutOffThreshold,cv::Scalar(0, 255, 255));
                                 this->drawHorizontalFromHeight(outputImage,frameHeight * this->lineStartPointY,cv::Scalar(255, 255, 255));
 
                                 this->drawPoints(outputImage, srcPoints, cv::Scalar(0, 255, 255));
@@ -976,6 +987,28 @@ cv::Mat CameraProcessing::cropFrameTop(const cv::Mat& frame, double l_topCutOffP
     return frame(roi);
 }
 
+// Cuts pixel rows from image's bottom part
+cv::Mat CameraProcessing::cropFrameBottom(const cv::Mat& frame, double l_bottomCutOffPercentage) {
+    if (frame.rows == l_bottomCutOffPercentage) {
+        return frame;
+    }
+
+    if (l_bottomCutOffPercentage < 0.0 || l_bottomCutOffPercentage >= 1.0) {
+        throw std::invalid_argument("Cut Height must be between 0.0 and 1.0");
+    }
+
+    this->frameWidth = frame.cols;
+    this->frameHeight = frame.rows;
+
+    int cutOffHeight = frame.rows * l_bottomCutOffPercentage;
+
+    int newFrameHeight = frame.rows - cutOffHeight;
+    cv::Rect roi(0, 0, this->frameWidth, newFrameHeight);
+
+    this->frameHeight = newFrameHeight;
+    return frame(roi);
+}
+
 
 cv::Mat CameraProcessing::skeletonizeFrame(cv::Mat& thresholdedImage) {
     cv::Mat skeleton(cv::Mat::zeros(thresholdedImage.size(), CV_8UC1));
@@ -1005,12 +1038,12 @@ cv::Mat CameraProcessing::segmentEdges(const cv::Mat& frame) {
 }
         
 // Function to find lines in a skeletonized frame
-std::vector<std::vector<cv::Point2f>> CameraProcessing::findLines(const cv::Mat& thresholdedImage, State currentState){
+std::vector<std::vector<cv::Point2f>> CameraProcessing::findLines(const cv::Mat& thresholdedImage, State currentState, const int rowTopCutOffThreshold){
 
     // Perform connected component analysis
     cv::Mat labels;
     std::vector<std::vector<cv::Point2f>> lines;
-    int numLabels = customConnectedComponentsWithThreshold(thresholdedImage, labels, 6, lines, currentState);
+    int numLabels = customConnectedComponentsWithThreshold(thresholdedImage, labels, 6, lines, currentState, rowTopCutOffThreshold);
     
     // Return only the first 4 lines (or fewer if there are less than 4)
     if (lines.size() > 4) {
@@ -1021,21 +1054,18 @@ std::vector<std::vector<cv::Point2f>> CameraProcessing::findLines(const cv::Mat&
 }
         
 int CameraProcessing::customConnectedComponentsWithThreshold(const cv::Mat& binaryImage, cv::Mat& labelImage,
-     int radius, std::vector<std::vector<cv::Point2f>>& lines, State currentState)
+     int radius, std::vector<std::vector<cv::Point2f>>& lines, State currentState, const int rowTopCutOffThreshold)
 {
     CV_Assert(binaryImage.type() == CV_8UC1);
     labelImage = cv::Mat::zeros(binaryImage.size(), CV_32S); // Initialize label matrix
     lines.clear(); // Clear any existing lines
-
-    const int rowTopCutOffThreshold = static_cast<int>(binaryImage.rows * config->topCutOffPercentageCustomConnected); 
-    const int rowBottomCutOffThreshold = static_cast<int>(binaryImage.rows * config->bottomCutOffPercentageCustomConnected); 
 
     int label = 1; // Start labeling from 1
     std::vector<cv::Point2f> neighborhood = generateNeighborhood(radius); // Generate dynamic neighborhood
     int pixelCount;
 
     if (EXITING_INTERSECTION == currentState || IN_INTERSECTION == currentState){
-        for (int y = rowTopCutOffThreshold; y <= rowBottomCutOffThreshold - 1; ++y) { // Top to bottom
+        for (int y = rowTopCutOffThreshold; y <= binaryImage.rows - 1; ++y) { // Top to bottom
             for (int x = 0; x < binaryImage.cols; ++x) {  // Left to right
                 if (binaryImage.at<uchar>(y, x) == 255 && labelImage.at<int>(y, x) == 0) {
 
@@ -1080,7 +1110,7 @@ int CameraProcessing::customConnectedComponentsWithThreshold(const cv::Mat& bina
     }
     else
     {
-        for (int y = rowBottomCutOffThreshold - 1; y >= rowTopCutOffThreshold; --y) { // Bottom to top
+        for (int y = binaryImage.rows - 1; y >= rowTopCutOffThreshold; --y) { // Bottom to top
             for (int x = 0; x < binaryImage.cols; ++x) {  // Left to right
                 if (binaryImage.at<uchar>(y, x) == 255 && labelImage.at<int>(y, x) == 0) {
 
