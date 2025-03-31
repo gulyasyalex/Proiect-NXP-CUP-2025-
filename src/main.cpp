@@ -89,6 +89,7 @@ int main() {
     global_config->topCutOffPercentageCustomConnected = DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED;
     global_config->line90DegreeAngleRange = DEFAULT_LINE_90_DEGREE_ANGLE_RANGE;
     global_config->finishLineAngleRange = DEFAULT_FINISH_LINE_ANGLE_RANGE;
+    global_config->afterFinishLineSpeed = DEFAULT_AFTER_FINISH_LINE_SPEED;
     global_config->servoTurnAdjustmentCoefficient = DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT;
     global_config->corneringSpeedCoefficient = DEFAULT_CORNERING_SPEED_COEFFICIENT;
     global_config->minSpeed = DEFAULT_MIN_SPEED;
@@ -127,6 +128,7 @@ int main() {
             << raw_config->bottomImageCutPercentage << " "
             << raw_config->topCutOffPercentageCustomConnected << " "
             << raw_config->line90DegreeAngleRange << " "
+            << raw_config->afterFinishLineSpeed << " "
             << raw_config->finishLineAngleRange << " "
             << raw_config->servoTurnAdjustmentCoefficient << " "
             << raw_config->corneringSpeedCoefficient << " "
@@ -163,6 +165,7 @@ int main() {
     std::cout << "bottomImageCutPercentage: " << offsetof(SharedConfig, bottomImageCutPercentage) << std::endl;
     std::cout << "topCutOffPercentageCustomConnected: " << offsetof(SharedConfig, topCutOffPercentageCustomConnected) << std::endl;
     std::cout << "line90DegreeAngleRange: " << offsetof(SharedConfig, line90DegreeAngleRange) << std::endl;
+    std::cout << "afterFinishLineSpeed: " << offsetof(SharedConfig, afterFinishLineSpeed) << std::endl;
     std::cout << "finishLineAngleRange: " << offsetof(SharedConfig, finishLineAngleRange) << std::endl;
     std::cout << "servoTurnAdjustmentCoefficient: " << offsetof(SharedConfig, servoTurnAdjustmentCoefficient) << std::endl;
     std::cout << "corneringSpeedCoefficient: " << offsetof(SharedConfig, corneringSpeedCoefficient) << std::endl;

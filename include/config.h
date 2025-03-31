@@ -81,6 +81,7 @@ struct SharedConfig {
     double topCutOffPercentageCustomConnected;              //Range: 0 - 1
     double line90DegreeAngleRange;                          //Range: 0 - 90
     double finishLineAngleRange;                            //Range: 90 - 180
+    double afterFinishLineSpeed;                            //Range: 0 - 350
     double servoTurnAdjustmentCoefficient;                  //Range: 0 - 5
     double corneringSpeedCoefficient;                       //Range: 0 - 2
     double minSpeed;                                        //Range: 0 - 350
@@ -93,7 +94,7 @@ struct SharedConfig {
     double minLookAheadInCm;                                //Range: 0 - 100
     double maxLookAheadInCm;                                //Range: 0 - 100
     double waitBeforeStartSeconds;                          //Range: 0 - 10
-    double straightWheelTimerSeconds;                       //Range: 0 - 2
+    double straightWheelTimerSeconds;                       //Range: 0 - 5
 };
 #pragma pack(pop)  // Restore default padding
 
@@ -118,19 +119,20 @@ struct SharedConfig {
 #define DEFAULT_BOTTOM_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 1 //0.65
 #define DEFAULT_LINE_90_DEGREE_ANGLE_RANGE 20.0                          // abs(degree-90) < range
 #define DEFAULT_FINISH_LINE_ANGLE_RANGE 15.0
+#define DEFAULT_AFTER_FINISH_LINE_SPEED 50.0
 #define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 1.0
 #define DEFAULT_CORNERING_SPEED_COEFFICIENT 0.9
-#define DEFAULT_MIN_SPEED 115.0
+#define DEFAULT_MIN_SPEED 150.0
 #define DEFAULT_MAX_SPEED 250.0
 #define DEFAULT_CURVATURE_FACTOR 13.0
 #define DEFAULT_K_MIN 14.8
 #define DEFAULT_K_MAX 18.5
 #define DEFAULT_R_MIN_IN_CM 20.0
 #define DEFAULT_R_MAX_IN_CM 3000.0
-#define DEFAULT_MIN_LOOKAHEAD_IN_CM 50.0
-#define DEFAULT_MAX_LOOKAHEAD_IN_CM 50.0
+#define DEFAULT_MIN_LOOKAHEAD_IN_CM 40.0
+#define DEFAULT_MAX_LOOKAHEAD_IN_CM 55.0
 #define DEFAULT_WAIT_BEFORE_START_SECONDS 5.0
-#define DEFAULT_STRAIGHT_WHEEL_TIMER_SECONDS 1.5
+#define DEFAULT_STRAIGHT_WHEEL_TIMER_SECONDS 2.0
 
 
 /*
@@ -215,7 +217,7 @@ constexpr double birdsEyeViewWidth = 370;
 constexpr double birdsEyeViewHeight = 400;
 
 constexpr int maxThresholdValue = 255;
-constexpr double APPROACHING_INTERSECTION_minLineLength = 80;  
+constexpr double APPROACHING_INTERSECTION_minLineLength = 75;  
 
 constexpr int distanceMedianFilterSampleSize = 5;
 

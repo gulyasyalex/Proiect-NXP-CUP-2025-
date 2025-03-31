@@ -48,7 +48,9 @@ class CameraProcessing {
         double trackLaneWidthInPixel;
         double trackLaneWidthInCm;
         double pixelSizeInCm;
-        TcpConnection laptopTCP{9999};
+        #if 1 == ENABLE_TCP_OUTPUT 
+            TcpConnection laptopTCP{9999};
+        #endif
 
         bool isValidLines = true;
         bool isIntersection = false;      // Used to check if we are really in an intersection
@@ -75,7 +77,7 @@ class CameraProcessing {
             BOX_DETECTION
         };
         
-        State currentState = FOLLOWING_LINE;
+        State currentState = APPROACHING_INTERSECTION;
 
     public:
         std::atomic<bool> running{false};
@@ -355,13 +357,23 @@ void CameraProcessing::processFrames() {
                 {
                     isStatusLedOn = false;
                 }
+
+                /* WARNING: distanceBeforeIssuesAppear Is the distance where the car still sees the track and not the box in FOV*/
+                if (this->isFinishLineDetected && (getDistanceFromCarsBumper() < distanceBeforeIssuesAppear))
+                {
+                    isObjectCloserThanDistanceBeforeIssuesAppear = true;
+                }
+                else
+                {
+                    isObjectCloserThanDistanceBeforeIssuesAppear = false;
+                }
+                
                 /* NOTE: When modifying this bool from the menu, the car can restart the whole process */
                 if ( 0 == config->enableFinishLineDetection)
                 {
                     this->isFinishLineDetected = false;
                     this->isObjectCloserThanDistanceBeforeIssuesAppear = false;
-                    this->currentState = FOLLOWING_LINE;
-                    isStartLineSetup = true;
+                    this->currentState = APPROACHING_INTERSECTION;
                 }
                 /* NOTE: this boolean is used to block the frameProcessing algorithm after the box is closer then certain distance */
                 if(this->isObjectCloserThanDistanceBeforeIssuesAppear)
@@ -372,12 +384,6 @@ void CameraProcessing::processFrames() {
                 }
                 else
                 {
-                
-                    /* WARNING: distanceBeforeIssuesAppear Is the distance where the car still sees the track and not the box in FOV*/
-                    if (this->isFinishLineDetected && (getDistanceFromCarsBumper() < distanceBeforeIssuesAppear))
-                    {
-                        isObjectCloserThanDistanceBeforeIssuesAppear = true;
-                    }
                     // * cv::TickMeter timer;
                     // * timer.start();
                     cv::Mat thresholdFrame = this->segmentEdges(frame);
@@ -394,11 +400,7 @@ void CameraProcessing::processFrames() {
                     {
                         #if 1 != ENABLE_CAMERA_CALIBRATION 
                             
-                            // INFO: Used to cut bottom part at start line
-                            if(isStartLineSetup)
-                            {
-                                thresholdFrame = cropFrameBottom(thresholdFrame, config->bottomImageCutPercentage);
-                            }
+                            
                             if (config->startRace){
                                 static auto startTime = std::chrono::steady_clock::now();
                                 auto now = std::chrono::steady_clock::now();
@@ -419,10 +421,7 @@ void CameraProcessing::processFrames() {
                                     config->enableCarSteering = true;
                                     config->enableFinishLineDetection = true;
                                     config->startRace = false;
-                                    isStartLineSetup = false;
-                                    /* WARNING: bottomCutOff is calculated as follows
-                                     *          bottomCutOff = percentage * image_height 
-                                     */
+                                    this->currentState = FOLLOWING_LINE;
                                 }
                             }
                         #endif
@@ -583,9 +582,9 @@ void CameraProcessing::processFrames() {
                                     }
 
                                     
-                                    std::cout << "Line size():" << lines.size() << "\n";
-                                    std::cout << "isIntersection:" << this->isIntersection << "\n";
-                                    std::cout << "isValidLines:" << isValidLines << "\n";
+                                    //std::cout << "Line size():" << lines.size() << "\n";
+                                    //std::cout << "isIntersection:" << this->isIntersection << "\n";
+                                    //std::cout << "isValidLines:" << isValidLines << "\n";
                                     if(this->isIntersection && isValidLines)
                                     {
                                         currentState = IN_INTERSECTION;
@@ -869,13 +868,17 @@ void CameraProcessing::processFrames() {
                                 
                                 if(isStatusLedOn)
                                 {
-                                    serialString +="1";
+                                    serialString +="1;";
                                 }
                                 else
                                 {
-                                    serialString +="0";
+                                    serialString +="0;";
                                 }
+
+                                
+                                serialString += std::to_string(config->afterFinishLineSpeed);
                                 std::cout << "called writeToSerial\n";
+                                
                                 serial.writeToSerial(serialString);
                             #endif
                         
