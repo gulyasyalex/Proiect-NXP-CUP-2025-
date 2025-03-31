@@ -1,0 +1,3 @@
+C:/Users/gulya/My stuff/NXP_CUP_2024/DEBIX/out/build/x64-Debug/CMakeFiles/DEBIX.dir
+C:/Users/gulya/My stuff/NXP_CUP_2024/DEBIX/out/build/x64-Debug/CMakeFiles/edit_cache.dir
+C:/Users/gulya/My stuff/NXP_CUP_2024/DEBIX/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,388 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "DEBIX.exe"
+		},
+		{
+			"path" : "DEBIX.pdb"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"target_link_libraries",
+			"include_directories"
+		],
+		"files" : 
+		[
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 15,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 18,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 12,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/OpenCv/build/install/include"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					2
+				],
+				"standard" : "11"
+			},
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"id" : "DEBIX::@6890427a1f51a3e7e1df",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "/machine:x64 /debug /INCREMENTAL /subsystem:console",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_gapi4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_stitching4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_aruco4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_bgsegm4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_bioinspired4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_ccalib4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_dnn_objdetect4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_dnn_superres4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_dpm4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_face4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_fuzzy4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_hfs4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_img_hash4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_intensity_transform4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_line_descriptor4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_mcc4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_quality4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_rapid4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_reg4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_rgbd4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_saliency4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_signal4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_stereo4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_structured_light4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_superres4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_surface_matching4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_tracking4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_videostab4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_wechat_qrcode4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_xfeatures2d4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_xobjdetect4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_xphoto4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_shape4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_highgui4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_datasets4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_plot4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_text4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_ml4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_phase_unwrapping4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_optflow4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_ximgproc4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_video4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_videoio4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_imgcodecs4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_objdetect4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_calib3d4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_dnn4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_features2d4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_flann4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_photo4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_imgproc4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\OpenCv\\build\\install\\x64\\vc17\\lib\\opencv_core4100.lib",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"name" : "DEBIX",
+	"nameOnDisk" : "DEBIX.exe",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "main.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "EXECUTABLE"
+}
