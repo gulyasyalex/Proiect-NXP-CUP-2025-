@@ -128,8 +128,8 @@ struct SharedConfig {
 #define DEFAULT_STOPPING_DISTANCE_BOX_FRONT_END 0
 
 // Double values
-#define DEFAULT_CALIBRATE_TOP_LINE 31.6//41.6(percentage) //100
-#define DEFAULT_CALIBRATE_BOTTOM_LINE 85.8//95.8(percentage) //230
+#define DEFAULT_CALIBRATE_TOP_LINE 36.6//41.6(percentage) //100
+#define DEFAULT_CALIBRATE_BOTTOM_LINE 90.8//95.8(percentage) //230
 #define DEFAULT_TRACK_LANE_WIDTH_OFFSET 0.0
 #define DEFAULT_TOP_IMAGE_CUT_PERCENTAGE 0.0
 #define DEFAULT_BOTTOM_IMAGE_CUT_PERCENTAGE 0.35
@@ -148,7 +148,7 @@ struct SharedConfig {
 #define DEFAULT_R_MIN_IN_CM 20.0
 #define DEFAULT_R_MAX_IN_CM 3000.0
 #define DEFAULT_MIN_LOOKAHEAD_IN_CM 30.0
-#define DEFAULT_MAX_LOOKAHEAD_IN_CM 55.0
+#define DEFAULT_MAX_LOOKAHEAD_IN_CM 65.0
 #define DEFAULT_WAIT_BEFORE_START_SECONDS 7.0
 #define DEFAULT_STRAIGHT_WHEEL_TIMER_SECONDS 1.2
 
@@ -219,7 +219,7 @@ constexpr int resizeTotalPixels = resizeFrameWidth * resizeFrameHeight;
 constexpr double ScalingFactor = static_cast<double>(resizeTotalPixels) / captureTotalPixels;
 constexpr int  _minLinePixelCount = static_cast<int>(ScalingFactor * DEFAULT_LINE_MIN_PIXEL_COUNT);
 
-constexpr double  lineStartPointY = 0.83;    // Used for intersection // birdsEyeViewHeight * lineStartPointY = Y threshold
+constexpr double  lineStartPointY = 0.81;    // Used for intersection // birdsEyeViewHeight * lineStartPointY = Y threshold
 
 // Used in fitPolinomial()
 constexpr int fitPolyWindowSize = static_cast<int>(35 * ScalingFactor);  

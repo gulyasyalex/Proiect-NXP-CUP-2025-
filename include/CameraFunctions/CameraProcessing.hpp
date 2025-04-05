@@ -665,10 +665,9 @@ void CameraProcessing::processFrames() {
 
                                         for (int i = 0; i < lines.size(); i++)
                                         {
-                                            this->extendLineToEdges(lines[i], birdsEyeViewWidth, birdsEyeViewHeight);
+                                           this->extendLineToEdges(lines[i], birdsEyeViewWidth, birdsEyeViewHeight);
                                             lines[i] = this->evenlySpacePoints(lines[i], curveSamplePoints);
                                         }
-                                        
                                         this->getLeftRightLines(lines,this->leftLine,this->rightLine);
                                         this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);
                                     }
@@ -925,6 +924,7 @@ void CameraProcessing::processFrames() {
                                 this->drawLineVector(birdEyeViewWithPoints,leftLine,cv::Scalar(0, 255, 0));
                                 this->drawLineVector(birdEyeViewWithPoints,allMidPoints,cv::Scalar(255, 255, 255));
                                 this->drawLineVector(birdEyeViewWithPoints,rightLine,cv::Scalar(0, 0, 255));
+                                 
                                 #if 1 == ENABLE_TCP_OUTPUT 
                                     this->laptopTCP.sendFrame(birdEyeViewWithPoints);
                                 #endif
