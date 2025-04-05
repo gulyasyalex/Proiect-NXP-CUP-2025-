@@ -75,6 +75,7 @@ int main() {
     global_config->enableCarSteering = DEFAULT_ENABLE_CAR_STEERING;
     global_config->enableCameraThresholdCheck = ENABLE_CAMERA_THRESHOLD_CHECK;
     global_config->enableFinishLineDetection = ENABLE_FINISH_LINE_DETECTION;
+    global_config->currentState = APPROACHING_INTERSECTION;
     global_config->thresholdValue = DEFAULT_THRESHOLD_VALUE;
     global_config->distanceErrorFromChassis = DEFAULT_DISTANCE_ERROR_FROM_CHASSIS;
     global_config->lineMinPixelCount = _minLinePixelCount;
@@ -114,6 +115,7 @@ int main() {
             << raw_config->enableCarSteering << " "
             << raw_config->enableCameraThresholdCheck << " "
             << raw_config->enableFinishLineDetection << " "
+            << raw_config->currentState << " "
             << raw_config->thresholdValue << " "
             << raw_config->distanceErrorFromChassis << " "
             << raw_config->lineMinPixelCount << " "
@@ -152,6 +154,7 @@ int main() {
     std::cout << "enableCarSteering: " << offsetof(SharedConfig, enableCarSteering) << std::endl;
     std::cout << "enableCameraThresholdCheck: " << offsetof(SharedConfig, enableCameraThresholdCheck) << std::endl;
     std::cout << "enableFinishLineDetection: " << offsetof(SharedConfig, enableFinishLineDetection) << std::endl;
+    std::cout << "currentState: " << offsetof(SharedConfig, currentState) << std::endl;
     std::cout << "thresholdValue: " << offsetof(SharedConfig, thresholdValue) << std::endl;
     std::cout << "distanceErrorFromChassis: " << offsetof(SharedConfig, distanceErrorFromChassis) << std::endl;
     std::cout << "lineMinPixelCount: " << offsetof(SharedConfig, lineMinPixelCount) << std::endl;
@@ -228,7 +231,13 @@ void signalHandler(int signal) {
         global_camera->stopFrameProcessing();
     }
     #if 1 == ENABLE_TEENSY_SERIAL
-        std::string serialString = "0;0;0;0;0;0";
+        int checksum = 0;
+        std::string serialString = "0;0;0;0;0;0;0;0";
+        for (char c : serialString) {
+            checksum += static_cast<unsigned char>(c);
+        }
+
+        serialString += ";" + std::to_string(checksum);
         serial.writeToSerial(serialString);
         serial.stopSerialRead();
     #endif

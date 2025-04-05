@@ -9,9 +9,9 @@ extern debix::SerialPort& serial;
 #define ENABLE_CAMERA_CALIBRATION 0
 #define ENABLE_CAMERA_THRESHOLD_CHECK 0
 #define ENABLE_CAMERA_STREAMING 1
-#define ENABLE_TCP_OUTPUT 0
+#define ENABLE_TCP_OUTPUT 1
 #define ENABLE_TEENSY_SERIAL 1
-#define ENABLE_FINISH_LINE_DETECTION 1
+#define ENABLE_FINISH_LINE_DETECTION 0
 #define DEFAULT_START_RACE 0  // When set to 1 car starts 
 
 //#define SERIAL_PORT "/dev/ttymxc2"      
@@ -33,12 +33,21 @@ for indoor track
 250 171
 96 179
 
-200x150
-44 61
--22 142
-164 61
-235 142
-106 149
+//Normal Camera 200x150 setup
+29 61
+-43 142
+157 61
+221 142
+88 149
+
+//Forward Camera 200x150 setup
+47 46
+-30 127
+142 46
+207 127
+86 149
+
+
 
 for B020 curved track
 74 84
@@ -59,6 +68,14 @@ for B020 curved track
 #define SHM_NAME "/config_shared_memory"
 #define SHM_SIZE sizeof(SharedConfig)
 
+enum State {
+    FOLLOWING_LINE = 0,
+    APPROACHING_INTERSECTION,
+    IN_INTERSECTION,
+    EXITING_INTERSECTION,
+    BOX_DETECTION
+};
+
 // Range field is added for the LCD limits !!DO NOT DELETE
 #pragma pack(push, 1)  // Disable struct padding
 struct SharedConfig {
@@ -67,12 +84,13 @@ struct SharedConfig {
     int enableCarSteering;                                  //Range: 0 - 1
     int enableCameraThresholdCheck;                         //Range: 0 - 1
     int enableFinishLineDetection;                          //Range: 0 - 1
+    int currentState;                                       //Range: 0 - 5
     int thresholdValue;                                     //Range: 0 - 255
-    int distanceErrorFromChassis;                           //Range: 0 - 240
+    int distanceErrorFromChassis;                           //Range: -240 - 240
     int lineMinPixelCount;                                  //Range: 0 - 255
     int distanceSensorError;                                //Range: 0 - 30
     int stoppingDistanceBoxFrontEnd;                        //Range: 1 - 9
-    char _padding[8];
+    char _padding[4];
     double calibrateTopLinePerc;                            //Range: 0 - 100
     double calibrateBottomLinePerc;                         //Range: 0 - 100
     double trackLaneWidthOffset;                            //Range: -100 - 200
@@ -103,36 +121,36 @@ struct SharedConfig {
 // Integer values
 #define DEFAULT_ENABLE_CAR_ENGINE 0
 #define DEFAULT_ENABLE_CAR_STEERING 1
-#define DEFAULT_THRESHOLD_VALUE 51
+#define DEFAULT_THRESHOLD_VALUE 62//51
 #define DEFAULT_DISTANCE_ERROR_FROM_CHASSIS 0
 #define DEFAULT_LINE_MIN_PIXEL_COUNT 70 
 #define DEFAULT_DISTANCE_FROM_SENSOR_ERROR 27
 #define DEFAULT_STOPPING_DISTANCE_BOX_FRONT_END 0
 
 // Double values
-#define DEFAULT_CALIBRATE_TOP_LINE 41.6 //100
-#define DEFAULT_CALIBRATE_BOTTOM_LINE 95.8 //230
+#define DEFAULT_CALIBRATE_TOP_LINE 31.6//41.6(percentage) //100
+#define DEFAULT_CALIBRATE_BOTTOM_LINE 85.8//95.8(percentage) //230
 #define DEFAULT_TRACK_LANE_WIDTH_OFFSET 0.0
 #define DEFAULT_TOP_IMAGE_CUT_PERCENTAGE 0.0
 #define DEFAULT_BOTTOM_IMAGE_CUT_PERCENTAGE 0.35
-#define DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 0.45 // Cuts pixels from first 45% of image 
+#define DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 0.35 // Cuts pixels from first 45% of image 
 #define DEFAULT_BOTTOM_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 1 //0.65
 #define DEFAULT_LINE_90_DEGREE_ANGLE_RANGE 20.0                          // abs(degree-90) < range
 #define DEFAULT_FINISH_LINE_ANGLE_RANGE 15.0
-#define DEFAULT_AFTER_FINISH_LINE_SPEED 50.0
+#define DEFAULT_AFTER_FINISH_LINE_SPEED 60.0
 #define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 1.0
-#define DEFAULT_CORNERING_SPEED_COEFFICIENT 0.9
-#define DEFAULT_MIN_SPEED 150.0
+#define DEFAULT_CORNERING_SPEED_COEFFICIENT 0.6
+#define DEFAULT_MIN_SPEED 50.0
 #define DEFAULT_MAX_SPEED 250.0
 #define DEFAULT_CURVATURE_FACTOR 13.0
 #define DEFAULT_K_MIN 14.8
 #define DEFAULT_K_MAX 18.5
 #define DEFAULT_R_MIN_IN_CM 20.0
 #define DEFAULT_R_MAX_IN_CM 3000.0
-#define DEFAULT_MIN_LOOKAHEAD_IN_CM 40.0
+#define DEFAULT_MIN_LOOKAHEAD_IN_CM 30.0
 #define DEFAULT_MAX_LOOKAHEAD_IN_CM 55.0
-#define DEFAULT_WAIT_BEFORE_START_SECONDS 5.0
-#define DEFAULT_STRAIGHT_WHEEL_TIMER_SECONDS 2.0
+#define DEFAULT_WAIT_BEFORE_START_SECONDS 7.0
+#define DEFAULT_STRAIGHT_WHEEL_TIMER_SECONDS 1.2
 
 
 /*
@@ -201,9 +219,11 @@ constexpr int resizeTotalPixels = resizeFrameWidth * resizeFrameHeight;
 constexpr double ScalingFactor = static_cast<double>(resizeTotalPixels) / captureTotalPixels;
 constexpr int  _minLinePixelCount = static_cast<int>(ScalingFactor * DEFAULT_LINE_MIN_PIXEL_COUNT);
 
+constexpr double  lineStartPointY = 0.83;    // Used for intersection // birdsEyeViewHeight * lineStartPointY = Y threshold
+
 // Used in fitPolinomial()
 constexpr int fitPolyWindowSize = static_cast<int>(35 * ScalingFactor);  
-constexpr double fitPolyEpsilon = static_cast<double>(14.0 * ScalingFactor); // Epsilon value for curve approximation
+constexpr double fitPolyEpsilon = static_cast<double>(15.0 * ScalingFactor); // Epsilon value for curve approximation
 
 constexpr int captureFps = 100;
 cv::Point2f undefinedPoint = cv::Point2f(1000,0);
@@ -217,7 +237,7 @@ constexpr double birdsEyeViewWidth = 370;
 constexpr double birdsEyeViewHeight = 400;
 
 constexpr int maxThresholdValue = 255;
-constexpr double APPROACHING_INTERSECTION_minLineLength = 75;  
+constexpr double INTERSECTION_minLineLength = 75;  
 
 constexpr int distanceMedianFilterSampleSize = 5;
 

@@ -92,7 +92,7 @@ void debix::SerialPort::readFromSerial() {
                 }
             } else {
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            }
+            } 
         } catch (const std::exception &e) {
             std::cerr << "Error at reading: " << e.what() << std::endl;
         }

@@ -1,6 +1,8 @@
 #ifndef PURE_PURSUIT_HPP
 #define PURE_PURSUIT_HPP
 
+#define DEFAULT_TORQUE_SPEED 100;
+
 #include <opencv2/opencv.hpp>
 #include <vector>
 #include <cmath>
@@ -63,6 +65,7 @@ private:
     double steeringAngleServo;
     cv::Point2f lookAheadPoint;
     double angleHeadingTarget;
+    bool startSpeedOptimizedForTorque;
     SharedConfig* config;
 
 public:
@@ -96,6 +99,12 @@ public:
     
     double getTrackCurvatureRadius(){
         return this->trackCurvatureRadius;
+    }
+    bool getStartSpeedOptimizedForTorque(double startSpeedOptimizedForTorque){
+        return this->startSpeedOptimizedForTorque;
+    }
+    void setStartSpeedOptimizedForTorque(double startSpeedOptimizedForTorque){
+        this->startSpeedOptimizedForTorque = startSpeedOptimizedForTorque;
     }
     void setSpeed(double speed){
         this->speed = speed;
@@ -136,8 +145,14 @@ void PurePursuit::computePurePursuit(std::vector<cv::Point2f> allMidPoints,
     this->lookAheadPoint = findHighestIntersection(allMidPoints, carInFramePositionBirdsEye, lookAheadDistanceInCm/pixelSizeInCm);  
     this->angleHeadingTarget = calculateSignedAngle(carTopPoint, carInFramePositionBirdsEye, this->lookAheadPoint);
     
-    this->speed = CalculateCarSpeed(config->minSpeed, config->maxSpeed, wheelBaseInCm, config->corneringSpeedCoefficient, 981, this->angleHeadingTarget);
-
+    if(startSpeedOptimizedForTorque)
+    {
+        this->speed = DEFAULT_TORQUE_SPEED;
+    }
+    else
+    {
+        this->speed = CalculateCarSpeed(config->minSpeed, config->maxSpeed, wheelBaseInCm, config->corneringSpeedCoefficient, 981, this->angleHeadingTarget);
+    }
     this->steeringAngleServo = calculateServoValue(this->angleHeadingTarget, this->lookAheadDistanceInCm);                 
 }
 
@@ -263,6 +278,11 @@ double PurePursuit::shortestDistanceToCurve(const std::vector<cv::Point2f>& curv
     double minDistance = std::numeric_limits<double>::max();
     double maxDistance = std::numeric_limits<double>::min();
     double tolerance = 1; // Adding 1px tolerance 
+
+    if (curve.empty()) {
+        std::cerr << "[ERROR] PurePursuit::shortestDistanceToCurve called with empty curve!" << std::endl;
+        return std::numeric_limits<float>::max();
+    }
 
     for (size_t i = 0; i < curve.size() - 1; ++i) {
         cv::Point2f p1 = curve[i];
