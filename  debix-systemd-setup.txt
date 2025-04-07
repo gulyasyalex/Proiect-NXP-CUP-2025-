@@ -1,0 +1,45 @@
+Debix Auto-Start Setup Using systemd (Working Version)
+
+Actual Executable Path:
+/home/debix/Documents/Proiect-NXP-CUP-2025-/build/DEBIX
+
+chmod +x /home/debix/Documents/Proiect-NXP-CUP-2025-/build/DEBIX
+
+1. Create Systemd Service File
+sudo nano /etc/systemd/system/debix-app.service
+Paste the following:
+[Unit]
+Description=Start NXP CUP setup at boot
+After=network.target
+
+[Service]
+ExecStart=/home/debix/Documents/Proiect-NXP-CUP-2025-/build/DEBIX
+WorkingDirectory=/home/debix/Documents/Proiect-NXP-CUP-2025-
+StandardOutput=journal
+StandardError=journal
+Restart=always
+User=debix
+
+[Install]
+WantedBy=multi-user.target
+
+2. Reload and Enable the Service
+
+sudo systemctl daemon-reexec
+sudo systemctl daemon-reload
+sudo systemctl enable debix-app.service
+sudo systemctl start debix-app.service
+
+3. Test and Debug
+Live logs:
+    journalctl -u debix-app.service -f
+Status check:
+    systemctl status debix-app.service
+Stop:
+    sudo systemctl stop debix-app.service
+Restart:
+    sudo systemctl restart debix-app.service
+Disable auto-start:
+    sudo systemctl disable debix-app.service
+Re-enable auto-start:
+    sudo systemctl enable debix-app.service

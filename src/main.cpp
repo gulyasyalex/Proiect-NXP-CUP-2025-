@@ -81,6 +81,7 @@ int main() {
     global_config->lineMinPixelCount = _minLinePixelCount;
     global_config->distanceSensorError = DEFAULT_DISTANCE_FROM_SENSOR_ERROR;
     global_config->stoppingDistanceBoxFrontEnd = DEFAULT_STOPPING_DISTANCE_BOX_FRONT_END;
+    global_config->interpolatedPointsSetup = DEFAULT_INTERPOLATED_POINTS_SETUP;
 
     global_config->calibrateTopLinePerc = DEFAULT_CALIBRATE_TOP_LINE;
     global_config->calibrateBottomLinePerc = DEFAULT_CALIBRATE_BOTTOM_LINE;
@@ -120,7 +121,8 @@ int main() {
             << raw_config->distanceErrorFromChassis << " "
             << raw_config->lineMinPixelCount << " "
             << raw_config->distanceSensorError << " "
-            << raw_config->stoppingDistanceBoxFrontEnd << std::endl;
+            << raw_config->stoppingDistanceBoxFrontEnd << " "
+            << raw_config->interpolatedPointsSetup << std::endl;
 
     std::cout << "Doubles: ";
     std::cout << raw_config->calibrateTopLinePerc << " "
@@ -160,6 +162,7 @@ int main() {
     std::cout << "lineMinPixelCount: " << offsetof(SharedConfig, lineMinPixelCount) << std::endl;
     std::cout << "distanceSensorError: " << offsetof(SharedConfig, distanceSensorError) << std::endl;
     std::cout << "stoppingDistanceBoxFrontEnd: " << offsetof(SharedConfig, stoppingDistanceBoxFrontEnd) << std::endl;
+    std::cout << "interpolatedPointsSetup: " << offsetof(SharedConfig, interpolatedPointsSetup) << std::endl;
 
     std::cout << "calibrateTopLinePerc: " << offsetof(SharedConfig, calibrateTopLinePerc) << std::endl;
     std::cout << "calibrateBottomLinePerc: " << offsetof(SharedConfig, calibrateBottomLinePerc) << std::endl;

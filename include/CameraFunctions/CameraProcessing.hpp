@@ -65,6 +65,8 @@ class CameraProcessing {
         cv::Point2f firstPointRightLine = undefinedPoint;
         cv::Point2f firstPointSingleLine = undefinedPoint;
 
+        int lastInterpolatedPointsSetup = 0;
+
         SharedConfig* config;
         PurePursuit ppObject;
 
@@ -127,7 +129,7 @@ class CameraProcessing {
         uint16_t getDistanceFromCarsBumper();
 
         // Perspective transform related methods
-        void initPerspectiveVariables();
+        void initPerspectiveVariables(std::string inputTxt);
         cv::Point2f perspectiveChangePoint(const cv::Point2f& point, const cv::Mat& transformMatrix);
         std::vector<cv::Point2f> perspectiveChangeLine(const std::vector<cv::Point2f>& line, const cv::Mat& transformMatrix);
         
@@ -307,7 +309,16 @@ void CameraProcessing::processFrames() {
     bool isStartLineSetup = true;
     int rowTopCutOffThreshold;
 
-    this->initPerspectiveVariables();
+    this->lastInterpolatedPointsSetup = config->interpolatedPointsSetup;
+
+    if (NEAR_VIEW_SETUP == config->interpolatedPointsSetup){
+        this->initPerspectiveVariables("interpolated_points_NEAR.txt");
+    }
+    else if(FAR_VIEW_SETUP == config->interpolatedPointsSetup){
+        this->initPerspectiveVariables("interpolated_points_FAR.txt");
+    }else{
+        this->initPerspectiveVariables("interpolated_points.txt");
+    }
     while (this->running) {
         try {
             cv::Mat frame;
@@ -334,7 +345,23 @@ void CameraProcessing::processFrames() {
                  *       After that we just lock wheels and close eyes
                 */
                
-                
+                // Used to get new poitns if I decide mid Race to change them
+                if (lastInterpolatedPointsSetup != config->interpolatedPointsSetup)
+                {
+                    if (NEAR_VIEW_SETUP == config->interpolatedPointsSetup)
+                    {
+                        this->initPerspectiveVariables("interpolated_points_NEAR.txt");
+                    }
+                    else if(FAR_VIEW_SETUP == config->interpolatedPointsSetup)
+                    {
+                        this->initPerspectiveVariables("interpolated_points_FAR.txt");
+                    }
+                    else
+                    {
+                        this->initPerspectiveVariables("interpolated_points.txt");
+                    }
+                }
+
                 uint16_t distance = getDistanceFromCarsBumper();
                 std::cout << "Distance: " << distance << std::endl;
                 std::cout << "CURRENT STATE: "<< config->currentState << "\n";
@@ -672,12 +699,35 @@ void CameraProcessing::processFrames() {
                                         this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);
                                     }
                                 break;
-                                case IN_INTERSECTION:                                
+                                case IN_INTERSECTION:   
+                                    if (lines.size() >= 1)
+                                    {
+                                        for (int i = 0; i < lines.size(); i++)
+                                        {
+                                            lines[i] = this->perspectiveChangeLine(lines[i], this->MatrixBirdsEyeView);
+                                           this->is90DegreeLine = this->removeHorizontalIf90Turn(lines[i], config->currentState);
+                                        }
+
+                                        std::vector<std::vector<cv::Point2f>> newLines;
+                                        double tempLineSize = 0;
+
+                                        for(int i = 0; i < lines.size(); i++){
+                                           
+                                            tempLineSize = calculateLineLength(lines[i]);
+                                            if( IN_INTERSECTION_minLineLength < tempLineSize)
+                                            {
+                                                newLines.push_back(lines[i]);
+                                            }
+                                        }
+                                        
+                                        lines.clear();
+                                        lines = std::move(newLines);
+                                    }            
                                     for (int i = 0; i < lines.size(); i++){
                                         /*  NOTE: intersection is made of 4 90degree corners
                                         *   if a line starts in the box and are exiting intersection
                                         */
-                                        if((lines[i][0].y >= (frameHeight * lineStartPointY))){
+                                        if((lines[i][0].y >= (birdsEyeViewHeight * lineStartPointY))){
                                             config->currentState = EXITING_INTERSECTION;
                                         }
                                     }
@@ -818,7 +868,7 @@ void CameraProcessing::processFrames() {
                             
                             // Show Data on frame
                             this->writePointsToTxt(interpolatedPoints, "interpolated_points.txt");
-                            this->initPerspectiveVariables();
+                            this->initPerspectiveVariables("interpolated_points.txt");
                             
                             #if 1 == ENABLE_TCP_OUTPUT 
                                 this->drawPoints(outputImage, srcPoints, cv::Scalar(0, 255, 0));
@@ -1884,8 +1934,8 @@ uint16_t CameraProcessing::getDistanceFromCarsBumper(){
 
 
 // Perspective transform related methods
-void CameraProcessing::initPerspectiveVariables() {
-    auto loadedPoints = readPointsFromTxt("interpolated_points.txt");
+void CameraProcessing::initPerspectiveVariables(std::string inputTxt) {
+    auto loadedPoints = readPointsFromTxt(inputTxt);
 
     this->srcPoints = {
         cv::Point2f(loadedPoints[0].x, loadedPoints[0].y),

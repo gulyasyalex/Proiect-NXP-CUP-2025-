@@ -33,19 +33,19 @@ for indoor track
 250 171
 96 179
 
-//Normal Camera 200x150 setup
+//NEAR View Camera 200x150 setup
 29 61
 -43 142
 157 61
 221 142
 88 149
 
-//Forward Camera 200x150 setup
-47 46
--30 127
-142 46
-207 127
-86 149
+//FAR View Camera 200x150 setup
+45 53
+-31 135
+139 53
+208 135
+87 149
 
 
 
@@ -76,6 +76,11 @@ enum State {
     BOX_DETECTION
 };
 
+enum InterpolatedPointsSetup {
+    NEAR_VIEW_SETUP = 0,
+    FAR_VIEW_SETUP
+};
+
 // Range field is added for the LCD limits !!DO NOT DELETE
 #pragma pack(push, 1)  // Disable struct padding
 struct SharedConfig {
@@ -90,7 +95,8 @@ struct SharedConfig {
     int lineMinPixelCount;                                  //Range: 0 - 255
     int distanceSensorError;                                //Range: 0 - 30
     int stoppingDistanceBoxFrontEnd;                        //Range: 1 - 9
-    char _padding[4];
+    int interpolatedPointsSetup;                            //Range: 0 - 1
+    char _padding[8];
     double calibrateTopLinePerc;                            //Range: 0 - 100
     double calibrateBottomLinePerc;                         //Range: 0 - 100
     double trackLaneWidthOffset;                            //Range: -100 - 200
@@ -126,6 +132,7 @@ struct SharedConfig {
 #define DEFAULT_LINE_MIN_PIXEL_COUNT 70 
 #define DEFAULT_DISTANCE_FROM_SENSOR_ERROR 27
 #define DEFAULT_STOPPING_DISTANCE_BOX_FRONT_END 0
+#define DEFAULT_INTERPOLATED_POINTS_SETUP 1         // 0 - Near View Setup 1 - Far View Setup (BirdEyeView)
 
 // Double values
 #define DEFAULT_CALIBRATE_TOP_LINE 36.6//41.6(percentage) //100
@@ -138,10 +145,10 @@ struct SharedConfig {
 #define DEFAULT_LINE_90_DEGREE_ANGLE_RANGE 20.0                          // abs(degree-90) < range
 #define DEFAULT_FINISH_LINE_ANGLE_RANGE 15.0
 #define DEFAULT_AFTER_FINISH_LINE_SPEED 60.0
-#define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 1.0
-#define DEFAULT_CORNERING_SPEED_COEFFICIENT 0.6
-#define DEFAULT_MIN_SPEED 50.0
-#define DEFAULT_MAX_SPEED 250.0
+#define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 0.8 //1.0
+#define DEFAULT_CORNERING_SPEED_COEFFICIENT 0.7 //0.6
+#define DEFAULT_MIN_SPEED 40.0
+#define DEFAULT_MAX_SPEED 260.0
 #define DEFAULT_CURVATURE_FACTOR 13.0
 #define DEFAULT_K_MIN 14.8
 #define DEFAULT_K_MAX 18.5
@@ -149,7 +156,7 @@ struct SharedConfig {
 #define DEFAULT_R_MAX_IN_CM 3000.0
 #define DEFAULT_MIN_LOOKAHEAD_IN_CM 30.0
 #define DEFAULT_MAX_LOOKAHEAD_IN_CM 65.0
-#define DEFAULT_WAIT_BEFORE_START_SECONDS 7.0
+#define DEFAULT_WAIT_BEFORE_START_SECONDS 4.0
 #define DEFAULT_STRAIGHT_WHEEL_TIMER_SECONDS 1.2
 
 
@@ -219,7 +226,7 @@ constexpr int resizeTotalPixels = resizeFrameWidth * resizeFrameHeight;
 constexpr double ScalingFactor = static_cast<double>(resizeTotalPixels) / captureTotalPixels;
 constexpr int  _minLinePixelCount = static_cast<int>(ScalingFactor * DEFAULT_LINE_MIN_PIXEL_COUNT);
 
-constexpr double  lineStartPointY = 0.81;    // Used for intersection // birdsEyeViewHeight * lineStartPointY = Y threshold
+constexpr double  lineStartPointY = 0.79;    // Used for intersection // birdsEyeViewHeight * lineStartPointY = Y threshold
 
 // Used in fitPolinomial()
 constexpr int fitPolyWindowSize = static_cast<int>(35 * ScalingFactor);  
@@ -237,7 +244,8 @@ constexpr double birdsEyeViewWidth = 370;
 constexpr double birdsEyeViewHeight = 400;
 
 constexpr int maxThresholdValue = 255;
-constexpr double INTERSECTION_minLineLength = 75;  
+constexpr double INTERSECTION_minLineLength = 80;  
+constexpr double IN_INTERSECTION_minLineLength = 85;
 
 constexpr int distanceMedianFilterSampleSize = 5;
 
