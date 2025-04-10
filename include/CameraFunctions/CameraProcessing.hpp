@@ -145,6 +145,8 @@ class CameraProcessing {
         // Function to draw the line on the frame
         void drawLines(cv::Mat& frame, const std::vector<std::vector<cv::Point2f>> lines, const cv::Scalar& color);
         void drawCircle(cv::Mat& image, const cv::Point2f& center, int radius, const cv::Scalar& color, int thickness = 1);
+
+        std::string createSerialString(bool isBlueStatusLedOn, bool isYellowStatusLedOn, int stoppingDistanceBoxLidar);
 };
 
 // Default constructor
@@ -304,10 +306,19 @@ void CameraProcessing::processFrames() {
     double fps;
     int frameCount = 0;
     double timeStart = cv::getTickCount();
+    
+    double exitingIntersectionCounter = 0;  
 
-    bool isStatusLedOn = false;
+    bool isBlueStatusLedOn = false;
+    bool isYellowStatusLedOn = false;
     bool isStartLineSetup = true;
     int rowTopCutOffThreshold;
+
+    std::chrono::time_point<std::chrono::steady_clock> startTime;
+    
+    std::string serialString = "";
+    
+    int stoppingDistanceBoxLidar = config->stoppingDistanceBoxFrontEnd + config->distanceSensorError;  
 
     this->lastInterpolatedPointsSetup = config->interpolatedPointsSetup;
 
@@ -367,39 +378,56 @@ void CameraProcessing::processFrames() {
                 std::cout << "CURRENT STATE: "<< config->currentState << "\n";
                 if( APPROACHING_INTERSECTION == config->currentState)
                 {
-                    isStatusLedOn = true;
+                    isBlueStatusLedOn = true;
                 }
                 else
                 {
-                    isStatusLedOn = false;
+                    isBlueStatusLedOn = false;
                 }
+
+                if( EXITING_INTERSECTION == config->currentState)
+                {
+                    isYellowStatusLedOn = true;
+                }
+                else
+                {
+                    isYellowStatusLedOn = false;
+                }
+                
 
                 if ( 1 == config->enableFinishLineDetection)
                 {
                     /* WARNING: distanceBeforeIssuesAppear Is the distance where the car still sees the track and not the box in FOV*/
-                    if (this->isFinishLineDetected && (getDistanceFromCarsBumper() < distanceBeforeIssuesAppear))
+                    if (this->isFinishLineDetected && (distance < distanceBeforeIssuesAppear && distance > 0))
                     {
                         isObjectCloserThanDistanceBeforeIssuesAppear = true;
                     }
-                    else
+                    /*else if((distance > distanceBeforeIssuesAppear))
                     {
                         isObjectCloserThanDistanceBeforeIssuesAppear = false;
-                    }
+                    }*/
                 }
                 else
                 {
                     /* NOTE: When modifying this bool from the menu, the car can restart the whole process */
                 
+                    config->topCutOffPercentageCustomConnected = DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED;
                     this->isFinishLineDetected = false;
                     this->isObjectCloserThanDistanceBeforeIssuesAppear = false;
                 }
                 
                 /* NOTE: this boolean is used to block the frameProcessing algorithm after the box is closer then certain distance */
                 if(this->isObjectCloserThanDistanceBeforeIssuesAppear)
-                {
-                        #if 1 == ENABLE_TCP_OUTPUT 
-                            laptopTCP.sendFrame(frame);
-                        #endif
+                {                   
+                    #if 1 == ENABLE_TCP_OUTPUT 
+                        laptopTCP.sendFrame(frame);
+                    #endif                              
+                    if(distance <= stoppingDistanceBoxLidar){
+                        ppObject.setSpeed(0);
+                    }
+
+                    serialString = this->createSerialString(isBlueStatusLedOn, isYellowStatusLedOn, stoppingDistanceBoxLidar);
+                    serial.writeToSerial(serialString);
                 }
                 else
                 {
@@ -421,7 +449,11 @@ void CameraProcessing::processFrames() {
                             
                             
                             if (config->startRace){
-                                static auto startTime = std::chrono::steady_clock::now();
+                                static bool startTimeEnabled = false;
+                                if(!startTimeEnabled){
+                                    startTime = std::chrono::steady_clock::now();
+                                    startTimeEnabled = true;
+                                }
                                 auto now = std::chrono::steady_clock::now();
                                 double elapsedMillis = std::chrono::duration<double, std::milli>(now - startTime).count();
 
@@ -449,10 +481,12 @@ void CameraProcessing::processFrames() {
                                     
                                     if ( 1 == config->enableFinishLineDetection)
                                     {
-                                        config->enableFinishLineDetection = true;
+                                        this->isFinishLineDetected = false;
                                     }
                                     config->startRace = false;
                                     config->currentState = FOLLOWING_LINE;
+                                    
+                                    startTimeEnabled = false;
                                 }
                             }
                         #endif
@@ -476,6 +510,8 @@ void CameraProcessing::processFrames() {
                             lines[i] = this->fitPolinomial(lines[i],false);
                         }
                         
+                        
+                        this->drawHorizontalFromHeight(outputImage,frameHeight * lineStartPointY,cv::Scalar(255, 255, 255));
                         #if 1 == ENABLE_TCP_OUTPUT 
                             this->drawLines(outputImage,lines,cv::Scalar(0, 0, 255));
                             this->laptopTCP.sendFrame(outputImage);
@@ -493,156 +529,24 @@ void CameraProcessing::processFrames() {
 
                                         if (this->is90DegreeLine)
                                         {
-                                            std::vector<std::vector<cv::Point2f>> keepOnyStraightLine;
-                                            keepOnyStraightLine.push_back(lines[i]);
+                                            std::vector<std::vector<cv::Point2f>> keepOnlyStraightLine;
+                                            keepOnlyStraightLine.push_back(lines[i]);
                                             lines.clear();
-                                            lines = std::move(keepOnyStraightLine);
+                                            lines = std::move(keepOnlyStraightLine);
                                             config->currentState = APPROACHING_INTERSECTION;
                                             break;
                                         }
                                     }
                                     if(!this->is90DegreeLine)
                                     {
-                                        this->isFinishLineDetected = false;
-                                        if ( 1 == config->enableFinishLineDetection)
+                                        if(!this->isFinishLineDetected)
                                         {
-                                            
-                                            std::cout << "Finish lines.size():" << lines.size() << "\n";
-                                            if (lines.size() >= 2) {
-                                                for (int i = 0; i < lines.size(); i++){
-
-                                                    // Loop through all finish lines (starting from index 2)
-                                                    for (size_t i = 2; i < lines.size(); ++i) {
-                                                        if (lines[i].size() < 2) continue;
-                                                        // Compute the finish line vector
-                                                        cv::Point2f finishVec = lines[i][1] - lines[i][0];
-
-                                                        // Compute midpoint of finish line
-                                                        cv::Point2f finishMid = (lines[i][0] + lines[i][1]) * 0.5;
-
-                                                        // Find closest segments on left and right boundaries
-                                                        std::vector<cv::Point2f> leftSegment = closestSegmentOnCurve(lines[0], finishMid);
-                                                        std::vector<cv::Point2f> rightSegment = closestSegmentOnCurve(lines[1], finishMid);
-
-                                                        // Compute segment direction vectors
-                                                        cv::Point2f leftVec = leftSegment[1] - leftSegment[0];
-                                                        cv::Point2f rightVec = rightSegment[1] - rightSegment[0];
-
-                                                        // Compute angles
-                                                        double angleLeft = angleBetweenVectors(leftVec, finishVec);
-                                                        double angleRight = angleBetweenVectors(rightVec, finishVec);
-
-                                                        std::cout << "Finish Line " << (i - 1) << " Angle to Left: " << angleLeft << " degrees\n";
-                                                        std::cout << "Finish Line " << (i - 1) << " Angle to Right: " << angleRight << " degrees\n";
-
-                                                        
-                                                        if (std::abs(angleLeft - 90) < config->finishLineAngleRange 
-                                                            || std::abs(angleRight - 90) < config->finishLineAngleRange) {
-
-                                                            std::cout << "Finish Line " << (i - 1) << " is perpendicular to at least one boundary.\n";
-                                                            if(config->enableCarSteering)
-                                                            {                                                              
-                                                                this->isFinishLineDetected = true;
-                                                                config->currentState = BOX_DETECTION;
-                                                            }
-                                                            std::cout << " (in ifs) isFinishLineDetected: " << isFinishLineDetected << std::endl;
-                                                            break;
-                                                        } else {
-                                                            std::cout << "Finish Line " << (i - 1) << " is NOT perpendicular.\n";
-                                                        }
-                                                    }
-                                                    
-                                                    if (this->isFinishLineDetected) {
-                                                        break;  // Found it, break the outer loop too
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    for (int i = 0; i < lines.size(); i++){
-                                        this->extendLineToEdges(lines[i], birdsEyeViewWidth, birdsEyeViewHeight);
-                                        lines[i] = this->evenlySpacePoints(lines[i], curveSamplePoints);
-                                    }
-
-                                    this->getLeftRightLines(lines,this->leftLine,this->rightLine);
-                                    this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);
-                                break;
-                                // NOTE TO SELF: check finish Line before removing lines, see what happens
-                                case APPROACHING_INTERSECTION:
-                                
-                                    for (int i = 0; i < lines.size(); i++)
-                                    {
-                                        lines[i] = this->perspectiveChangeLine(lines[i], this->MatrixBirdsEyeView);
-                                    }
-                                    this->isValidLines = true;
-                                    if (lines.size() >= 1)
-                                    {
-                                        std::vector<std::vector<cv::Point2f>> newLines;
-                                        double tempLineSize = 0;
-
-                                        /* WARNING: This was used to counter unrecognized intersection
-                                        *           The top lines that appear in an intersection are giving fals negatives
-                                        */
-                                        bool areAllLinesFromTheTop = true;
-                                        for(int i = 0; i < lines.size(); i++){
-                                            if(lines[i][0].y >= birdsEyeViewHeight * lineStartPointY){
-                                                areAllLinesFromTheTop = false;
-                                            }
-                                           
-                                            tempLineSize = calculateLineLength(lines[i]);
-                                            if( INTERSECTION_minLineLength < tempLineSize)
-                                            {
-                                                newLines.push_back(lines[i]);
-                                            }
-                                        }
-                                        
-                                        lines.clear();
-                                        lines = std::move(newLines);
-                                        
-                                        if(!areAllLinesFromTheTop){
-                                            this->isValidLines = false;
-                                        }
-                                    }
-
-                                    this->isIntersection = true;
-                                    for (int i = 0; i < lines.size(); i++)
-                                    {
-                                        if(lines[i][0].y >= birdsEyeViewHeight * lineStartPointY){
-                                            this->isIntersection = false;
-                                        }
-                                    }
-
-                                    
-                                    std::cout << "Line size():" << lines.size() << "\n";
-                                    std::cout << "isIntersection:" << this->isIntersection << "\n";
-                                    std::cout << "isValidLines:" << isValidLines << "\n";
-                                    if(this->isIntersection && isValidLines)
-                                    {
-                                        config->currentState = IN_INTERSECTION;
-                                    }
-                                    else
-                                    {
-                                        for (int i = 0; i < lines.size(); i++)
-                                        {
-                                           this->is90DegreeLine = this->removeHorizontalIf90Turn(lines[i], config->currentState);
-                                            if (this->is90DegreeLine)
-                                            {
-                                                std::vector<std::vector<cv::Point2f>> keepOnyStraightLine;
-                                                keepOnyStraightLine.push_back(lines[i]);
-                                                lines.clear();
-                                                lines = std::move(keepOnyStraightLine);
-                                                break;
-                                            }
-                                        }
-
-                                        if(!this->is90DegreeLine)
-                                        {
-                                            this->isFinishLineDetected = false;
                                             if ( 1 == config->enableFinishLineDetection)
                                             {
-                                                for (int i = 0; i < lines.size(); i++){
-                                                    if (lines.size() >= 2) {
+                                                
+                                                std::cout << "Finish lines.size():" << lines.size() << "\n";
+                                                if (lines.size() >= 2) {
+                                                    for (int i = 0; i < lines.size(); i++){
 
                                                         // Loop through all finish lines (starting from index 2)
                                                         for (size_t i = 2; i < lines.size(); ++i) {
@@ -668,14 +572,18 @@ void CameraProcessing::processFrames() {
                                                             std::cout << "Finish Line " << (i - 1) << " Angle to Left: " << angleLeft << " degrees\n";
                                                             std::cout << "Finish Line " << (i - 1) << " Angle to Right: " << angleRight << " degrees\n";
 
+                                                            
                                                             if (std::abs(angleLeft - 90) < config->finishLineAngleRange 
                                                                 || std::abs(angleRight - 90) < config->finishLineAngleRange) {
+
                                                                 std::cout << "Finish Line " << (i - 1) << " is perpendicular to at least one boundary.\n";
                                                                 if(config->enableCarSteering)
                                                                 {                                                              
                                                                     this->isFinishLineDetected = true;
-                                                                    config->currentState = BOX_DETECTION;
+                                                                    config->topCutOffPercentageCustomConnected = DEFAULT_AFTER_FINISH_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED;
+                                                                    config->currentState = APPROACHING_INTERSECTION;
                                                                 }
+                                                                std::cout << " (in ifs) isFinishLineDetected: " << isFinishLineDetected << std::endl;
                                                                 break;
                                                             } else {
                                                                 std::cout << "Finish Line " << (i - 1) << " is NOT perpendicular.\n";
@@ -687,6 +595,83 @@ void CameraProcessing::processFrames() {
                                                         }
                                                     }
                                                 }
+                                            }
+                                        }
+                                    }
+
+                                    for (int i = 0; i < lines.size(); i++){
+                                        this->extendLineToEdges(lines[i], birdsEyeViewWidth, birdsEyeViewHeight);
+                                        lines[i] = this->evenlySpacePoints(lines[i], curveSamplePoints);
+                                    }
+
+                                    this->getLeftRightLines(lines,this->leftLine,this->rightLine);
+                                    this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);
+                                break;
+                                // NOTE TO SELF: check finish Line before removing lines, see what happens
+                                case APPROACHING_INTERSECTION:
+                                
+                                    this->isValidLines = true;
+                                    
+                                    if (lines.size() >= 1)
+                                    {
+                                        std::vector<std::vector<cv::Point2f>> newLines;
+                                        double tempLineSize = 0;
+
+                                        /* WARNING: This was used to counter unrecognized intersection
+                                        *           The top lines that appear in an intersection are giving fals negatives
+                                        */
+                                        bool areAllLinesFromTheTop = true;
+                                        for(int i = 0; i < lines.size(); i++){
+                                             
+                                            if(lines[i][0].y >= frameHeight * lineStartPointY){    
+                                               areAllLinesFromTheTop = false;
+                                            }
+                                           
+                                            tempLineSize = calculateLineLength(lines[i]);
+                                            if( INTERSECTION_minLineLength < tempLineSize)
+                                            {
+                                                newLines.push_back(lines[i]);
+                                            }
+                                            
+                                        }
+                                        lines.clear();
+                                        lines = std::move(newLines);
+                                                                                
+                                        if(!areAllLinesFromTheTop){
+                                            this->isValidLines = false;
+                                        }
+                                    }
+
+                                    this->isIntersection = true;
+                                    for (int i = 0; i < lines.size(); i++)
+                                    {
+                                        if(lines[i][0].y >= frameHeight * lineStartPointY){
+                                            this->isIntersection = false;
+                                        }
+                                    }
+
+                                    
+                                    std::cout << "Line size after():" << lines.size() << "\n";
+                                    std::cout << "isIntersection:" << this->isIntersection << "\n";
+                                    std::cout << "isValidLines:" << isValidLines << "\n";
+                                    if(this->isIntersection && isValidLines)
+                                    {
+                                        config->currentState = IN_INTERSECTION;
+                                    }
+                                    else
+                                    {
+                                        
+                                        for (int i = 0; i < lines.size(); i++)
+                                        {
+                                            lines[i] = this->perspectiveChangeLine(lines[i], this->MatrixBirdsEyeView);
+                                            this->is90DegreeLine = this->removeHorizontalIf90Turn(lines[i], config->currentState);
+                                            if (this->is90DegreeLine)
+                                            {
+                                                std::vector<std::vector<cv::Point2f>> keepOnlyStraightLine;
+                                                keepOnlyStraightLine.push_back(lines[i]);
+                                                lines.clear();
+                                                lines = std::move(keepOnlyStraightLine);
+                                                break;
                                             }
                                         }
 
@@ -719,16 +704,32 @@ void CameraProcessing::processFrames() {
                                                 newLines.push_back(lines[i]);
                                             }
                                         }
-                                        
+                                                                            
                                         lines.clear();
                                         lines = std::move(newLines);
-                                    }            
+                                        
+                                    }   
+                                    for (int i = 0; i < lines.size(); i++)
+                                    {
+                                        lines[i] = this->perspectiveChangeLine(lines[i], this->MatrixInverseBirdsEyeView);
+                                    }         
                                     for (int i = 0; i < lines.size(); i++){
                                         /*  NOTE: intersection is made of 4 90degree corners
                                         *   if a line starts in the box and are exiting intersection
                                         */
-                                        if((lines[i][0].y >= (birdsEyeViewHeight * lineStartPointY))){
-                                            config->currentState = EXITING_INTERSECTION;
+                                        if(lines[i][0].y > lines[i].back().y)
+                                        {
+                                            if((lines[i][0].y >= (frameHeight * lineStartPointY))){
+                                                exitingIntersectionCounter = 0;
+                                                config->currentState = EXITING_INTERSECTION;
+                                            }
+                                        } 
+                                        else
+                                        {
+                                            if((lines[i].back().y >= (frameHeight * lineStartPointY))){
+                                                exitingIntersectionCounter = 0;
+                                                config->currentState = EXITING_INTERSECTION;
+                                            }
                                         }
                                     }
                                 break;
@@ -737,9 +738,7 @@ void CameraProcessing::processFrames() {
                                     double longestLineSize1 = 0;
                                     double longestLineIndex1 = 0;
 
-                                    for (int i = 0; i < lines.size(); i++){
-                                        lines[i] = this->perspectiveChangeLine(lines[i], this->MatrixBirdsEyeView);
-                                    }
+                                    
                                     if (lines.size() >= 1){
                                         std::vector<std::vector<cv::Point2f>> newLines;
                                         double tempLineSize = 0;
@@ -761,21 +760,24 @@ void CameraProcessing::processFrames() {
                                             }
                                         }
                                     }
-
-                                        
+                                    
                                     for (int i = 0; i < lines.size(); i++){
+                                        lines[i] = this->perspectiveChangeLine(lines[i], this->MatrixBirdsEyeView);
                                         this->is90DegreeLine = this->removeHorizontalIf90Turn(lines[i], config->currentState);
                                         if (this->is90DegreeLine)
                                         {
-                                            std::vector<std::vector<cv::Point2f>> keepOnyStraightLine;
-                                            keepOnyStraightLine.push_back(lines[i]);
+                                            std::vector<std::vector<cv::Point2f>> keepOnlyStraightLine;
+                                            keepOnlyStraightLine.push_back(lines[i]);
                                             lines.clear();
-                                            lines = std::move(keepOnyStraightLine);
+                                            lines = std::move(keepOnlyStraightLine);
                                             break;
                                         }
                                     }
                                     if(!this->is90DegreeLine){
-                                        config->currentState = FOLLOWING_LINE;
+                                        exitingIntersectionCounter++;
+                                        if(exitingIntersectionCounter > 10){
+                                            config->currentState = FOLLOWING_LINE;
+                                        }
                                     }
                                     for (int i = 0; i < lines.size(); i++)
                                     {
@@ -787,40 +789,6 @@ void CameraProcessing::processFrames() {
                                     this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);
                                     break;
                                 }
-                                case BOX_DETECTION:
-
-                                    for (int i = 0; i < lines.size(); i++){
-                                        lines[i] = this->perspectiveChangeLine(lines[i], this->MatrixBirdsEyeView);
-                                    }
-
-                                    if (this->isFinishLineDetected && lines.size() >= 2){   
-                                        std::vector<std::vector<cv::Point2f>> keepLongestLine;
-                                        double longestLineSize = 0;
-                                        double tempLineSize = 0;
-                                        uint8_t longestLineIndex;
-
-                                        for(int i = 0; i < lines.size(); i++){
-                                            tempLineSize = calculateLineLength(lines[i]);
-                                            std::cout << "(BOX_DETECTION) tempLineSize: " << tempLineSize << "\n";
-                                            if(longestLineSize < tempLineSize)
-                                            {
-                                                longestLineSize = tempLineSize;
-                                                longestLineIndex = i;
-                                            }
-                                        }
-                                        keepLongestLine.push_back(lines[longestLineIndex]);
-                                        lines.clear();
-                                        lines = std::move(keepLongestLine);
-                                    }
-                                    for (int i = 0; i < lines.size(); i++)
-                                    {
-                                        this->extendLineToEdges(lines[i], birdsEyeViewWidth, birdsEyeViewHeight);
-                                        lines[i] = this->evenlySpacePoints(lines[i], curveSamplePoints);
-                                    }
-                                        
-                                    this->getLeftRightLines(lines,this->leftLine,this->rightLine);
-                                    this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);
-                                break;
                             }
 
                             
@@ -899,65 +867,7 @@ void CameraProcessing::processFrames() {
                                                 
 
                             #if 1 == ENABLE_TEENSY_SERIAL
-                                std::string serialString = "";
-                                int checksum = 0;
-
-                                if (config->enableCarEngine){
-                                    serialString += "1;";
-                                }else{
-                                    serialString += "0;";
-                                }
-                                if (config->enableCarSteering){
-                                    //serialString += std::to_string(ppObject.getSteeringAngleServo()) + ";";
-                                    if(IN_INTERSECTION == config->currentState)
-                                    {
-                                        serialString += "0;";
-                                    }
-                                    else
-                                    {
-                                        serialString += to_string_with_precision(ppObject.getSteeringAngleServo(),2) + ";";
-                                    }
-                                }else{
-                                    serialString +="0;";
-                                }
-                                
-                                // WARNING: Used to not build up PID ERROR
-                                if (config->enableCarEngine){
-                                    serialString += to_string_with_precision(ppObject.getSpeed(),2) + ";";
-                                }
-                                else
-                                {
-                                    serialString += "0;";
-                                }
-
-                                if (this->isFinishLineDetected){
-                                    serialString +="1;";
-                                }else{
-                                    serialString +="0;";
-                                }
-                                serialString += std::to_string(distanceBeforeIssuesAppear) + ";";
-
-                                int stoppingDistanceBoxLidar = config->stoppingDistanceBoxFrontEnd + config->distanceSensorError;                                
-                                serialString += std::to_string(stoppingDistanceBoxLidar) + ";";
-                                
-                                if(isStatusLedOn)
-                                {
-                                    serialString +="1;";
-                                }
-                                else
-                                {
-                                    serialString +="0;";
-                                }
-
-                                
-                                serialString += std::to_string(config->afterFinishLineSpeed);
-                                for (char c : serialString) {
-                                    checksum += static_cast<unsigned char>(c);
-                                }
-
-                                serialString += ";" + std::to_string(checksum);
-                                std::cout << "called writeToSerial CHECKSUM: "<< checksum << "\n";
-                                
+                                serialString = this->createSerialString(isBlueStatusLedOn, isYellowStatusLedOn, stoppingDistanceBoxLidar);
                                 serial.writeToSerial(serialString);
                             #endif
                         
@@ -1432,7 +1342,6 @@ bool CameraProcessing::removeHorizontalIf90Turn(std::vector<cv::Point2f>& line, 
             break; // You may break early if you're only checking for 90-degree turns
         }
         
-        std::cout << "Angle: " << angle << std::endl;
     }
 
     // Print the maximum angle after the loop
@@ -1540,7 +1449,6 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
             double smallestDistance = weightedDistAtoLeft;
             std::string smallestType = "AtoLeft";
 
-            // Step 3: Compare each distance to find the smallest
             if (weightedDistAtoRight < smallestDistance) {
                 smallestDistance = weightedDistAtoRight;
                 smallestType = "AtoRight";
@@ -2063,4 +1971,74 @@ void CameraProcessing::drawCircle(cv::Mat& image, const cv::Point2f& center, int
     cv::circle(image, center, radius, color, thickness);
 }
 
+std::string  CameraProcessing::createSerialString(bool isBlueStatusLedOn, bool isYellowStatusLedOn, int stoppingDistanceBoxLidar)
+{
+    std::string serialString = "";
+    int checksum = 0;
+
+    if (config->enableCarEngine){
+        serialString += "1;";
+    }else{
+        serialString += "0;";
+    }
+    if (config->enableCarSteering){
+        //serialString += std::to_string(ppObject.getSteeringAngleServo()) + ";";
+        if(IN_INTERSECTION == config->currentState)
+        {
+            serialString += "0;";
+        }
+        else
+        {
+            serialString += to_string_with_precision(ppObject.getSteeringAngleServo(),2) + ";";
+        }
+    }else{
+        serialString +="0;";
+    }
+    
+    // WARNING: Used to not build up PID ERROR
+    if (config->enableCarEngine){
+        serialString += to_string_with_precision(ppObject.getSpeed(),2) + ";";
+    }
+    else
+    {
+        serialString += "0;";
+    }
+
+    if (this->isFinishLineDetected){
+        serialString +="1;";
+    }else{
+        serialString +="0;";
+    }
+    serialString += std::to_string(distanceBeforeIssuesAppear) + ";";
+
+    serialString += std::to_string(stoppingDistanceBoxLidar) + ";";
+    
+    if(isBlueStatusLedOn)
+    {
+        serialString +="1;";
+    }
+    else
+    {
+        serialString +="0;";
+    }
+
+    if(isYellowStatusLedOn)
+    {
+        serialString +="1;";
+    }
+    else
+    {
+        serialString +="0;";
+    }
+
+    
+    serialString += std::to_string(config->afterFinishLineSpeed);
+    for (char c : serialString) {
+        checksum += static_cast<unsigned char>(c);
+    }
+
+    serialString += ";" + std::to_string(checksum);
+    
+    return serialString;
+}
 #endif

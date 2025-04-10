@@ -235,7 +235,7 @@ void signalHandler(int signal) {
     }
     #if 1 == ENABLE_TEENSY_SERIAL
         int checksum = 0;
-        std::string serialString = "0;0;0;0;0;0;0;0";
+        std::string serialString = "0;0;0;0;0;0;0;0;0";
         for (char c : serialString) {
             checksum += static_cast<unsigned char>(c);
         }
