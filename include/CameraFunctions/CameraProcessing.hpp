@@ -176,6 +176,11 @@ void CameraProcessing::setParameters(int cameraIndex, int width, int height, int
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, height);
     cap.set(cv::CAP_PROP_FPS, fps);
 
+    // Apply v4l2-ctl camera settings for manual exposure NXP BUCHAREST FIX
+    std::string command = "v4l2-ctl -d /dev/video" + std::to_string(cameraIndex) +
+                          " -c auto_exposure=1 -c exposure_time_absolute=100";
+    system(command.c_str());
+
     double actualWidth = cap.get(cv::CAP_PROP_FRAME_WIDTH);
     double actualHeight = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
     double actualFPS = cap.get(cv::CAP_PROP_FPS);
@@ -648,6 +653,10 @@ void CameraProcessing::processFrames() {
                                         if(lines[i][0].y >= frameHeight * lineStartPointY){
                                             this->isIntersection = false;
                                         }
+                                    }
+                                    if(isIntersection)
+                                    {
+                                        lines.clear();
                                     }
 
                                     
@@ -1523,9 +1532,89 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
             }
         }
     }
+    else if (1 == lines.size())
+    {
+        // Get the first and last points of the line
+        cv::Point2f pointFront(lines[0][0].x, lines[0][0].y);       // First point of the line
 
+        // Weighted distance comparison using the first point
+        double weightedDistToLeft = euclideanDistance(pointFront, firstPointLeftLine) 
+                                + alpha * std::abs(pointFront.y - firstPointLeftLine.y);
+        double weightedDistToRight = euclideanDistance(pointFront, firstPointRightLine) 
+                                    + alpha * std::abs(pointFront.y - firstPointRightLine.y);
 
+        // Output debug information
+        //std::cout << "Weighted Distance to Left: " << weightedDistToLeft << std::endl;
+        //std::cout << "Weighted Distance to Right: " << weightedDistToRight << std::endl;
 
+        // Classify the line as left or right based on weighted distances
+        if (weightedDistToLeft < weightedDistToRight) {
+            // Single line is closer to historical left, so it is the left line
+            leftFitted = lines[0];
+            rightFitted.clear();
+            /*for (const auto& point : leftFitted) {
+                shiftedPoint = cv::Point2f(point.x + trackLaneWidthInPixel + (config->trackLaneWidthOffset * pixelSizeInCm), point.y);
+                rightFitted.push_back(shiftedPoint);
+            }*/
+            for (size_t i = 0; i < leftFitted.size() - 1; ++i) {
+                // Compute the midpoint of each segment
+                float mid_x = (leftFitted[i].x + leftFitted[i + 1].x) / 2.0;
+                float mid_y = (leftFitted[i].y + leftFitted[i + 1].y) / 2.0;
+
+                // Compute direction vector
+                float dx = leftFitted[i + 1].x - leftFitted[i].x;
+                float dy = leftFitted[i + 1].y - leftFitted[i].y;
+                float length = std::sqrt(dx * dx + dy * dy);
+
+                // Compute perpendicular offset (normalized)
+                float offset_x = (trackLaneWidthInPixel + config->trackLaneWidthOffset) * (-dy / length);
+                float offset_y = (trackLaneWidthInPixel + config->trackLaneWidthOffset) * (dx / length);
+
+                // Compute the mirrored point
+                shiftedPoint = cv::Point2f(mid_x + offset_x, mid_y + offset_y);
+                rightFitted.push_back(shiftedPoint);
+            }
+
+            firstPointLeftLine = pointFront; // Update historical left point
+            firstPointRightLine = rightFitted[0]; // Update historical right point
+        } else {
+            // Single line is closer to historical right, so it is the right line
+            rightFitted = lines[0];
+            leftFitted.clear();
+            /*for (const auto& point : rightFitted) {
+                shiftedPoint = cv::Point2f(point.x - trackLaneWidthInPixel - (config->trackLaneWidthOffset * pixelSizeInCm), point.y);
+                leftFitted.push_back(shiftedPoint);
+            }*/
+            for (size_t i = 0; i < rightFitted.size() - 1; ++i) {
+                // Compute the midpoint of each segment
+                float mid_x = (rightFitted[i].x + rightFitted[i + 1].x) / 2.0;
+                float mid_y = (rightFitted[i].y + rightFitted[i + 1].y) / 2.0;
+
+                // Compute direction vector
+                float dx = rightFitted[i + 1].x - rightFitted[i].x;
+                float dy = rightFitted[i + 1].y - rightFitted[i].y;
+                float length = std::sqrt(dx * dx + dy * dy);
+
+                // Compute perpendicular offset (normalized)
+                float offset_x = (trackLaneWidthInPixel + config->trackLaneWidthOffset) * (dy / length);
+                float offset_y = (trackLaneWidthInPixel + config->trackLaneWidthOffset) * (-dx / length);
+
+                // Compute the mirrored point
+                shiftedPoint = cv::Point2f(mid_x + offset_x, mid_y + offset_y);
+                leftFitted.push_back(shiftedPoint);
+            }
+            firstPointRightLine = pointFront; // Update historical right point
+            firstPointLeftLine = leftFitted[0]; // Update historical left point
+        }
+    }
+
+    else 
+    {
+    //firstPointLeftLine = undefinedPoint;
+    //firstPointRightLine = undefinedPoint;
+
+        // TBD NO LINES, STOP CAR
+    }
     /*
         If we have one line and history then decide to which starting point is closer:
             - If it is to the left then duplicate a line to it's left and lower
@@ -1656,89 +1745,6 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
             }
         }
         */
-    else if (1 == lines.size())
-    {
-        // Get the first and last points of the line
-        cv::Point2f pointFront(lines[0][0].x, lines[0][0].y);       // First point of the line
-
-        // Weighted distance comparison using the first point
-        double weightedDistToLeft = euclideanDistance(pointFront, firstPointLeftLine) 
-                                + alpha * std::abs(pointFront.y - firstPointLeftLine.y);
-        double weightedDistToRight = euclideanDistance(pointFront, firstPointRightLine) 
-                                    + alpha * std::abs(pointFront.y - firstPointRightLine.y);
-
-        // Output debug information
-        //std::cout << "Weighted Distance to Left: " << weightedDistToLeft << std::endl;
-        //std::cout << "Weighted Distance to Right: " << weightedDistToRight << std::endl;
-
-        // Classify the line as left or right based on weighted distances
-        if (weightedDistToLeft < weightedDistToRight) {
-            // Single line is closer to historical left, so it is the left line
-            leftFitted = lines[0];
-            rightFitted.clear();
-            /*for (const auto& point : leftFitted) {
-                shiftedPoint = cv::Point2f(point.x + trackLaneWidthInPixel + (config->trackLaneWidthOffset * pixelSizeInCm), point.y);
-                rightFitted.push_back(shiftedPoint);
-            }*/
-            for (size_t i = 0; i < leftFitted.size() - 1; ++i) {
-                // Compute the midpoint of each segment
-                float mid_x = (leftFitted[i].x + leftFitted[i + 1].x) / 2.0;
-                float mid_y = (leftFitted[i].y + leftFitted[i + 1].y) / 2.0;
-
-                // Compute direction vector
-                float dx = leftFitted[i + 1].x - leftFitted[i].x;
-                float dy = leftFitted[i + 1].y - leftFitted[i].y;
-                float length = std::sqrt(dx * dx + dy * dy);
-
-                // Compute perpendicular offset (normalized)
-                float offset_x = (trackLaneWidthInPixel) * (-dy / length);
-                float offset_y = (trackLaneWidthInPixel) * (dx / length);
-
-                // Compute the mirrored point
-                shiftedPoint = cv::Point2f(mid_x + offset_x, mid_y + offset_y);
-                rightFitted.push_back(shiftedPoint);
-            }
-
-            firstPointLeftLine = pointFront; // Update historical left point
-            firstPointRightLine = rightFitted[0]; // Update historical right point
-        } else {
-            // Single line is closer to historical right, so it is the right line
-            rightFitted = lines[0];
-            leftFitted.clear();
-            /*for (const auto& point : rightFitted) {
-                shiftedPoint = cv::Point2f(point.x - trackLaneWidthInPixel - (config->trackLaneWidthOffset * pixelSizeInCm), point.y);
-                leftFitted.push_back(shiftedPoint);
-            }*/
-            for (size_t i = 0; i < rightFitted.size() - 1; ++i) {
-                // Compute the midpoint of each segment
-                float mid_x = (rightFitted[i].x + rightFitted[i + 1].x) / 2.0;
-                float mid_y = (rightFitted[i].y + rightFitted[i + 1].y) / 2.0;
-
-                // Compute direction vector
-                float dx = rightFitted[i + 1].x - rightFitted[i].x;
-                float dy = rightFitted[i + 1].y - rightFitted[i].y;
-                float length = std::sqrt(dx * dx + dy * dy);
-
-                // Compute perpendicular offset (normalized)
-                float offset_x = (trackLaneWidthInPixel) * (dy / length);
-                float offset_y = (trackLaneWidthInPixel) * (-dx / length);
-
-                // Compute the mirrored point
-                shiftedPoint = cv::Point2f(mid_x + offset_x, mid_y + offset_y);
-                leftFitted.push_back(shiftedPoint);
-            }
-            firstPointRightLine = pointFront; // Update historical right point
-            firstPointLeftLine = leftFitted[0]; // Update historical left point
-        }
-    }
-
-    else 
-    {
-    //firstPointLeftLine = undefinedPoint;
-    //firstPointRightLine = undefinedPoint;
-
-        // TBD NO LINES, STOP CAR
-    }
 }
 std::vector<cv::Point2f> CameraProcessing::findMiddle(std::vector<cv::Point2f>& leftLine, std::vector<cv::Point2f>& rightLine, int providedFrameWidth, int providedFrameHeight) {
     std::vector<cv::Point2f> midPoints;

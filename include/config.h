@@ -47,6 +47,14 @@ for indoor track
 208 135
 87 149
 
+// NXP BUCHAREST
+39 53
+-44 135
+145 53
+214 135
+83 149
+
+
 
 
 for B020 curved track
@@ -126,7 +134,7 @@ struct SharedConfig {
 // Integer values
 #define DEFAULT_ENABLE_CAR_ENGINE 0
 #define DEFAULT_ENABLE_CAR_STEERING 1
-#define DEFAULT_THRESHOLD_VALUE 62//51
+#define DEFAULT_THRESHOLD_VALUE 150 //62
 #define DEFAULT_DISTANCE_ERROR_FROM_CHASSIS 0
 #define DEFAULT_LINE_MIN_PIXEL_COUNT 70 
 #define DEFAULT_DISTANCE_FROM_SENSOR_ERROR 15
@@ -136,18 +144,18 @@ struct SharedConfig {
 // Double values
 #define DEFAULT_CALIBRATE_TOP_LINE 36.6//41.6(percentage) //100
 #define DEFAULT_CALIBRATE_BOTTOM_LINE 90.8//95.8(percentage) //230
-#define DEFAULT_TRACK_LANE_WIDTH_OFFSET 0.0
+#define DEFAULT_TRACK_LANE_WIDTH_OFFSET 16.5
 #define DEFAULT_TOP_IMAGE_CUT_PERCENTAGE 0.0
 #define DEFAULT_BOTTOM_IMAGE_CUT_PERCENTAGE 0.35
 #define DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 0.35 // Cuts pixels from first 45% of image 
 #define DEFAULT_BOTTOM_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 1 //0.65
-#define DEFAULT_LINE_90_DEGREE_ANGLE_RANGE 25.0                          // abs(degree-90) < range
+#define DEFAULT_LINE_90_DEGREE_ANGLE_RANGE 20.0                          // abs(degree-90) < range
 #define DEFAULT_FINISH_LINE_ANGLE_RANGE 15.0
 #define DEFAULT_AFTER_FINISH_LINE_SPEED 70.0
 #define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 0.8 //1.0
 #define DEFAULT_CORNERING_SPEED_COEFFICIENT 0.7 //0.6
 #define DEFAULT_MIN_SPEED 40.0
-#define DEFAULT_MAX_SPEED 220.0
+#define DEFAULT_MAX_SPEED 260.0
 #define DEFAULT_CURVATURE_FACTOR 13.0
 #define DEFAULT_K_MIN 14.8
 #define DEFAULT_K_MAX 18.5
@@ -226,7 +234,7 @@ constexpr int resizeTotalPixels = resizeFrameWidth * resizeFrameHeight;
 constexpr double ScalingFactor = static_cast<double>(resizeTotalPixels) / captureTotalPixels;
 constexpr int  _minLinePixelCount = static_cast<int>(ScalingFactor * DEFAULT_LINE_MIN_PIXEL_COUNT);
 
-constexpr double  lineStartPointY = 0.70;    // Used for intersection // birdsEyeViewHeight * lineStartPointY = Y threshold
+constexpr double  lineStartPointY = 0.60;    // Used for intersection // birdsEyeViewHeight * lineStartPointY = Y threshold
 
 // Used in fitPolinomial()
 constexpr int fitPolyWindowSize = static_cast<int>(35 * ScalingFactor);  
@@ -268,6 +276,6 @@ constexpr double maxLeftServoAngle = -30.0;                     // Used to limit
 constexpr double maxRightServoAngle = 30.0;                     // Used to limit servo rotation
 
 // Used in processFrames()
-constexpr double overlayFrameWeight = 1.0;                      // Used for visualization of two frames on top of eachother
+constexpr double overlayFrameWeight = 0.5;                      // Used for visualization of two frames on top of eachother
 
 #endif
