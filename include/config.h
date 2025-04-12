@@ -108,7 +108,7 @@ struct SharedConfig {
     double calibrateBottomLinePerc;                         //Range: 0 - 100
     double trackLaneWidthOffset;                            //Range: -100 - 200
     double topImageCutPercentage;                           //Range: 0 - 1
-    double bottomImageCutPercentage;                           //Range: 0 - 1
+    double bottomImageCutPercentage;                        //Range: 0 - 1
     double topCutOffPercentageCustomConnected;              //Range: 0 - 1
     double line90DegreeAngleRange;                          //Range: 0 - 90
     double finishLineAngleRange;                            //Range: 90 - 180
@@ -117,6 +117,8 @@ struct SharedConfig {
     double corneringSpeedCoefficient;                       //Range: 0 - 2
     double minSpeed;                                        //Range: 0 - 350
     double maxSpeed;                                        //Range: 0 - 350
+    double minSpeedAfterFinish;                             //Range: 0 - 350
+    double maxSpeedAfterFinish;                             //Range: 0 - 350
     double curvatureFactor;                                 //Range: 0 - 200
     double k_min;                                           //Range: 0 - 25
     double k_max;                                           //Range: 0 - 25
@@ -156,6 +158,8 @@ struct SharedConfig {
 #define DEFAULT_CORNERING_SPEED_COEFFICIENT 0.7 //0.6
 #define DEFAULT_MIN_SPEED 40.0
 #define DEFAULT_MAX_SPEED 260.0
+#define DEFAULT_MIN_SPEED_AFTER_FINISH 30.0
+#define DEFAULT_MAX_SPEED_AFTER_FINISH 70.0
 #define DEFAULT_CURVATURE_FACTOR 13.0
 #define DEFAULT_K_MIN 14.8
 #define DEFAULT_K_MAX 18.5

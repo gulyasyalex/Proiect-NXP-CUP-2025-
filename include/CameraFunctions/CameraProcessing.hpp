@@ -864,7 +864,7 @@ void CameraProcessing::processFrames() {
                                 continue;
                             }
                             ppObject.computePurePursuit( this->allMidPoints, this->carInFramePositionBirdsEye, 
-                                                    this->pixelSizeInCm, this->carTopPoint);
+                                                    this->pixelSizeInCm, this->carTopPoint, this->isFinishLineDetected);
                             // * timer.stop();
                             //std::cout << "computePurePursuit Time: " << timer.getTimeMilli() << " ms" << std::endl;
                     
@@ -1399,7 +1399,7 @@ bool CameraProcessing::removeHorizontalIf90Turn(std::vector<cv::Point2f>& line, 
     return has90DegreeTurn;
 
 }
-// Function that handles 2 Lines, 1 Line and No line cases
+// Function that handles 2 Lines, 1 Line and No line cases in BirdEyeView
 void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point2f>>& lines, std::vector<cv::Point2f>& leftFitted, std::vector<cv::Point2f>& rightFitted)
 {
 
@@ -1443,8 +1443,8 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
 
         // std::cout <<" weightedDistAtoLeft" << weightedDistAtoLeft << std::endl;
         // std::cout <<" weightedDistAtoRight" << weightedDistAtoRight << std::endl;
-        // std::cout <<" weightedDistAtoLeft" << weightedDistBtoLeft << std::endl;
-        // std::cout <<" weightedDistAtoRight" << weightedDistBtoRight << std::endl;
+        // std::cout <<" weightedDistBtoLeft" << weightedDistBtoLeft << std::endl;
+        // std::cout <<" weightedDistBtoRight" << weightedDistBtoRight << std::endl;
         // Check for impostors
         if ((weightedDistAtoLeft < weightedDistAtoRight && weightedDistBtoLeft < weightedDistBtoRight) || 
             (weightedDistAtoRight < weightedDistAtoLeft && weightedDistBtoRight < weightedDistBtoLeft)) 
@@ -1534,15 +1534,33 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
     }
     else if (1 == lines.size())
     {
-        // Get the first and last points of the line
+        // Get the points of the line
         cv::Point2f pointFront(lines[0][0].x, lines[0][0].y);       // First point of the line
 
-        // Weighted distance comparison using the first point
-        double weightedDistToLeft = euclideanDistance(pointFront, firstPointLeftLine) 
-                                + alpha * std::abs(pointFront.y - firstPointLeftLine.y);
-        double weightedDistToRight = euclideanDistance(pointFront, firstPointRightLine) 
-                                    + alpha * std::abs(pointFront.y - firstPointRightLine.y);
+        double weightedDistToLeft;
+        double weightedDistToRight;
 
+        if((undefinedPoint == firstPointLeftLine) && (undefinedPoint == firstPointRightLine))
+        {
+            // NOTE: Check on first iteration if the line is on the left of middle or on the right
+            if (pointFront.x < (birdsEyeViewWidth / 2))
+            {
+                weightedDistToLeft = 0;
+                weightedDistToRight = 1;
+            } 
+            else
+            {
+                weightedDistToLeft = 1;
+                weightedDistToRight = 0;
+            }
+        }
+        else{
+            // Weighted distance comparison using the first point
+            weightedDistToLeft = euclideanDistance(pointFront, firstPointLeftLine) 
+                                    + alpha * std::abs(pointFront.y - firstPointLeftLine.y);
+            weightedDistToRight = euclideanDistance(pointFront, firstPointRightLine) 
+                                        + alpha * std::abs(pointFront.y - firstPointRightLine.y);
+        }
         // Output debug information
         //std::cout << "Weighted Distance to Left: " << weightedDistToLeft << std::endl;
         //std::cout << "Weighted Distance to Right: " << weightedDistToRight << std::endl;

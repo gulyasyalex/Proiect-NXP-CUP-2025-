@@ -73,7 +73,7 @@ public:
     void setParameters(std::shared_ptr<SharedConfig> global_config);
     void computePurePursuit(std::vector<cv::Point2f> allMidPoints,
                                 cv::Point2f carInFramePositionBirdsEye,
-                                double pixelSizeInCm, cv::Point2f carTopPoint);
+                                double pixelSizeInCm, cv::Point2f carTopPoint, bool isFinishLineDetected);
     double adjustSpeed(double trackCurvatureRadius, double currentSpeed);
     double computeLookAheadDistance(double trackCurvatureRadius, std::vector<cv::Point2f> allMidPoints,
                                 cv::Point2f carInFramePositionBirdsEye,double pixelSizeInCm, double speed);
@@ -134,7 +134,7 @@ void PurePursuit::setParameters(std::shared_ptr<SharedConfig> global_config){
     }
 void PurePursuit::computePurePursuit(std::vector<cv::Point2f> allMidPoints,
                                 cv::Point2f carInFramePositionBirdsEye,
-                                double pixelSizeInCm, cv::Point2f carTopPoint){
+                                double pixelSizeInCm, cv::Point2f carTopPoint, bool isFinishLineDetected){
     // Track Curvature is used in speed and lookahead distance formulas
     this->trackCurvatureRadius = computeCurvatureRadiusInFrontOfCar(allMidPoints, carInFramePositionBirdsEye, ((this->lookAheadDistanceInCm+30)*pixelSizeInCm));
     
@@ -151,7 +151,14 @@ void PurePursuit::computePurePursuit(std::vector<cv::Point2f> allMidPoints,
     }
     else
     {
-        this->speed = CalculateCarSpeed(config->minSpeed, config->maxSpeed, wheelBaseInCm, config->corneringSpeedCoefficient, 981, this->angleHeadingTarget);
+        if(isFinishLineDetected)
+        {
+            this->speed = CalculateCarSpeed(config->minSpeedAfterFinish, config->maxSpeedAfterFinish, wheelBaseInCm, config->corneringSpeedCoefficient, 981, this->angleHeadingTarget);
+        }
+        else
+        {
+            this->speed = CalculateCarSpeed(config->minSpeed, config->maxSpeed, wheelBaseInCm, config->corneringSpeedCoefficient, 981, this->angleHeadingTarget);
+        }
     }
     this->steeringAngleServo = calculateServoValue(this->angleHeadingTarget, this->lookAheadDistanceInCm);                 
 }
