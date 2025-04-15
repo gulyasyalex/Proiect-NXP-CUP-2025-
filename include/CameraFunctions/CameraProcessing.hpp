@@ -178,7 +178,7 @@ void CameraProcessing::setParameters(int cameraIndex, int width, int height, int
 
     // Apply v4l2-ctl camera settings for manual exposure NXP BUCHAREST FIX
     std::string command = "v4l2-ctl -d /dev/video" + std::to_string(cameraIndex) +
-                          " -c auto_exposure=1 -c exposure_time_absolute=100";
+                          " -c auto_exposure=1 -c exposure_time_absolute=16";
     system(command.c_str());
 
     double actualWidth = cap.get(cv::CAP_PROP_FRAME_WIDTH);
@@ -281,6 +281,29 @@ void CameraProcessing::captureFrames() {
             frame = resizeImage(frame, resizeFrameWidth, resizeFrameHeight);
             //saveImage("imagine03032025_01.jpg",frame);
             cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
+
+            std::deque<double> brightness_history;
+            int window_size = 50;
+
+            double frame_brightness = cv::mean(frame)[0];
+
+            if (brightness_history.size() >= window_size) {
+                brightness_history.pop_front();
+            }
+            brightness_history.push_back(frame_brightness);
+
+            // Compute median
+            std::vector<double> temp(brightness_history.begin(), brightness_history.end());
+
+            std::sort(temp.begin(), temp.end());
+            double median_brightness = temp[temp.size() / 2];
+            std::cout << "frame_brightness:" << frame_brightness << "\n";
+            std::cout << "median_brightness:" << median_brightness << "\n";
+            if (std::abs(frame_brightness - median_brightness) > 55) {
+                // Flicker detected: skip or discard this frame
+                continue;
+            }
+
             // TO CROP
             frame = cropFrameTop(frame, config->topImageCutPercentage);
 
@@ -352,7 +375,7 @@ void CameraProcessing::processFrames() {
                     frameCount = 0;
                     timeStart = cv::getTickCount();
                 }
-
+                
                 std::cout << "FPS(processFrames): " << fps << " FPS(captureFrames): " << this->fpsCaptureFrames << std::endl;
                 //serial.writeToSerial("FPS(processFrames): " + std::to_string(fps) + 
                 //     " FPS(captureFrames): " + std::to_string(this->fpsCaptureFrames));
@@ -519,7 +542,7 @@ void CameraProcessing::processFrames() {
                         this->drawHorizontalFromHeight(outputImage,frameHeight * lineStartPointY,cv::Scalar(255, 255, 255));
                         #if 1 == ENABLE_TCP_OUTPUT 
                             this->drawLines(outputImage,lines,cv::Scalar(0, 0, 255));
-                            this->laptopTCP.sendFrame(outputImage);
+                            //this->laptopTCP.sendFrame(outputImage);
                         #endif
 
                         #if 1 != ENABLE_CAMERA_CALIBRATION 
@@ -1031,7 +1054,8 @@ cv::Mat CameraProcessing::skeletonizeFrame(cv::Mat& thresholdedImage) {
 // Apply color segmentation to isolate specific features in the image
 cv::Mat CameraProcessing::segmentEdges(const cv::Mat& frame) {
     cv::Mat thresholdFrame;
-    cv::threshold(frame, thresholdFrame, config->thresholdValue, maxThresholdValue, cv::THRESH_BINARY);
+    //cv::threshold(frame, thresholdFrame, config->thresholdValue, maxThresholdValue, cv::THRESH_BINARY);
+    cv::threshold(frame, thresholdFrame, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
     cv::bitwise_not(thresholdFrame, thresholdFrame);
     return thresholdFrame;
 }

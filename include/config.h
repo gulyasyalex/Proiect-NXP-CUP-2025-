@@ -9,7 +9,7 @@ extern debix::SerialPort& serial;
 #define ENABLE_CAMERA_CALIBRATION 0
 #define ENABLE_CAMERA_THRESHOLD_CHECK 0
 #define ENABLE_CAMERA_STREAMING 1
-#define ENABLE_TCP_OUTPUT 1
+#define ENABLE_TCP_OUTPUT 0
 #define ENABLE_TEENSY_SERIAL 1
 #define ENABLE_FINISH_LINE_DETECTION 1
 #define DEFAULT_START_RACE 0  // When set to 1 car starts 
@@ -154,10 +154,10 @@ struct SharedConfig {
 #define DEFAULT_LINE_90_DEGREE_ANGLE_RANGE 20.0                          // abs(degree-90) < range
 #define DEFAULT_FINISH_LINE_ANGLE_RANGE 15.0
 #define DEFAULT_AFTER_FINISH_LINE_SPEED 70.0
-#define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 0.8 //1.0
-#define DEFAULT_CORNERING_SPEED_COEFFICIENT 0.7 //0.6
+#define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 0.80 //1.0
+#define DEFAULT_CORNERING_SPEED_COEFFICIENT 0.6 //0.6
 #define DEFAULT_MIN_SPEED 40.0
-#define DEFAULT_MAX_SPEED 260.0
+#define DEFAULT_MAX_SPEED 240.0
 #define DEFAULT_MIN_SPEED_AFTER_FINISH 30.0
 #define DEFAULT_MAX_SPEED_AFTER_FINISH 70.0
 #define DEFAULT_CURVATURE_FACTOR 13.0
@@ -244,7 +244,7 @@ constexpr double  lineStartPointY = 0.60;    // Used for intersection // birdsEy
 constexpr int fitPolyWindowSize = static_cast<int>(35 * ScalingFactor);  
 constexpr double fitPolyEpsilon = static_cast<double>(15.0 * ScalingFactor); // Epsilon value for curve approximation
 
-constexpr int captureFps = 100;
+constexpr int captureFps = 120;
 cv::Point2f undefinedPoint = cv::Point2f(0,0);
 
 constexpr int distanceBeforeIssuesAppear = 60;
