@@ -129,6 +129,126 @@ DEBIX/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/build
 .PHONY : DEBIX/fast
 
+include/CameraFunctions/CameraProcessing.o: include/CameraFunctions/CameraProcessing.cpp.o
+.PHONY : include/CameraFunctions/CameraProcessing.o
+
+# target to build an object file
+include/CameraFunctions/CameraProcessing.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.o
+.PHONY : include/CameraFunctions/CameraProcessing.cpp.o
+
+include/CameraFunctions/CameraProcessing.i: include/CameraFunctions/CameraProcessing.cpp.i
+.PHONY : include/CameraFunctions/CameraProcessing.i
+
+# target to preprocess a source file
+include/CameraFunctions/CameraProcessing.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.i
+.PHONY : include/CameraFunctions/CameraProcessing.cpp.i
+
+include/CameraFunctions/CameraProcessing.s: include/CameraFunctions/CameraProcessing.cpp.s
+.PHONY : include/CameraFunctions/CameraProcessing.s
+
+# target to generate assembly for a file
+include/CameraFunctions/CameraProcessing.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.s
+.PHONY : include/CameraFunctions/CameraProcessing.cpp.s
+
+include/MathFunctions/MathFunctions.o: include/MathFunctions/MathFunctions.cpp.o
+.PHONY : include/MathFunctions/MathFunctions.o
+
+# target to build an object file
+include/MathFunctions/MathFunctions.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.o
+.PHONY : include/MathFunctions/MathFunctions.cpp.o
+
+include/MathFunctions/MathFunctions.i: include/MathFunctions/MathFunctions.cpp.i
+.PHONY : include/MathFunctions/MathFunctions.i
+
+# target to preprocess a source file
+include/MathFunctions/MathFunctions.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.i
+.PHONY : include/MathFunctions/MathFunctions.cpp.i
+
+include/MathFunctions/MathFunctions.s: include/MathFunctions/MathFunctions.cpp.s
+.PHONY : include/MathFunctions/MathFunctions.s
+
+# target to generate assembly for a file
+include/MathFunctions/MathFunctions.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.s
+.PHONY : include/MathFunctions/MathFunctions.cpp.s
+
+include/PurePursuitFunctions/PurePursuit.o: include/PurePursuitFunctions/PurePursuit.cpp.o
+.PHONY : include/PurePursuitFunctions/PurePursuit.o
+
+# target to build an object file
+include/PurePursuitFunctions/PurePursuit.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.o
+.PHONY : include/PurePursuitFunctions/PurePursuit.cpp.o
+
+include/PurePursuitFunctions/PurePursuit.i: include/PurePursuitFunctions/PurePursuit.cpp.i
+.PHONY : include/PurePursuitFunctions/PurePursuit.i
+
+# target to preprocess a source file
+include/PurePursuitFunctions/PurePursuit.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.i
+.PHONY : include/PurePursuitFunctions/PurePursuit.cpp.i
+
+include/PurePursuitFunctions/PurePursuit.s: include/PurePursuitFunctions/PurePursuit.cpp.s
+.PHONY : include/PurePursuitFunctions/PurePursuit.s
+
+# target to generate assembly for a file
+include/PurePursuitFunctions/PurePursuit.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.s
+.PHONY : include/PurePursuitFunctions/PurePursuit.cpp.s
+
+include/SerialPortFunctions/SerialPort.o: include/SerialPortFunctions/SerialPort.cpp.o
+.PHONY : include/SerialPortFunctions/SerialPort.o
+
+# target to build an object file
+include/SerialPortFunctions/SerialPort.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.o
+.PHONY : include/SerialPortFunctions/SerialPort.cpp.o
+
+include/SerialPortFunctions/SerialPort.i: include/SerialPortFunctions/SerialPort.cpp.i
+.PHONY : include/SerialPortFunctions/SerialPort.i
+
+# target to preprocess a source file
+include/SerialPortFunctions/SerialPort.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.i
+.PHONY : include/SerialPortFunctions/SerialPort.cpp.i
+
+include/SerialPortFunctions/SerialPort.s: include/SerialPortFunctions/SerialPort.cpp.s
+.PHONY : include/SerialPortFunctions/SerialPort.s
+
+# target to generate assembly for a file
+include/SerialPortFunctions/SerialPort.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.s
+.PHONY : include/SerialPortFunctions/SerialPort.cpp.s
+
+include/TcpFunctions/TcpConnection.o: include/TcpFunctions/TcpConnection.cpp.o
+.PHONY : include/TcpFunctions/TcpConnection.o
+
+# target to build an object file
+include/TcpFunctions/TcpConnection.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.o
+.PHONY : include/TcpFunctions/TcpConnection.cpp.o
+
+include/TcpFunctions/TcpConnection.i: include/TcpFunctions/TcpConnection.cpp.i
+.PHONY : include/TcpFunctions/TcpConnection.i
+
+# target to preprocess a source file
+include/TcpFunctions/TcpConnection.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.i
+.PHONY : include/TcpFunctions/TcpConnection.cpp.i
+
+include/TcpFunctions/TcpConnection.s: include/TcpFunctions/TcpConnection.cpp.s
+.PHONY : include/TcpFunctions/TcpConnection.s
+
+# target to generate assembly for a file
+include/TcpFunctions/TcpConnection.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DEBIX.dir/build.make CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.s
+.PHONY : include/TcpFunctions/TcpConnection.cpp.s
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -162,6 +282,21 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... DEBIX"
+	@echo "... include/CameraFunctions/CameraProcessing.o"
+	@echo "... include/CameraFunctions/CameraProcessing.i"
+	@echo "... include/CameraFunctions/CameraProcessing.s"
+	@echo "... include/MathFunctions/MathFunctions.o"
+	@echo "... include/MathFunctions/MathFunctions.i"
+	@echo "... include/MathFunctions/MathFunctions.s"
+	@echo "... include/PurePursuitFunctions/PurePursuit.o"
+	@echo "... include/PurePursuitFunctions/PurePursuit.i"
+	@echo "... include/PurePursuitFunctions/PurePursuit.s"
+	@echo "... include/SerialPortFunctions/SerialPort.o"
+	@echo "... include/SerialPortFunctions/SerialPort.i"
+	@echo "... include/SerialPortFunctions/SerialPort.s"
+	@echo "... include/TcpFunctions/TcpConnection.o"
+	@echo "... include/TcpFunctions/TcpConnection.i"
+	@echo "... include/TcpFunctions/TcpConnection.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

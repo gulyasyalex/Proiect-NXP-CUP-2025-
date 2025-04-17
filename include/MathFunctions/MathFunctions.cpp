@@ -1,26 +1,4 @@
-#ifndef MATH_FUNCTIONS_H
-#define MATH_FUNCTIONS_H
-
-#include <opencv2/opencv.hpp>
-#include <cmath>
-#include "config.h"
-
-#include <sstream>
-#include <iomanip>
-#include <string>
-
-double lineLength(const cv::Vec4i& line);
-double euclideanDistance(cv::Point2f p1, cv::Point2f p2);
-double euclideanDistanceCoord(int x1, int y1, int x2, int y2);
-double calculateSignedAngle(cv::Point2f p1, cv::Point2f p2, cv::Point2f p3);
-double mapAngleToServo(double angle);
-cv::Point2f calculateMidpoint(const cv::Point2f& p1, const cv::Point2f& p2);
-cv::Point2f calculateCentroid(const std::vector<cv::Point2f>& line);
-std::vector<cv::Point2f> generateNeighborhood(int radius);
-std::vector<cv::Point2f> closestSegmentOnCurve(const std::vector<cv::Point2f>& curve, const cv::Point2f& point);
-double angleBetweenVectors(const cv::Point2f& v1, const cv::Point2f& v2);
-double roundToTwoDecimals(double value);
-std::string to_string_with_precision(double value, int precision);
+#include "MathFunctions/MathFunctions.hpp"
 
 // Function to calculate the length of a line
 double lineLength(const cv::Vec4i& line) {
@@ -134,5 +112,11 @@ std::string to_string_with_precision(double value, int precision = 2) {
     return stream.str();
 }
 
-
-#endif
+int doubleCmp(double num1, double num2) {
+    if (std::fabs(num1 - num2) < DBL_EPSILON) {
+        return 0;   // approximately equal
+    } else if (num1 > num2) {
+        return 1;
+    }
+    return -1;
+}

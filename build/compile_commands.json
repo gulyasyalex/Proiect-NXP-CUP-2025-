@@ -1,6 +1,31 @@
 [
 {
   "directory": "/home/debix/Documents/Proiect-NXP-CUP-2025-/build",
+  "command": "/usr/bin/c++  -I/home/debix/Documents/Proiect-NXP-CUP-2025-/include -isystem /usr/include/opencv4 -g -std=gnu++11 -o CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.o -c /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/CameraProcessing.cpp",
+  "file": "/home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/CameraProcessing.cpp"
+},
+{
+  "directory": "/home/debix/Documents/Proiect-NXP-CUP-2025-/build",
+  "command": "/usr/bin/c++  -I/home/debix/Documents/Proiect-NXP-CUP-2025-/include -isystem /usr/include/opencv4 -g -std=gnu++11 -o CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.o -c /home/debix/Documents/Proiect-NXP-CUP-2025-/include/MathFunctions/MathFunctions.cpp",
+  "file": "/home/debix/Documents/Proiect-NXP-CUP-2025-/include/MathFunctions/MathFunctions.cpp"
+},
+{
+  "directory": "/home/debix/Documents/Proiect-NXP-CUP-2025-/build",
+  "command": "/usr/bin/c++  -I/home/debix/Documents/Proiect-NXP-CUP-2025-/include -isystem /usr/include/opencv4 -g -std=gnu++11 -o CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.o -c /home/debix/Documents/Proiect-NXP-CUP-2025-/include/PurePursuitFunctions/PurePursuit.cpp",
+  "file": "/home/debix/Documents/Proiect-NXP-CUP-2025-/include/PurePursuitFunctions/PurePursuit.cpp"
+},
+{
+  "directory": "/home/debix/Documents/Proiect-NXP-CUP-2025-/build",
+  "command": "/usr/bin/c++  -I/home/debix/Documents/Proiect-NXP-CUP-2025-/include -isystem /usr/include/opencv4 -g -std=gnu++11 -o CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.o -c /home/debix/Documents/Proiect-NXP-CUP-2025-/include/SerialPortFunctions/SerialPort.cpp",
+  "file": "/home/debix/Documents/Proiect-NXP-CUP-2025-/include/SerialPortFunctions/SerialPort.cpp"
+},
+{
+  "directory": "/home/debix/Documents/Proiect-NXP-CUP-2025-/build",
+  "command": "/usr/bin/c++  -I/home/debix/Documents/Proiect-NXP-CUP-2025-/include -isystem /usr/include/opencv4 -g -std=gnu++11 -o CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.o -c /home/debix/Documents/Proiect-NXP-CUP-2025-/include/TcpFunctions/TcpConnection.cpp",
+  "file": "/home/debix/Documents/Proiect-NXP-CUP-2025-/include/TcpFunctions/TcpConnection.cpp"
+},
+{
+  "directory": "/home/debix/Documents/Proiect-NXP-CUP-2025-/build",
   "command": "/usr/bin/c++  -I/home/debix/Documents/Proiect-NXP-CUP-2025-/include -isystem /usr/include/opencv4 -g -std=gnu++11 -o CMakeFiles/DEBIX.dir/src/main.cpp.o -c /home/debix/Documents/Proiect-NXP-CUP-2025-/src/main.cpp",
   "file": "/home/debix/Documents/Proiect-NXP-CUP-2025-/src/main.cpp"
 }

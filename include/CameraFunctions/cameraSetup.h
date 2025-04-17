@@ -4,7 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
 #include "config.h"
-#include "mathFunctions.h"
+#include "MathFunctions/MathFunctions.hpp"
 #include <unistd.h>
 #include <iostream>
 #include <vector>

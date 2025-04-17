@@ -9,7 +9,8 @@ extern debix::SerialPort& serial;
 #define ENABLE_CAMERA_CALIBRATION 0
 #define ENABLE_CAMERA_THRESHOLD_CHECK 0
 #define ENABLE_CAMERA_STREAMING 1
-#define ENABLE_TCP_OUTPUT 0
+#define ENABLE_TCP_FRAMES 0
+#define ENABLE_TCP_SITE_DEBUG 0
 #define ENABLE_TEENSY_SERIAL 1
 #define ENABLE_FINISH_LINE_DETECTION 1
 #define DEFAULT_START_RACE 0  // When set to 1 car starts 
@@ -245,7 +246,7 @@ constexpr int fitPolyWindowSize = static_cast<int>(35 * ScalingFactor);
 constexpr double fitPolyEpsilon = static_cast<double>(15.0 * ScalingFactor); // Epsilon value for curve approximation
 
 constexpr int captureFps = 120;
-cv::Point2f undefinedPoint = cv::Point2f(0,0);
+const cv::Point2f undefinedPoint(0.0f, 0.0f);
 
 constexpr int distanceBeforeIssuesAppear = 60;
 

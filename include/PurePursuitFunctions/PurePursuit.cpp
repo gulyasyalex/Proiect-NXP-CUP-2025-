@@ -1,133 +1,6 @@
-#ifndef PURE_PURSUIT_HPP
-#define PURE_PURSUIT_HPP
+#include "PurePursuitFunctions/PurePursuit.hpp"
+#include "MathFunctions/MathFunctions.hpp"
 
-#define DEFAULT_TORQUE_SPEED 100;
-
-#include <opencv2/opencv.hpp>
-#include <vector>
-#include <cmath>
-#include <iostream>
-#include "mathFunctions.h"
-int floatCmp(float num1, float num2) {
-	if (fabsf(num1 - num2) < FLT_EPSILON) {
-		return 0;
-	}
-	else if (num1 > num2) {
-		return 1;
-	}
-	return -1;
-}
-static float carTurnMaxSpeed(float _turn_radius, float _friction_coefficient, float _downward_acceleration) {
-	float _max_speed;
-	_max_speed = sqrtf(fabs(_friction_coefficient * _turn_radius * _downward_acceleration));
-	return _max_speed;
-}
-static float RearWheelTurnRadius(float wheelBase, float turnAngle) {
-	float angle;
-	//float temp_sin = sinf(turnAngle);
-	if (floatCmp(turnAngle, 0.0f) == 0) {
-		return -1.0f;
-	}
-	float temp_sin = tanf(turnAngle);
-	if (floatCmp(temp_sin, 0.0f) == 0) {
-		return 0.0f;
-	}
-
-	//angle = (wheelBase / tanf(turnAngle));
-	angle = (wheelBase / temp_sin);
-
-	angle = fabsf(angle);
-	return angle;
-}
-static float CalculateCarSpeed(float _min_speed, float _max_speed, float _wheel_base, float _friction_coefficient, float _downward_acceleration, float _turn_angle) {
-	float new_car_speed, turn_radius;
-	turn_radius = RearWheelTurnRadius(_wheel_base, _turn_angle);
-	if (floatCmp(turn_radius, 0.0f) < 0) {
-		new_car_speed = _max_speed;
-	}
-	else{
-		new_car_speed = carTurnMaxSpeed(turn_radius, _friction_coefficient, _downward_acceleration);
-	}
-	
-	new_car_speed = MAX(_min_speed, new_car_speed);
-	new_car_speed = MIN(_max_speed, new_car_speed);
-
-	return new_car_speed;
-}
-
-
-class PurePursuit {
-private:
-    double trackCurvatureRadius;
-    double speed = 0;
-    double lookAheadDistanceInCm = 0;
-    double steeringAngleDegrees;
-    double steeringAngleServo;
-    cv::Point2f lookAheadPoint;
-    double angleHeadingTarget;
-    bool startSpeedOptimizedForTorque;
-    SharedConfig* config;
-
-public:
-    PurePursuit();
-    void setParameters(std::shared_ptr<SharedConfig> global_config);
-    void computePurePursuit(std::vector<cv::Point2f> allMidPoints,
-                                cv::Point2f carInFramePositionBirdsEye,
-                                double pixelSizeInCm, cv::Point2f carTopPoint, bool isFinishLineDetected);
-    double adjustSpeed(double trackCurvatureRadius, double currentSpeed);
-    double computeLookAheadDistance(double trackCurvatureRadius, std::vector<cv::Point2f> allMidPoints,
-                                cv::Point2f carInFramePositionBirdsEye,double pixelSizeInCm, double speed);
-    cv::Point2f findHighestIntersection(const std::vector<cv::Point2f>& curve, 
-                                    const cv::Point2f& circleCenter, double circleRadius); 
-                                    
-    double computeK(double R);                 
-    double calculateServoValue(double angleRadians, double lookaheadDistance);
-    double shortestDistanceToCurve(const std::vector<cv::Point2f>& curve, const cv::Point2f& point);
-    void radiusIncrease(double& radius);
-    void pointMoveAcrossFrame(cv::Point2f& point, cv::Point2f& topPoint);
-    double computeCurvatureRadius(const cv::Point2f &A,
-                                    const cv::Point2f &B,
-                                    const cv::Point2f &C);
-                                    
-    int findClosestIndex(const std::vector<cv::Point2f> &points, const cv::Point2f &carPos);
-    /*double computeCurvatureRadiusInFrontOfCar(const std::vector<cv::Point2f> &midLine,
-                                   const cv::Point2f &carPos);
-    */   
-    double computeCurvatureRadiusInFrontOfCar(const std::vector<cv::Point2f> &midLine,
-                                                       const cv::Point2f &carPos,
-                                                       double lookAheadDistance);
-    
-    double getTrackCurvatureRadius(){
-        return this->trackCurvatureRadius;
-    }
-    bool getStartSpeedOptimizedForTorque(double startSpeedOptimizedForTorque){
-        return this->startSpeedOptimizedForTorque;
-    }
-    void setStartSpeedOptimizedForTorque(double startSpeedOptimizedForTorque){
-        this->startSpeedOptimizedForTorque = startSpeedOptimizedForTorque;
-    }
-    void setSpeed(double speed){
-        this->speed = speed;
-    }
-    double getSpeed(){
-        return this->speed;
-    }
-    void setLookAheadDistanceInCm(double lookAheadDistanceInCm){
-        this->lookAheadDistanceInCm = lookAheadDistanceInCm;
-    }
-    double getLookAheadDistanceInCm(){
-        return this->lookAheadDistanceInCm;
-    }
-    double getSteeringAngleServo(){
-        return this->steeringAngleServo;
-    }
-    double getSteeringAngleDegrees(){
-        return this->steeringAngleDegrees;
-    }
-    cv::Point2f getLookAheadPoint(){
-        return this->lookAheadPoint;
-    }
-};
 PurePursuit::PurePursuit(){}
 void PurePursuit::setParameters(std::shared_ptr<SharedConfig> global_config){
         this->config = global_config.get();
@@ -426,35 +299,42 @@ double PurePursuit::computeCurvatureRadiusInFrontOfCar(const std::vector<cv::Poi
 
     return minRadius;
 }
-
-/*
-double PurePursuit::computeCurvatureRadiusInFrontOfCar(const std::vector<cv::Point2f> &midLine,
-                                                      const cv::Point2f &carPos)
-{
-    if (midLine.size() < 3) {
-        return 1e9; // treat as near-infinite (straight)
-    }
-
-    int iClosest = findClosestIndex(midLine, carPos);
-    if (iClosest < 0) {
-        return 1e9;
-    }
-
-    double minRadius = std::numeric_limits<double>::max();
-
-    // Sliding window: calculate curvature for multiple triplets
-    for (int i = iClosest; i <= (int)midLine.size() - 3; i++) {
-        const cv::Point2f &A = midLine[i];
-        const cv::Point2f &B = midLine[i + 1];
-        const cv::Point2f &C = midLine[i + 2];
-        double R = computeCurvatureRadius(A, B, C);
-
-        if (R < minRadius) {
-            minRadius = R;
-        }
-    }
-
-    return minRadius;
+double PurePursuit::carTurnMaxSpeed(double _turn_radius, double _friction_coefficient, double _downward_acceleration) {
+	double _max_speed;
+	_max_speed = sqrtf(fabs(_friction_coefficient * _turn_radius * _downward_acceleration));
+	return _max_speed;
 }
-*/
-#endif
+
+double PurePursuit::RearWheelTurnRadius(double wheelBase, double turnAngle) {
+	double angle;
+	//float temp_sin = sinf(turnAngle);
+	if (doubleCmp(turnAngle, 0.0f) == 0) {
+		return -1.0f;
+	}
+	double temp_sin = tanf(turnAngle);
+	if (doubleCmp(temp_sin, 0.0f) == 0) {
+		return 0.0f;
+	}
+
+	//angle = (wheelBase / tanf(turnAngle));
+	angle = (wheelBase / temp_sin);
+
+	angle = fabsf(angle);
+	return angle;
+}
+double PurePursuit::CalculateCarSpeed(double _min_speed, double _max_speed, double _wheel_base, double _friction_coefficient, double _downward_acceleration, double _turn_angle) {
+	double new_car_speed, turn_radius;
+	turn_radius = RearWheelTurnRadius(_wheel_base, _turn_angle);
+	if (doubleCmp(turn_radius, 0.0f) < 0) {
+		new_car_speed = _max_speed;
+	}
+	else{
+		new_car_speed = carTurnMaxSpeed(turn_radius, _friction_coefficient, _downward_acceleration);
+	}
+	
+	new_car_speed = MAX(_min_speed, new_car_speed);
+	new_car_speed = MIN(_max_speed, new_car_speed);
+
+	return new_car_speed;
+}
+

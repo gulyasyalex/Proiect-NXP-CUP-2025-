@@ -69,10 +69,80 @@ include CMakeFiles/DEBIX.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/DEBIX.dir/flags.make
 
+CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.o: CMakeFiles/DEBIX.dir/flags.make
+CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.o: ../include/CameraFunctions/CameraProcessing.cpp
+CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.o: CMakeFiles/DEBIX.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/debix/Documents/Proiect-NXP-CUP-2025-/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.o -MF CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.o.d -o CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.o -c /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/CameraProcessing.cpp
+
+CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/CameraProcessing.cpp > CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.i
+
+CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/CameraProcessing.cpp -o CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.s
+
+CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.o: CMakeFiles/DEBIX.dir/flags.make
+CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.o: ../include/MathFunctions/MathFunctions.cpp
+CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.o: CMakeFiles/DEBIX.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/debix/Documents/Proiect-NXP-CUP-2025-/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.o -MF CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.o.d -o CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.o -c /home/debix/Documents/Proiect-NXP-CUP-2025-/include/MathFunctions/MathFunctions.cpp
+
+CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/debix/Documents/Proiect-NXP-CUP-2025-/include/MathFunctions/MathFunctions.cpp > CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.i
+
+CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/debix/Documents/Proiect-NXP-CUP-2025-/include/MathFunctions/MathFunctions.cpp -o CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.s
+
+CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.o: CMakeFiles/DEBIX.dir/flags.make
+CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.o: ../include/PurePursuitFunctions/PurePursuit.cpp
+CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.o: CMakeFiles/DEBIX.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/debix/Documents/Proiect-NXP-CUP-2025-/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.o -MF CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.o.d -o CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.o -c /home/debix/Documents/Proiect-NXP-CUP-2025-/include/PurePursuitFunctions/PurePursuit.cpp
+
+CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/debix/Documents/Proiect-NXP-CUP-2025-/include/PurePursuitFunctions/PurePursuit.cpp > CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.i
+
+CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/debix/Documents/Proiect-NXP-CUP-2025-/include/PurePursuitFunctions/PurePursuit.cpp -o CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.s
+
+CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.o: CMakeFiles/DEBIX.dir/flags.make
+CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.o: ../include/SerialPortFunctions/SerialPort.cpp
+CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.o: CMakeFiles/DEBIX.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/debix/Documents/Proiect-NXP-CUP-2025-/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.o -MF CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.o.d -o CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.o -c /home/debix/Documents/Proiect-NXP-CUP-2025-/include/SerialPortFunctions/SerialPort.cpp
+
+CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/debix/Documents/Proiect-NXP-CUP-2025-/include/SerialPortFunctions/SerialPort.cpp > CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.i
+
+CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/debix/Documents/Proiect-NXP-CUP-2025-/include/SerialPortFunctions/SerialPort.cpp -o CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.s
+
+CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.o: CMakeFiles/DEBIX.dir/flags.make
+CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.o: ../include/TcpFunctions/TcpConnection.cpp
+CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.o: CMakeFiles/DEBIX.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/debix/Documents/Proiect-NXP-CUP-2025-/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.o -MF CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.o.d -o CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.o -c /home/debix/Documents/Proiect-NXP-CUP-2025-/include/TcpFunctions/TcpConnection.cpp
+
+CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/debix/Documents/Proiect-NXP-CUP-2025-/include/TcpFunctions/TcpConnection.cpp > CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.i
+
+CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/debix/Documents/Proiect-NXP-CUP-2025-/include/TcpFunctions/TcpConnection.cpp -o CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.s
+
 CMakeFiles/DEBIX.dir/src/main.cpp.o: CMakeFiles/DEBIX.dir/flags.make
 CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp
 CMakeFiles/DEBIX.dir/src/main.cpp.o: CMakeFiles/DEBIX.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/debix/Documents/Proiect-NXP-CUP-2025-/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/DEBIX.dir/src/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/debix/Documents/Proiect-NXP-CUP-2025-/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/DEBIX.dir/src/main.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/DEBIX.dir/src/main.cpp.o -MF CMakeFiles/DEBIX.dir/src/main.cpp.o.d -o CMakeFiles/DEBIX.dir/src/main.cpp.o -c /home/debix/Documents/Proiect-NXP-CUP-2025-/src/main.cpp
 
 CMakeFiles/DEBIX.dir/src/main.cpp.i: cmake_force
@@ -85,11 +155,21 @@ CMakeFiles/DEBIX.dir/src/main.cpp.s: cmake_force
 
 # Object files for target DEBIX
 DEBIX_OBJECTS = \
+"CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.o" \
+"CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.o" \
+"CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.o" \
+"CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.o" \
+"CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.o" \
 "CMakeFiles/DEBIX.dir/src/main.cpp.o"
 
 # External object files for target DEBIX
 DEBIX_EXTERNAL_OBJECTS =
 
+DEBIX: CMakeFiles/DEBIX.dir/include/CameraFunctions/CameraProcessing.cpp.o
+DEBIX: CMakeFiles/DEBIX.dir/include/MathFunctions/MathFunctions.cpp.o
+DEBIX: CMakeFiles/DEBIX.dir/include/PurePursuitFunctions/PurePursuit.cpp.o
+DEBIX: CMakeFiles/DEBIX.dir/include/SerialPortFunctions/SerialPort.cpp.o
+DEBIX: CMakeFiles/DEBIX.dir/include/TcpFunctions/TcpConnection.cpp.o
 DEBIX: CMakeFiles/DEBIX.dir/src/main.cpp.o
 DEBIX: CMakeFiles/DEBIX.dir/build.make
 DEBIX: /usr/lib/aarch64-linux-gnu/libopencv_stitching.so.4.5.4d
@@ -148,7 +228,7 @@ DEBIX: /usr/lib/aarch64-linux-gnu/libopencv_photo.so.4.5.4d
 DEBIX: /usr/lib/aarch64-linux-gnu/libopencv_imgproc.so.4.5.4d
 DEBIX: /usr/lib/aarch64-linux-gnu/libopencv_core.so.4.5.4d
 DEBIX: CMakeFiles/DEBIX.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/debix/Documents/Proiect-NXP-CUP-2025-/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable DEBIX"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/debix/Documents/Proiect-NXP-CUP-2025-/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable DEBIX"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/DEBIX.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
