@@ -74,6 +74,9 @@
         "*.ipp": "cpp",
         "u8x8_gpio.c": "cpp",
         "ioctl.h": "c",
-        "cfenv": "cpp"
+        "cfenv": "cpp",
+        "forward_list": "cpp",
+        "ranges": "cpp",
+        "valarray": "cpp"
     }
 }

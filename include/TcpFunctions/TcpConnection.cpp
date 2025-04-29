@@ -26,18 +26,27 @@ void TcpConnection::sendFrame(const cv::Mat& frame) {
     boost::asio::write(this->socket, boost::asio::buffer(buffer.data(), buffer.size()));
 }
 
-std::string TcpConnection::receiveData() {
-    char buffer[16];  // Expecting "1;steering;speed\n"
+std::string TcpConnection::receiveStringData() {
+    boost::asio::streambuf buf;
     std::string receivedData;
 
     try {
-        size_t bytesRead = socket.read_some(boost::asio::buffer(buffer, sizeof(buffer)));
-        if (bytesRead > 0) {
-            receivedData.assign(buffer, bytesRead);
-        }
-    } catch (std::exception &e) {
+        boost::asio::read_until(socket, buf, "\n");
+
+        std::istream stream(&buf);
+        std::getline(stream, receivedData);
+    } catch (std::exception& e) {
         std::cerr << "Error receiving data: " << e.what() << std::endl;
     }
 
     return receivedData;
+}
+
+
+void TcpConnection::sendStringData(const std::string& data) {
+    try {
+        boost::asio::write(this->socket, boost::asio::buffer(data));
+    } catch (const std::exception& e) {
+        std::cerr << "Error sending string over TCP: " << e.what() << std::endl;
+    }
 }

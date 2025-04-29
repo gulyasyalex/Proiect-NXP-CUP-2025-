@@ -50,9 +50,6 @@ class CameraProcessing {
         #if 1 == ENABLE_TCP_FRAMES 
             TcpConnection liveVideoFeedTCP{9999};
         #endif
-        #if 1 == ENABLE_TCP_SITE_DEBUG 
-            TcpConnection websiteTCP{9998};
-        #endif
 
         bool isValidLines = true;
         bool isIntersection = false;      // Used to check if we are really in an intersection
@@ -148,7 +145,7 @@ class CameraProcessing {
         void drawLines(cv::Mat& frame, const std::vector<std::vector<cv::Point2f>> lines, const cv::Scalar& color);
         void drawCircle(cv::Mat& image, const cv::Point2f& center, int radius, const cv::Scalar& color, int thickness = 1);
 
-        std::string createSerialString(bool isBlueStatusLedOn, bool isYellowStatusLedOn, int stoppingDistanceBoxLidar);
+        std::string createSerialString(bool isBlueStatusLedOn, bool isYellowStatusLedOn, bool isRadarEnabled);
 };
 
 #endif

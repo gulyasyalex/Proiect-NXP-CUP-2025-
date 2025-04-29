@@ -43,11 +43,11 @@ public:
                                     const cv::Point2f &C);
                                     
     int findClosestIndex(const std::vector<cv::Point2f> &points, const cv::Point2f &carPos);
-
     double computeCurvatureRadiusInFrontOfCar(const std::vector<cv::Point2f> &midLine,
                                                        const cv::Point2f &carPos,
                                                        double lookAheadDistance);
                                                        
+    double carBoostExitCornerSpeed(double new_car_speed, double _turn_angle);
     double carTurnMaxSpeed(double _turn_radius, double _friction_coefficient, double _downward_acceleration);
     double RearWheelTurnRadius(double wheelBase, double turnAngle);
     double CalculateCarSpeed(double _min_speed, double _max_speed, double _wheel_base, double _friction_coefficient, double _downward_acceleration, double _turn_angle);

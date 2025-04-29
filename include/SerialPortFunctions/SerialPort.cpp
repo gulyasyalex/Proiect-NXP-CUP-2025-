@@ -15,8 +15,8 @@ void debix::SerialPort::initializeSerialPort(const std::string& portName) {
 }
 
 /*  Expected format: "<enableCarEngine>;<servoAngle>;<speed>;<isFinishLineDetected>;
- *  //<distanceBeforeIssuesAppear>;<stoppingDistanceBoxLidar>;<blueStatusLed>;<yellowStatusLed>;<afterFinishLineSpeed>"
- *  // Example: "1;10.5;150.6;1;60;10;1,1,50"
+ *  //<distanceBeforeIssuesAppear>;<isRadarEnabled>;<blueStatusLed>;<yellowStatusLed>;"
+ *  // Example: "1;10.5;150.6;1;60;1;1,1"
  */
 void debix::SerialPort::writeToSerial(const std::string &data) {
     std::lock_guard<std::mutex> lock(serialMutex);

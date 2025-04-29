@@ -9,14 +9,15 @@ extern debix::SerialPort& serial;
 #define ENABLE_CAMERA_CALIBRATION 0
 #define ENABLE_CAMERA_THRESHOLD_CHECK 0
 #define ENABLE_CAMERA_STREAMING 1
-#define ENABLE_TCP_FRAMES 0
-#define ENABLE_TCP_SITE_DEBUG 0
+#define ENABLE_TCP_FRAMES 1
+#define ENABLE_TCP_SITE_DEBUG 1
 #define ENABLE_TEENSY_SERIAL 1
 #define ENABLE_FINISH_LINE_DETECTION 1
 #define DEFAULT_START_RACE 0  // When set to 1 car starts 
 
 //#define SERIAL_PORT "/dev/ttymxc2"      
-#define SERIAL_PORT "/dev/ttyACM0"      
+//#define SERIAL_PORT "/dev/ttyACM0"      
+#define SERIAL_PORT "/dev/serial/by-id/usb-Teensyduino_USB_Serial_15146110-if00"      
 
 /*
 
@@ -102,7 +103,7 @@ struct SharedConfig {
     int distanceErrorFromChassis;                           //Range: -240 - 240
     int lineMinPixelCount;                                  //Range: 0 - 255
     int distanceSensorError;                                //Range: 0 - 30
-    int stoppingDistanceBoxFrontEnd;                        //Range: 1 - 9
+    int stoppingDistanceBoxFrontEnd;                        //Range: 1 - 30
     int interpolatedPointsSetup;                            //Range: 0 - 1
     char _padding[8];
     double calibrateTopLinePerc;                            //Range: 0 - 100
@@ -111,20 +112,21 @@ struct SharedConfig {
     double topImageCutPercentage;                           //Range: 0 - 1
     double bottomImageCutPercentage;                        //Range: 0 - 1
     double topCutOffPercentageCustomConnected;              //Range: 0 - 1
+    double lineStartPointY;                                 //Range: 0 - 1
     double line90DegreeAngleRange;                          //Range: 0 - 90
     double finishLineAngleRange;                            //Range: 90 - 180
-    double afterFinishLineSpeed;                            //Range: 0 - 350
     double servoTurnAdjustmentCoefficient;                  //Range: 0 - 5
     double corneringSpeedCoefficient;                       //Range: 0 - 2
     double minSpeed;                                        //Range: 0 - 350
     double maxSpeed;                                        //Range: 0 - 350
     double minSpeedAfterFinish;                             //Range: 0 - 350
     double maxSpeedAfterFinish;                             //Range: 0 - 350
+    double currentEdfFanSpeed;                              //Range: 0 - 350
     double curvatureFactor;                                 //Range: 0 - 200
     double k_min;                                           //Range: 0 - 25
     double k_max;                                           //Range: 0 - 25
-    double R_minInCm;                                       //Range: 0 - 2000
-    double R_maxInCm;                                       //Range: 0 - 2000
+    double R_minInCm;                                       //Range: 0 - 4000
+    double R_maxInCm;                                       //Range: 0 - 4000
     double minLookAheadInCm;                                //Range: 0 - 100
     double maxLookAheadInCm;                                //Range: 0 - 100
     double waitBeforeStartSeconds;                          //Range: 0 - 10
@@ -136,43 +138,46 @@ struct SharedConfig {
 // ---------------------------------------- USED IN SHARED MEMORY ----------------------------------------------------------
 // Integer values
 #define DEFAULT_ENABLE_CAR_ENGINE 0
-#define DEFAULT_ENABLE_CAR_STEERING 1
-#define DEFAULT_THRESHOLD_VALUE 150 //62
+#define DEFAULT_ENABLE_CAR_STEERING 0
+#define DEFAULT_THRESHOLD_VALUE 62 //150
 #define DEFAULT_DISTANCE_ERROR_FROM_CHASSIS 0
 #define DEFAULT_LINE_MIN_PIXEL_COUNT 70 
-#define DEFAULT_DISTANCE_FROM_SENSOR_ERROR 15
-#define DEFAULT_STOPPING_DISTANCE_BOX_FRONT_END 20
-#define DEFAULT_INTERPOLATED_POINTS_SETUP 1         // 0 - Near View Setup 1 - Far View Setup (BirdEyeView)
+#define DEFAULT_DISTANCE_FROM_SENSOR_ERROR 8
+#define DEFAULT_STOPPING_DISTANCE_BOX_FRONT_END 1
+#define DEFAULT_INTERPOLATED_POINTS_SETUP 0         // 0 - Near View Setup 1 - Far View Setup (BirdEyeView)
 
 // Double values
 #define DEFAULT_CALIBRATE_TOP_LINE 36.6//41.6(percentage) //100
 #define DEFAULT_CALIBRATE_BOTTOM_LINE 90.8//95.8(percentage) //230
-#define DEFAULT_TRACK_LANE_WIDTH_OFFSET 16.5
+#define DEFAULT_TRACK_LANE_WIDTH_OFFSET 0
 #define DEFAULT_TOP_IMAGE_CUT_PERCENTAGE 0.0
 #define DEFAULT_BOTTOM_IMAGE_CUT_PERCENTAGE 0.35
 #define DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 0.35 // Cuts pixels from first 45% of image 
+#define DEFAULT_LINE_START_POINT_Y 0.50 //0.60 // Used for intersection // birdsEyeViewHeight * lineStartPointY = Y threshold
 #define DEFAULT_BOTTOM_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 1 //0.65
 #define DEFAULT_LINE_90_DEGREE_ANGLE_RANGE 20.0                          // abs(degree-90) < range
 #define DEFAULT_FINISH_LINE_ANGLE_RANGE 15.0
-#define DEFAULT_AFTER_FINISH_LINE_SPEED 70.0
-#define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 0.80 //1.0
+#define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 1.0 //1.0
 #define DEFAULT_CORNERING_SPEED_COEFFICIENT 0.6 //0.6
 #define DEFAULT_MIN_SPEED 40.0
-#define DEFAULT_MAX_SPEED 240.0
+#define DEFAULT_MAX_SPEED 270.0
 #define DEFAULT_MIN_SPEED_AFTER_FINISH 30.0
-#define DEFAULT_MAX_SPEED_AFTER_FINISH 70.0
+#define DEFAULT_MAX_SPEED_AFTER_FINISH 40.0
+#define DEFAULT_EDF_FAN_CURRENT_SPEED 250.0
 #define DEFAULT_CURVATURE_FACTOR 13.0
 #define DEFAULT_K_MIN 14.8
-#define DEFAULT_K_MAX 18.5
-#define DEFAULT_R_MIN_IN_CM 20.0
-#define DEFAULT_R_MAX_IN_CM 3000.0
-#define DEFAULT_MIN_LOOKAHEAD_IN_CM 30.0
+#define DEFAULT_K_MAX 25.5
+#define DEFAULT_R_MIN_IN_CM 0.0
+#define DEFAULT_R_MAX_IN_CM 1000.0
+#define DEFAULT_MIN_LOOKAHEAD_IN_CM 20.0
 #define DEFAULT_MAX_LOOKAHEAD_IN_CM 65.0
 #define DEFAULT_WAIT_BEFORE_START_SECONDS 4.0
 #define DEFAULT_STRAIGHT_WHEEL_TIMER_SECONDS 1.2
 
 // DEFAULT USED AFTER FINISH LINE
 #define DEFAULT_AFTER_FINISH_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 0.4 // Cuts pixels from first 45% of image 
+#define DEFAULT_EDF_FAN_AFTER_FINISH_SPEED 350.0
+
 /*
 // Global values
 int enableCarEngine = 0;   // 0 or 1
@@ -239,13 +244,13 @@ constexpr int resizeTotalPixels = resizeFrameWidth * resizeFrameHeight;
 constexpr double ScalingFactor = static_cast<double>(resizeTotalPixels) / captureTotalPixels;
 constexpr int  _minLinePixelCount = static_cast<int>(ScalingFactor * DEFAULT_LINE_MIN_PIXEL_COUNT);
 
-constexpr double  lineStartPointY = 0.60;    // Used for intersection // birdsEyeViewHeight * lineStartPointY = Y threshold
+//constexpr double  lineStartPointY = 0.60;    // Used for intersection // birdsEyeViewHeight * lineStartPointY = Y threshold
 
 // Used in fitPolinomial()
 constexpr int fitPolyWindowSize = static_cast<int>(35 * ScalingFactor);  
 constexpr double fitPolyEpsilon = static_cast<double>(15.0 * ScalingFactor); // Epsilon value for curve approximation
 
-constexpr int captureFps = 120;
+constexpr int captureFps = 100; // 120 for BUCHAREST;
 const cv::Point2f undefinedPoint(0.0f, 0.0f);
 
 constexpr int distanceBeforeIssuesAppear = 60;
@@ -271,8 +276,9 @@ constexpr double horizontalSlopeThreshold = 1;                  // Absolute valu
 // used to calculate pixelSizeInCm
 constexpr double trackWidthInCm = 53.0;                         // Track Width is 53 Cm
 
-// Used in  calculateServoValue()
+// Used in  CalculateCarSpeed()
 constexpr double wheelBaseInCm = 17.0;                          // Distance between front and rear axle is 17cm
+constexpr double downward_accelerationCm = 981.0;               
 
 // Used in mapAngleToServo()
 constexpr double maxSteeringAngleDegrees = 50.0;                // Maximum steering angle in degrees either to the left or right
@@ -281,6 +287,6 @@ constexpr double maxLeftServoAngle = -30.0;                     // Used to limit
 constexpr double maxRightServoAngle = 30.0;                     // Used to limit servo rotation
 
 // Used in processFrames()
-constexpr double overlayFrameWeight = 0.5;                      // Used for visualization of two frames on top of eachother
+constexpr double overlayFrameWeight = 1.0;                      // Used for visualization of two frames on top of eachother
 
 #endif

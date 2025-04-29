@@ -19,6 +19,8 @@
 #include <gpiod.h>
 
 #include <cstddef>  // Required for `offsetof`
+#include "json.hpp"
+#include "SharedConfigJson.hpp"
 
 
 std::atomic<pid_t> child_pid(-1);  
@@ -28,8 +30,14 @@ std::shared_ptr<CameraProcessing> global_camera;
 std::shared_ptr<SharedConfig> global_config;
 debix::SerialPort& serial = debix::SerialPort::getInstance();
 
+#if 1 == ENABLE_TCP_SITE_DEBUG 
+    TcpConnection websiteTCP{8888};
+#endif
+
 void signalHandler(int signal);
 void checkButtonPress();
+void websiteTCPLoop(TcpConnection& connection);
+bool isValidConfig(const SharedConfig& config);
 
 int main() {
     std::signal(SIGINT, signalHandler); // Register SIGINT handler
@@ -89,15 +97,16 @@ int main() {
     global_config->topImageCutPercentage = DEFAULT_TOP_IMAGE_CUT_PERCENTAGE;
     global_config->bottomImageCutPercentage = DEFAULT_BOTTOM_IMAGE_CUT_PERCENTAGE;
     global_config->topCutOffPercentageCustomConnected = DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED;
+    global_config->lineStartPointY = DEFAULT_LINE_START_POINT_Y;
     global_config->line90DegreeAngleRange = DEFAULT_LINE_90_DEGREE_ANGLE_RANGE;
     global_config->finishLineAngleRange = DEFAULT_FINISH_LINE_ANGLE_RANGE;
-    global_config->afterFinishLineSpeed = DEFAULT_AFTER_FINISH_LINE_SPEED;
     global_config->servoTurnAdjustmentCoefficient = DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT;
     global_config->corneringSpeedCoefficient = DEFAULT_CORNERING_SPEED_COEFFICIENT;
     global_config->minSpeed = DEFAULT_MIN_SPEED;
     global_config->maxSpeed = DEFAULT_MAX_SPEED;
     global_config->minSpeedAfterFinish = DEFAULT_MIN_SPEED_AFTER_FINISH;
     global_config->maxSpeedAfterFinish = DEFAULT_MAX_SPEED_AFTER_FINISH;
+    global_config->currentEdfFanSpeed = 0; //this is set in startRace section -> DEFAULT_EDF_FAN_CURRENT_SPEED;
     global_config->curvatureFactor = DEFAULT_CURVATURE_FACTOR;
     global_config->k_min = DEFAULT_K_MIN;
     global_config->k_max = DEFAULT_K_MAX;
@@ -133,13 +142,14 @@ int main() {
             << raw_config->topImageCutPercentage << " "
             << raw_config->bottomImageCutPercentage << " "
             << raw_config->topCutOffPercentageCustomConnected << " "
+            << raw_config->lineStartPointY << " "
             << raw_config->line90DegreeAngleRange << " "
-            << raw_config->afterFinishLineSpeed << " "
             << raw_config->finishLineAngleRange << " "
             << raw_config->servoTurnAdjustmentCoefficient << " "
             << raw_config->corneringSpeedCoefficient << " "
             << raw_config->minSpeed << " "
             << raw_config->maxSpeed << " "
+            << raw_config->currentEdfFanSpeed << " "
             << raw_config->curvatureFactor << " "
             << raw_config->k_min << " "
             << raw_config->k_max << " "
@@ -172,13 +182,14 @@ int main() {
     std::cout << "topImageCutPercentage: " << offsetof(SharedConfig, topImageCutPercentage) << std::endl;
     std::cout << "bottomImageCutPercentage: " << offsetof(SharedConfig, bottomImageCutPercentage) << std::endl;
     std::cout << "topCutOffPercentageCustomConnected: " << offsetof(SharedConfig, topCutOffPercentageCustomConnected) << std::endl;
+    std::cout << "lineStartPointY: " << offsetof(SharedConfig, lineStartPointY) << std::endl;
     std::cout << "line90DegreeAngleRange: " << offsetof(SharedConfig, line90DegreeAngleRange) << std::endl;
-    std::cout << "afterFinishLineSpeed: " << offsetof(SharedConfig, afterFinishLineSpeed) << std::endl;
     std::cout << "finishLineAngleRange: " << offsetof(SharedConfig, finishLineAngleRange) << std::endl;
     std::cout << "servoTurnAdjustmentCoefficient: " << offsetof(SharedConfig, servoTurnAdjustmentCoefficient) << std::endl;
     std::cout << "corneringSpeedCoefficient: " << offsetof(SharedConfig, corneringSpeedCoefficient) << std::endl;
     std::cout << "minSpeed: " << offsetof(SharedConfig, minSpeed) << std::endl;
     std::cout << "maxSpeed: " << offsetof(SharedConfig, maxSpeed) << std::endl;
+    std::cout << "currentEdfFanSpeed: " << offsetof(SharedConfig, currentEdfFanSpeed) << std::endl;
     std::cout << "curvatureFactor: " << offsetof(SharedConfig, curvatureFactor) << std::endl;
     std::cout << "k_min: " << offsetof(SharedConfig, k_min) << std::endl;
     std::cout << "k_max: " << offsetof(SharedConfig, k_max) << std::endl;
@@ -192,7 +203,10 @@ int main() {
     std::cout << "sizeof(SharedConfig): " << sizeof(SharedConfig) << " bytes" << std::endl;
 
     std::thread buttonThread(checkButtonPress);
-
+    
+    #if 1 == ENABLE_TCP_SITE_DEBUG 
+        std::thread websiteTCPThread(websiteTCPLoop, std::ref(websiteTCP));
+    #endif
     try {
 
         #if 1 == ENABLE_CAMERA_STREAMING
@@ -220,6 +234,12 @@ int main() {
             buttonThread.join();
         }
 
+        #if 1 == ENABLE_TCP_SITE_DEBUG 
+            if (websiteTCPThread.joinable()) {
+                websiteTCPThread.join();
+            }
+        #endif
+
     } catch (const std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;
         return -1;
@@ -237,7 +257,7 @@ void signalHandler(int signal) {
     }
     #if 1 == ENABLE_TEENSY_SERIAL
         int checksum = 0;
-        std::string serialString = "0;0;0;0;0;0;0;0;0";
+        std::string serialString = "0;0;0;0;0;0;0;0;0;0";
         for (char c : serialString) {
             checksum += static_cast<unsigned char>(c);
         }
@@ -260,11 +280,10 @@ void stopChildProcess() {
 }
 
 void checkButtonPress() {
-    // ✅ Keep track of GPIO initialization
     gpiod_chip *chip = nullptr;
     gpiod_line *line = nullptr;
 
-    // ✅ Open GPIO only once at the start
+    // Open GPIO only once at the start
     chip = gpiod_chip_open("/dev/gpiochip0");
     if (!chip) {
         std::cerr << "Failed to open GPIO chip!" << std::endl;
@@ -288,10 +307,10 @@ void checkButtonPress() {
         if(line != nullptr){
             int button_state = gpiod_line_get_value(line);
         
-            if (button_state == 0 && child_pid.load() == -1) {  // Button pressed & no process running
+            if (button_state == 0 && child_pid.load() == -1) { 
                 std::cout << "Button pressed! Starting menu_rotary.py..." << std::endl;
 
-                // ✅ Release GPIO before starting Python
+                // Releasing GPIO before starting Python
                 gpiod_line_release(line);
                 gpiod_chip_close(chip);
                 chip = nullptr;
@@ -309,7 +328,7 @@ void checkButtonPress() {
             }
         }
 
-        // ✅ Check if Python exited and reinitialize GPIO
+        // Check if Python exited and reinitialize GPIO
         if (child_pid.load() > 0) {
             int status;
             pid_t result = waitpid(child_pid.load(), &status, WNOHANG);
@@ -317,7 +336,7 @@ void checkButtonPress() {
                 std::cout << "Python process (PID: " << child_pid.load() << ") has exited. Cleaning up." << std::endl;
                 child_pid = -1;  // Reset child process ID
 
-                // ✅ Reinitialize GPIO after Python exits
+                // Reinitializing GPIO after Python exits
                 chip = gpiod_chip_open("/dev/gpiochip0");
                 if (!chip) {
                     std::cerr << "Failed to open GPIO chip!" << std::endl;
@@ -342,78 +361,80 @@ void checkButtonPress() {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));  // Check button every 200ms
     }
 
-    // ✅ Proper cleanup before exiting
     gpiod_line_release(line);
     gpiod_chip_close(chip);
 }
 
-// void checkButtonPress() {
-//     gpiod_chip *chip = gpiod_chip_open("/dev/gpiochip0");
-//     if (!chip) {
-//         std::cerr << "Failed to open GPIO chip!" << std::endl;
-//         return;
-//     }
+void websiteTCPLoop(TcpConnection& connection)
+{
+    while (true) {
+        std::string command = connection.receiveStringData();
 
-//     gpiod_line *line = gpiod_chip_get_line(chip, SW_LINE);
-//     if (!line) {
-//         std::cerr << "Failed to get GPIO line!" << std::endl;
-//         return;
-//     }
+        if (command == "STOP") 
+        {
+            global_config->enableCarEngine = 0;
+            global_config->currentEdfFanSpeed = 0;
+        }
+        else if(command == "READ") 
+        {
+            SharedConfig* raw_config = global_config.get();
+            std::string jsonStr = json(*raw_config).dump();
+            connection.sendStringData(jsonStr + "\n");  // Ensure newline if you're using read_until
+            std::cout << "[Website] Sent config JSON.\n";
+        }
+        else if (command.rfind("WRITE:", 0) == 0) {
+            std::string jsonStr = command.substr(6);  // Remove "WRITE:"
+            try {
+                SharedConfig newConfig = json::parse(jsonStr);
+                *global_config = newConfig;
+                std::cout << "[Website] Updated config from web.\n";
+            } catch (const std::exception& e) {
+                std::cerr << "[Website] Failed to parse config: " << e.what() << std::endl;
+            }
+        } 
+        else 
+        {
+            std::cerr << "[Website] Unknown command: " << command << std::endl;
+        }
+    }
+}
 
-//     if (gpiod_line_request_input(line, "button_reader") < 0) {
-//         std::cerr << "Failed to set GPIO as input!" << std::endl;
-//         return;
-//     }
-
-//     while (true) {
-//         int button_state = gpiod_line_get_value(line);
-
-//         if (button_state == 1 && child_pid.load() == -1) {  // Button pressed & no process running
-//             std::cout << "Button pressed! Starting menu_rotary.py..." << std::endl;
-            
-//             gpiod_line_release(line);
-//             gpiod_chip_close(chip);
-            
-//             pid_t pid = fork();
-
-//             if (pid == 0) {  // Child process
-//                 execlp("python3", "python3", "menu_rotary.py", NULL);
-//                 std::cerr << "Failed to execute menu_rotary.py" << std::endl;
-//                 exit(1);
-//             } else if (pid > 0) {
-//                 child_pid = pid;  // Store new child PID
-//             }
-//         }
-
-//         // Check if Python exited naturally & clean up
-//         if (child_pid.load() > 0) {
-//             int status;
-//             pid_t result = waitpid(child_pid.load(), &status, WNOHANG);
-//             if (result > 0) {
-//                 std::cout << "Python process (PID: " << child_pid.load() << ") has exited. Cleaning up." << std::endl;
-//                 child_pid = -1;  // Reset child process ID
-//                     gpiod_chip *chip = gpiod_chip_open("/dev/gpiochip0");
-//                     if (!chip) {
-//                         std::cerr << "Failed to open GPIO chip!" << std::endl;
-//                         return;
-//                     }
-
-//                     gpiod_line *line = gpiod_chip_get_line(chip, SW_LINE);
-//                     if (!line) {
-//                         std::cerr << "Failed to get GPIO line!" << std::endl;
-//                         return;
-//                     }
-
-//                     if (gpiod_line_request_input(line, "button_reader") < 0) {
-//                         std::cerr << "Failed to set GPIO as input!" << std::endl;
-//                         return;
-//                     }
-//             }
-//         }
-
-//         std::this_thread::sleep_for(std::chrono::milliseconds(200));  // Check button every 200ms
-//     }
-
-//     gpiod_line_release(line);
-//     gpiod_chip_close(chip);
-//}
+bool isValidConfig(const SharedConfig& config) {
+    std::cout << "config.line90DegreeAngleRange:" << config.line90DegreeAngleRange << "\n";
+    return (
+        config.startRace >= 0 && config.startRace <= 1 &&
+        config.enableCarEngine >= 0 && config.enableCarEngine <= 1 &&
+        config.enableCarSteering >= 0 && config.enableCarSteering <= 1 &&
+        config.thresholdValue >= 0 && config.thresholdValue <= 255 &&
+        config.distanceErrorFromChassis >= -240 && config.distanceErrorFromChassis <= 240 &&
+        config.lineMinPixelCount >= 0 && config.lineMinPixelCount <= 255 &&
+        config.distanceSensorError >= 0 && config.distanceSensorError <= 30 &&
+        config.stoppingDistanceBoxFrontEnd >= 1 && config.stoppingDistanceBoxFrontEnd <= 30 &&
+        config.interpolatedPointsSetup >= 0 && config.interpolatedPointsSetup <= 1 &&
+        config.calibrateTopLinePerc >= 0.0 && config.calibrateTopLinePerc <= 100.0 &&
+        config.calibrateBottomLinePerc >= 0.0 && config.calibrateBottomLinePerc <= 100.0 &&
+        config.trackLaneWidthOffset >= -100.0 && config.trackLaneWidthOffset <= 200.0 &&
+        config.topImageCutPercentage >= 0.0 && config.topImageCutPercentage <= 1.0 &&
+        config.bottomImageCutPercentage >= 0.0 && config.bottomImageCutPercentage <= 1.0 &&
+        config.topCutOffPercentageCustomConnected >= 0.0 && config.topCutOffPercentageCustomConnected <= 1.0 &&
+        config.lineStartPointY >= 0.0 && config.lineStartPointY <= 1.0 &&
+        config.line90DegreeAngleRange >= 0.0 && config.line90DegreeAngleRange <= 90.0 &&
+        config.finishLineAngleRange >= 90.0 && config.finishLineAngleRange <= 180.0 &&
+        config.servoTurnAdjustmentCoefficient >= 0.0 && config.servoTurnAdjustmentCoefficient <= 5.0 &&
+        config.corneringSpeedCoefficient >= 0.0 && config.corneringSpeedCoefficient <= 2.0 &&
+        config.minSpeed >= 0.0 && config.minSpeed <= 350.0 &&
+        config.maxSpeed >= 0.0 && config.maxSpeed <= 350.0 &&
+        config.minSpeedAfterFinish >= 0.0 && config.minSpeedAfterFinish <= 350.0 &&
+        config.maxSpeedAfterFinish >= 0.0 && config.maxSpeedAfterFinish <= 350.0 &&
+        config.currentEdfFanSpeed >= 0.0 && config.currentEdfFanSpeed <= 350.0 &&
+        config.curvatureFactor >= 0.0 && config.curvatureFactor <= 200.0 &&
+        config.k_min >= 0.0 && config.k_min <= 25.0 &&
+        config.k_max >= 0.0 && config.k_max <= 25.0 &&
+        config.R_minInCm >= 0.0 && config.R_minInCm <= 4000.0 &&
+        config.R_maxInCm >= 0.0 && config.R_maxInCm <= 4000.0 &&
+        config.minLookAheadInCm >= 0.0 && config.minLookAheadInCm <= 100.0 &&
+        config.maxLookAheadInCm >= 0.0 && config.maxLookAheadInCm <= 100.0 &&
+        config.waitBeforeStartSeconds >= 0.0 && config.waitBeforeStartSeconds <= 10.0 &&
+        config.straightWheelTimerSeconds >= 0.0 && config.straightWheelTimerSeconds <= 5.0
+    );
+}

@@ -22,5 +22,6 @@ double angleBetweenVectors(const cv::Point2f& v1, const cv::Point2f& v2);
 double roundToTwoDecimals(double value);
 std::string to_string_with_precision(double value, int precision);
 int doubleCmp(double num1, double num2);
+double mapDouble(double x, double in_min, double in_max, double out_min, double out_max);
 
 #endif

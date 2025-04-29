@@ -28,8 +28,12 @@ void CameraProcessing::setParameters(int cameraIndex, int width, int height, int
     cap.set(cv::CAP_PROP_FPS, fps);
 
     // Apply v4l2-ctl camera settings for manual exposure NXP BUCHAREST FIX
+    /*std::string command = "v4l2-ctl -d /dev/video" + std::to_string(cameraIndex) +
+                          " -c auto_exposure=1 -c exposure_time_absolute=16";*/
+                          
+    // Apply v4l2-ctl camera settings for manual exposure TIMISOARA
     std::string command = "v4l2-ctl -d /dev/video" + std::to_string(cameraIndex) +
-                          " -c auto_exposure=1 -c exposure_time_absolute=16";
+                          " -c auto_exposure=1 -c exposure_time_absolute=100";
     system(command.c_str());
 
     double actualWidth = cap.get(cv::CAP_PROP_FRAME_WIDTH);
@@ -148,8 +152,8 @@ void CameraProcessing::captureFrames() {
 
             std::sort(temp.begin(), temp.end());
             double median_brightness = temp[temp.size() / 2];
-            std::cout << "frame_brightness:" << frame_brightness << "\n";
-            std::cout << "median_brightness:" << median_brightness << "\n";
+            //std::cout << "frame_brightness:" << frame_brightness << "\n";
+            //std::cout << "median_brightness:" << median_brightness << "\n";
             if (std::abs(frame_brightness - median_brightness) > 55) {
                 // Flicker detected: skip or discard this frame
                 continue;
@@ -194,23 +198,28 @@ void CameraProcessing::processFrames() {
     int rowTopCutOffThreshold;
 
     std::chrono::time_point<std::chrono::steady_clock> startTime;
+    std::chrono::time_point<std::chrono::steady_clock> finishLineTime;
+
+    bool startTimeEnabled = false;
+    bool finishLineTimeEnabled = false;
     
     std::string serialString = "";
     
+    bool isRadarEnabled = false;
     int stoppingDistanceBoxLidar = config->stoppingDistanceBoxFrontEnd + config->distanceSensorError;  
 
-    this->lastInterpolatedPointsSetup = config->interpolatedPointsSetup;
-
-    if (NEAR_VIEW_SETUP == config->interpolatedPointsSetup){
-        this->initPerspectiveVariables("interpolated_points_NEAR.txt");
-    }
-    else if(FAR_VIEW_SETUP == config->interpolatedPointsSetup){
-        this->initPerspectiveVariables("interpolated_points_FAR.txt");
-    }else{
-        this->initPerspectiveVariables("interpolated_points.txt");
-    }
     while (this->running) {
         try {
+            this->lastInterpolatedPointsSetup = config->interpolatedPointsSetup;
+
+            if (NEAR_VIEW_SETUP == config->interpolatedPointsSetup){
+                this->initPerspectiveVariables("interpolated_points_NEAR.txt");
+            }
+            else if(FAR_VIEW_SETUP == config->interpolatedPointsSetup){
+                this->initPerspectiveVariables("interpolated_points_FAR.txt");
+            }else{
+                this->initPerspectiveVariables("interpolated_points.txt");
+            }
             cv::Mat frame;
 
             {
@@ -273,13 +282,29 @@ void CameraProcessing::processFrames() {
                     isYellowStatusLedOn = false;
                 }
                 
-
                 if ( 1 == config->enableFinishLineDetection)
                 {
                     /* WARNING: distanceBeforeIssuesAppear Is the distance where the car still sees the track and not the box in FOV*/
                     if (this->isFinishLineDetected && (distance < distanceBeforeIssuesAppear && distance > 0))
                     {
                         isObjectCloserThanDistanceBeforeIssuesAppear = true;
+                    }
+                    if(this->isFinishLineDetected){
+                        isRadarEnabled = true;
+                        if(!finishLineTimeEnabled){
+                            finishLineTime = std::chrono::steady_clock::now();
+                            finishLineTimeEnabled = true;
+                            config->currentEdfFanSpeed = DEFAULT_EDF_FAN_AFTER_FINISH_SPEED;
+                        }
+                        auto now = std::chrono::steady_clock::now();
+                        double elapsedMillis = std::chrono::duration<double, std::milli>(now - finishLineTime).count();
+
+                        // INFO: e.g. CAR waits for 5 seconds then starts engine
+                        
+                        if (elapsedMillis <= 1500.0) {
+                            config->currentEdfFanSpeed = 0;
+                            finishLineTimeEnabled = false;
+                        }
                     }
                     /*else if((distance > distanceBeforeIssuesAppear))
                     {
@@ -289,10 +314,10 @@ void CameraProcessing::processFrames() {
                 else
                 {
                     /* NOTE: When modifying this bool from the menu, the car can restart the whole process */
-                
                     config->topCutOffPercentageCustomConnected = DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED;
                     this->isFinishLineDetected = false;
                     this->isObjectCloserThanDistanceBeforeIssuesAppear = false;
+                    finishLineTimeEnabled = false;
                 }
                 
                 /* NOTE: this boolean is used to block the frameProcessing algorithm after the box is closer then certain distance */
@@ -303,9 +328,12 @@ void CameraProcessing::processFrames() {
                     #endif                              
                     if(distance <= stoppingDistanceBoxLidar){
                         ppObject.setSpeed(0);
+                        isRadarEnabled = false;
+                    }else{
+                        ppObject.setSpeed(config->minSpeedAfterFinish);
                     }
 
-                    serialString = this->createSerialString(isBlueStatusLedOn, isYellowStatusLedOn, stoppingDistanceBoxLidar);
+                    serialString = this->createSerialString(isBlueStatusLedOn, isYellowStatusLedOn, isRadarEnabled);
                     serial.writeToSerial(serialString);
                 }
                 else
@@ -319,6 +347,7 @@ void CameraProcessing::processFrames() {
                     
                     if ( 1 == config->enableCameraThresholdCheck ){
                         #if 1 == ENABLE_TCP_FRAMES 
+                            liveVideoFeedTCP.sendFrame(frame);
                             liveVideoFeedTCP.sendFrame(thresholdFrame);
                         #endif
                     } 
@@ -328,7 +357,6 @@ void CameraProcessing::processFrames() {
                             
                             
                             if (config->startRace){
-                                static bool startTimeEnabled = false;
                                 if(!startTimeEnabled){
                                     startTime = std::chrono::steady_clock::now();
                                     startTimeEnabled = true;
@@ -350,13 +378,14 @@ void CameraProcessing::processFrames() {
                                 if (elapsedMillis >= (config->waitBeforeStartSeconds * 1000.0)) 
                                 {
                                     config->enableCarEngine = true;
+                                    config->enableCarSteering = true;
+                                    config->currentEdfFanSpeed = DEFAULT_EDF_FAN_CURRENT_SPEED;
                                 }
                                 /* INFO: e.g. for 2 more seconds the car locks steering on 0 degrees to
                                  *       mitigate Start Line error
                                  */        
                                 if (elapsedMillis >= totalWaitMillis) 
                                 {
-                                    config->enableCarSteering = true;
                                     
                                     if ( 1 == config->enableFinishLineDetection)
                                     {
@@ -369,6 +398,8 @@ void CameraProcessing::processFrames() {
                                 }
                             }
                         #endif
+                        
+                        //this->liveVideoFeedTCP.sendFrame(thresholdFrame);
                         cv::Mat skeleton = this->skeletonizeFrame(thresholdFrame); 
 
                         std::vector<std::vector<cv::Point2f>> lines = this->findLines(skeleton, config->currentState, rowTopCutOffThreshold);
@@ -390,7 +421,7 @@ void CameraProcessing::processFrames() {
                         }
                         
                         
-                        this->drawHorizontalFromHeight(outputImage,frameHeight * lineStartPointY,cv::Scalar(255, 255, 255));
+                        this->drawHorizontalFromHeight(outputImage,frameHeight * config->lineStartPointY,cv::Scalar(255, 255, 255));
                         #if 1 == ENABLE_TCP_FRAMES 
                             this->drawLines(outputImage,lines,cv::Scalar(0, 0, 255));
                             //this->liveVideoFeedTCP.sendFrame(outputImage);
@@ -502,7 +533,7 @@ void CameraProcessing::processFrames() {
                                         bool areAllLinesFromTheTop = true;
                                         for(int i = 0; i < lines.size(); i++){
                                              
-                                            if(lines[i][0].y >= frameHeight * lineStartPointY){    
+                                            if(lines[i][0].y >= frameHeight * config->lineStartPointY){    
                                                areAllLinesFromTheTop = false;
                                             }
                                            
@@ -524,7 +555,7 @@ void CameraProcessing::processFrames() {
                                     this->isIntersection = true;
                                     for (int i = 0; i < lines.size(); i++)
                                     {
-                                        if(lines[i][0].y >= frameHeight * lineStartPointY){
+                                        if(lines[i][0].y >= frameHeight * config->lineStartPointY){
                                             this->isIntersection = false;
                                         }
                                     }
@@ -534,9 +565,9 @@ void CameraProcessing::processFrames() {
                                     }
 
                                     
-                                    std::cout << "Line size after():" << lines.size() << "\n";
-                                    std::cout << "isIntersection:" << this->isIntersection << "\n";
-                                    std::cout << "isValidLines:" << isValidLines << "\n";
+                                    //std::cout << "Line size after():" << lines.size() << "\n";
+                                    //std::cout << "isIntersection:" << this->isIntersection << "\n";
+                                    //std::cout << "isValidLines:" << isValidLines << "\n";
                                     if(this->isIntersection && isValidLines)
                                     {
                                         config->currentState = IN_INTERSECTION;
@@ -560,11 +591,22 @@ void CameraProcessing::processFrames() {
 
                                         for (int i = 0; i < lines.size(); i++)
                                         {
-                                           this->extendLineToEdges(lines[i], birdsEyeViewWidth, birdsEyeViewHeight);
+                                            this->extendLineToEdges(lines[i], birdsEyeViewWidth, birdsEyeViewHeight);
                                             lines[i] = this->evenlySpacePoints(lines[i], curveSamplePoints);
                                         }
+                                        
+                                        cv::Size frameSize2(birdsEyeViewWidth, birdsEyeViewHeight);
+
+                                        // Initialize an empty image (black by default)
+                                        cv::Mat birdEyeViewWithPoints2 = cv::Mat::zeros(frameSize2, CV_8UC3);
+
                                         this->getLeftRightLines(lines,this->leftLine,this->rightLine);
                                         this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);
+                                    
+                                        this->drawLineVector(birdEyeViewWithPoints2,leftLine,cv::Scalar(0, 255, 0));
+                                        this->drawLineVector(birdEyeViewWithPoints2,allMidPoints,cv::Scalar(255, 255, 255));
+                                        this->drawLineVector(birdEyeViewWithPoints2,rightLine,cv::Scalar(0, 0, 255));
+                                        this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints2);
                                     }
                                 break;
                                 case IN_INTERSECTION:   
@@ -602,14 +644,14 @@ void CameraProcessing::processFrames() {
                                         */
                                         if(lines[i][0].y > lines[i].back().y)
                                         {
-                                            if((lines[i][0].y >= (frameHeight * lineStartPointY))){
+                                            if((lines[i][0].y >= (frameHeight * config->lineStartPointY))){
                                                 exitingIntersectionCounter = 0;
                                                 config->currentState = EXITING_INTERSECTION;
                                             }
                                         } 
                                         else
                                         {
-                                            if((lines[i].back().y >= (frameHeight * lineStartPointY))){
+                                            if((lines[i].back().y >= (frameHeight * config->lineStartPointY))){
                                                 exitingIntersectionCounter = 0;
                                                 config->currentState = EXITING_INTERSECTION;
                                             }
@@ -659,7 +701,14 @@ void CameraProcessing::processFrames() {
                                     if(!this->is90DegreeLine){
                                         exitingIntersectionCounter++;
                                         if(exitingIntersectionCounter > 10){
-                                            config->currentState = FOLLOWING_LINE;
+                                            if ( 1 == config->enableFinishLineDetection)
+                                            {
+                                                config->currentState = FOLLOWING_LINE;
+                                            }
+                                            else
+                                            {
+                                                config->currentState = APPROACHING_INTERSECTION;
+                                            }
                                         }
                                     }
                                     for (int i = 0; i < lines.size(); i++)
@@ -688,7 +737,7 @@ void CameraProcessing::processFrames() {
                             std::vector<cv::Point2f> interpolatedPoints;
                             
                             #if 1 == ENABLE_TCP_FRAMES 
-                                this->liveVideoFeedTCP.sendFrame(frame);
+                                //this->liveVideoFeedTCP.sendFrame(frame);
                             #endif
                             
                             std::cout << "frameWidth:" << this->frameWidth << "\n";
@@ -750,7 +799,7 @@ void CameraProcessing::processFrames() {
                                                 
 
                             #if 1 == ENABLE_TEENSY_SERIAL
-                                serialString = this->createSerialString(isBlueStatusLedOn, isYellowStatusLedOn, stoppingDistanceBoxLidar);
+                                serialString = this->createSerialString(isBlueStatusLedOn, isYellowStatusLedOn, isRadarEnabled);
                                 serial.writeToSerial(serialString);
                             #endif
                         
@@ -768,7 +817,7 @@ void CameraProcessing::processFrames() {
                                 this->drawLineVector(birdEyeViewWithPoints,allMidPoints,cv::Scalar(255, 255, 255));
                                 this->drawLineVector(birdEyeViewWithPoints,rightLine,cv::Scalar(0, 0, 255));
                                  
-                                this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints);
+                                //this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints);
                                 
                                 std::vector<cv::Point2f> l_leftLine = this->perspectiveChangeLine(this->leftLine, MatrixInverseBirdsEyeView);
                                 std::vector<cv::Point2f> l_rightLine = this->perspectiveChangeLine(this->rightLine, MatrixInverseBirdsEyeView);
@@ -779,7 +828,7 @@ void CameraProcessing::processFrames() {
 
                                 
                                 this->drawHorizontalFromHeight(outputImage,rowTopCutOffThreshold,cv::Scalar(0, 0, 255));
-                                this->drawHorizontalFromHeight(outputImage,frameHeight * lineStartPointY,cv::Scalar(255, 255, 255));
+                                this->drawHorizontalFromHeight(outputImage,frameHeight * config->lineStartPointY,cv::Scalar(255, 255, 255));
 
                                 this->drawPoints(outputImage, srcPoints, cv::Scalar(0, 255, 255));
                             
@@ -903,8 +952,8 @@ cv::Mat CameraProcessing::skeletonizeFrame(cv::Mat& thresholdedImage) {
 // Apply color segmentation to isolate specific features in the image
 cv::Mat CameraProcessing::segmentEdges(const cv::Mat& frame) {
     cv::Mat thresholdFrame;
-    //cv::threshold(frame, thresholdFrame, config->thresholdValue, maxThresholdValue, cv::THRESH_BINARY);
-    cv::threshold(frame, thresholdFrame, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
+    cv::threshold(frame, thresholdFrame, config->thresholdValue, maxThresholdValue, cv::THRESH_BINARY);
+    //cv::threshold(frame, thresholdFrame, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
     cv::bitwise_not(thresholdFrame, thresholdFrame);
     return thresholdFrame;
 }
@@ -1466,6 +1515,7 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
                 rightFitted.push_back(shiftedPoint);
             }
 
+
             firstPointLeftLine = pointFront; // Update historical left point
             firstPointRightLine = rightFitted[0]; // Update historical right point
         } else {
@@ -1494,6 +1544,8 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
                 shiftedPoint = cv::Point2f(mid_x + offset_x, mid_y + offset_y);
                 leftFitted.push_back(shiftedPoint);
             }
+
+            
             firstPointRightLine = pointFront; // Update historical right point
             firstPointLeftLine = leftFitted[0]; // Update historical left point
         }
@@ -1851,15 +1903,19 @@ void CameraProcessing::drawHorizontalFromHeight(cv::Mat& frame, const int height
 
 void CameraProcessing::drawLineVector(cv::Mat& frame, const std::vector<cv::Point2f>& line, const cv::Scalar& color)
 {
-    for (int i = 1; i < line.size(); i++) {
-        cv::line(frame, line[i-1], line[i], color, 2);  // Green
+    if (!line.empty()) {
+        for (int i = 1; i < line.size(); i++) {
+            cv::line(frame, line[i-1], line[i], color, 2);  // Green
+        }
     }
 }
 
 void CameraProcessing::drawLines(cv::Mat& frame, const std::vector<std::vector<cv::Point2f>> lines, const cv::Scalar& color)
 {
-    for (int i = 0; i < lines.size(); ++i) {
-        drawLineVector(frame,lines[i],color);
+    if (!lines.empty()) {
+        for (int i = 0; i < lines.size(); ++i) {
+            drawLineVector(frame,lines[i],color);
+        }
     }
 }
 
@@ -1868,7 +1924,7 @@ void CameraProcessing::drawCircle(cv::Mat& image, const cv::Point2f& center, int
     cv::circle(image, center, radius, color, thickness);
 }
 
-std::string  CameraProcessing::createSerialString(bool isBlueStatusLedOn, bool isYellowStatusLedOn, int stoppingDistanceBoxLidar)
+std::string  CameraProcessing::createSerialString(bool isBlueStatusLedOn, bool isYellowStatusLedOn, bool isRadarEnabled)
 {
     std::string serialString = "";
     int checksum = 0;
@@ -1908,8 +1964,12 @@ std::string  CameraProcessing::createSerialString(bool isBlueStatusLedOn, bool i
     }
     serialString += std::to_string(distanceBeforeIssuesAppear) + ";";
 
-    serialString += std::to_string(stoppingDistanceBoxLidar) + ";";
-    
+    if (isRadarEnabled){
+        serialString +="1;";
+    }else{
+        serialString +="0;";
+    }
+
     if(isBlueStatusLedOn)
     {
         serialString +="1;";
@@ -1928,8 +1988,9 @@ std::string  CameraProcessing::createSerialString(bool isBlueStatusLedOn, bool i
         serialString +="0;";
     }
 
+    serialString += std::to_string(config->currentEdfFanSpeed);
+
     
-    serialString += std::to_string(config->afterFinishLineSpeed);
     for (char c : serialString) {
         checksum += static_cast<unsigned char>(c);
     }

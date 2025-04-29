@@ -7,7 +7,8 @@ void PurePursuit::setParameters(std::shared_ptr<SharedConfig> global_config){
     }
 void PurePursuit::computePurePursuit(std::vector<cv::Point2f> allMidPoints,
                                 cv::Point2f carInFramePositionBirdsEye,
-                                double pixelSizeInCm, cv::Point2f carTopPoint, bool isFinishLineDetected){
+                                double pixelSizeInCm, cv::Point2f carTopPoint, bool isFinishLineDetected)
+{
     // Track Curvature is used in speed and lookahead distance formulas
     this->trackCurvatureRadius = computeCurvatureRadiusInFrontOfCar(allMidPoints, carInFramePositionBirdsEye, ((this->lookAheadDistanceInCm+30)*pixelSizeInCm));
     
@@ -26,17 +27,20 @@ void PurePursuit::computePurePursuit(std::vector<cv::Point2f> allMidPoints,
     {
         if(isFinishLineDetected)
         {
-            this->speed = CalculateCarSpeed(config->minSpeedAfterFinish, config->maxSpeedAfterFinish, wheelBaseInCm, config->corneringSpeedCoefficient, 981, this->angleHeadingTarget);
+            this->speed = CalculateCarSpeed(config->minSpeedAfterFinish, config->maxSpeedAfterFinish, wheelBaseInCm, config->corneringSpeedCoefficient, downward_accelerationCm, this->angleHeadingTarget);
         }
         else
         {
-            this->speed = CalculateCarSpeed(config->minSpeed, config->maxSpeed, wheelBaseInCm, config->corneringSpeedCoefficient, 981, this->angleHeadingTarget);
+            this->speed = CalculateCarSpeed(config->minSpeed, config->maxSpeed, wheelBaseInCm, config->corneringSpeedCoefficient, downward_accelerationCm, this->angleHeadingTarget);
         }
     }
+
     this->steeringAngleServo = calculateServoValue(this->angleHeadingTarget, this->lookAheadDistanceInCm);                 
 }
 
-double PurePursuit::adjustSpeed(double trackCurvatureRadius, double currentSpeed) {
+
+double PurePursuit::adjustSpeed(double trackCurvatureRadius, double currentSpeed) 
+{
     
     double adjustedSpeed = config->maxSpeed * (1 - config->curvatureFactor / trackCurvatureRadius);
     adjustedSpeed = std::max(config->minSpeed, std::min(config->maxSpeed, adjustedSpeed));
@@ -52,7 +56,8 @@ double PurePursuit::adjustSpeed(double trackCurvatureRadius, double currentSpeed
 
 
 double PurePursuit::computeLookAheadDistance(double trackCurvatureRadius, std::vector<cv::Point2f> allMidPoints,
-                                cv::Point2f carInFramePositionBirdsEye, double pixelSizeInCm, double speed) {
+                                cv::Point2f carInFramePositionBirdsEye, double pixelSizeInCm, double speed) 
+{
 
     // std::cout << "trackCurvatureRadius before K: " << trackCurvatureRadius << "\n";
     
@@ -72,7 +77,8 @@ double PurePursuit::computeLookAheadDistance(double trackCurvatureRadius, std::v
     return lookAheadDistance;
 }
 
-cv::Point2f PurePursuit::findHighestIntersection(const std::vector<cv::Point2f>& curve, const cv::Point2f& circleCenter, double circleRadius) {
+cv::Point2f PurePursuit::findHighestIntersection(const std::vector<cv::Point2f>& curve, const cv::Point2f& circleCenter, double circleRadius) 
+{
     
     std::vector<cv::Point2f> intersections;
 
@@ -140,7 +146,8 @@ double PurePursuit::computeK(double R)
 }
 
 // Function to calculate servo value
-double PurePursuit::calculateServoValue(double angleRadians, double lookaheadDistance) {
+double PurePursuit::calculateServoValue(double angleRadians, double lookaheadDistance) 
+{
 
     double steeringAngleRadians = atan((2.0 * wheelBaseInCm * sin(angleRadians)) / lookaheadDistance);
     this->steeringAngleDegrees = steeringAngleRadians * 180.0 / CV_PI;
@@ -305,6 +312,18 @@ double PurePursuit::carTurnMaxSpeed(double _turn_radius, double _friction_coeffi
 	return _max_speed;
 }
 
+double PurePursuit::carBoostExitCornerSpeed(double new_car_speed, double _turn_angle)
+{
+    const double threshold = 0.35;
+    const double boostSpeedValue = 0;
+
+    if (fabs(_turn_angle) < threshold) 
+    {
+        new_car_speed = new_car_speed + boostSpeedValue;
+    }
+    return new_car_speed;
+}
+
 double PurePursuit::RearWheelTurnRadius(double wheelBase, double turnAngle) {
 	double angle;
 	//float temp_sin = sinf(turnAngle);
@@ -323,7 +342,7 @@ double PurePursuit::RearWheelTurnRadius(double wheelBase, double turnAngle) {
 	return angle;
 }
 double PurePursuit::CalculateCarSpeed(double _min_speed, double _max_speed, double _wheel_base, double _friction_coefficient, double _downward_acceleration, double _turn_angle) {
-	double new_car_speed, turn_radius;
+	double new_car_speed, turn_radius, booster_car_speed;
 	turn_radius = RearWheelTurnRadius(_wheel_base, _turn_angle);
 	if (doubleCmp(turn_radius, 0.0f) < 0) {
 		new_car_speed = _max_speed;
@@ -332,6 +351,9 @@ double PurePursuit::CalculateCarSpeed(double _min_speed, double _max_speed, doub
 		new_car_speed = carTurnMaxSpeed(turn_radius, _friction_coefficient, _downward_acceleration);
 	}
 	
+    booster_car_speed = carBoostExitCornerSpeed(new_car_speed, _turn_angle);
+    new_car_speed = booster_car_speed;
+
 	new_car_speed = MAX(_min_speed, new_car_speed);
 	new_car_speed = MIN(_max_speed, new_car_speed);
 

@@ -1246,4 +1246,20 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: \
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/PurePursuitFunctions/PurePursuit.hpp \
  /home/debix/Documents/Proiect-NXP-CUP-2025-/include/CameraFunctions/cameraSetup.h \
  /usr/include/aarch64-linux-gnu/sys/wait.h /usr/include/gpiod.h \
- /usr/lib/gcc/aarch64-linux-gnu/11/include/stdbool.h
+ /usr/lib/gcc/aarch64-linux-gnu/11/include/stdbool.h \
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/json.hpp \
+ /usr/include/c++/11/forward_list /usr/include/c++/11/bits/forward_list.h \
+ /usr/include/c++/11/bits/forward_list.tcc /usr/include/c++/11/valarray \
+ /usr/include/c++/11/bits/valarray_array.h \
+ /usr/include/c++/11/bits/valarray_array.tcc \
+ /usr/include/c++/11/bits/valarray_before.h \
+ /usr/include/c++/11/bits/slice_array.h \
+ /usr/include/c++/11/bits/valarray_after.h \
+ /usr/include/c++/11/bits/gslice.h \
+ /usr/include/c++/11/bits/gslice_array.h \
+ /usr/include/c++/11/bits/mask_array.h \
+ /usr/include/c++/11/bits/indirect_array.h /usr/include/c++/11/numeric \
+ /usr/include/c++/11/bits/stl_numeric.h \
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/SharedConfigJson.hpp \
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/config.h \
+ /home/debix/Documents/Proiect-NXP-CUP-2025-/include/json.hpp

@@ -5159,8 +5159,43 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   ../include/CameraFunctions/cameraSetup.h \
   /usr/include/aarch64-linux-gnu/sys/wait.h \
   /usr/include/gpiod.h \
-  /usr/lib/gcc/aarch64-linux-gnu/11/include/stdbool.h
+  /usr/lib/gcc/aarch64-linux-gnu/11/include/stdbool.h \
+  ../include/json.hpp \
+  /usr/include/c++/11/forward_list \
+  /usr/include/c++/11/bits/forward_list.h \
+  /usr/include/c++/11/bits/forward_list.tcc \
+  /usr/include/c++/11/valarray \
+  /usr/include/c++/11/bits/valarray_array.h \
+  /usr/include/c++/11/bits/valarray_array.tcc \
+  /usr/include/c++/11/bits/valarray_before.h \
+  /usr/include/c++/11/bits/slice_array.h \
+  /usr/include/c++/11/bits/valarray_after.h \
+  /usr/include/c++/11/bits/gslice.h \
+  /usr/include/c++/11/bits/gslice_array.h \
+  /usr/include/c++/11/bits/mask_array.h \
+  /usr/include/c++/11/bits/indirect_array.h \
+  /usr/include/c++/11/numeric \
+  /usr/include/c++/11/bits/stl_numeric.h \
+  ../include/SharedConfigJson.hpp \
+  ../include/config.h \
+  ../include/json.hpp
 
+
+/usr/include/c++/11/numeric:
+
+/usr/include/c++/11/bits/gslice_array.h:
+
+/usr/include/c++/11/bits/gslice.h:
+
+/usr/include/c++/11/bits/valarray_after.h:
+
+/usr/include/c++/11/bits/valarray_before.h:
+
+/usr/include/c++/11/bits/valarray_array.tcc:
+
+/usr/include/c++/11/bits/valarray_array.h:
+
+/usr/include/c++/11/bits/forward_list.tcc:
 
 /usr/include/gpiod.h:
 
@@ -5188,6 +5223,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/asio/use_awaitable.hpp:
 
+/usr/include/c++/11/valarray:
+
 /usr/include/boost/asio/this_coro.hpp:
 
 /usr/include/boost/asio/system_timer.hpp:
@@ -5213,6 +5250,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/boost/predef/hardware/simd/ppc.h:
 
 /usr/include/boost/predef/hardware/simd/arm/versions.h:
+
+/usr/include/c++/11/forward_list:
 
 /usr/include/boost/predef/hardware/simd/arm.h:
 
@@ -5368,6 +5407,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/boost/predef/architecture/x86/64.h:
 
+../include/SharedConfigJson.hpp:
+
 /usr/include/boost/predef/architecture/x86/32.h:
 
 /usr/include/boost/predef/architecture/x86.h:
@@ -5479,6 +5520,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/boost/asio/detail/resolver_service.hpp:
 
 /usr/include/boost/asio/ip/resolver_base.hpp:
+
+/usr/include/c++/11/bits/forward_list.h:
 
 /usr/include/boost/asio/ip/basic_resolver_results.hpp:
 
@@ -5906,6 +5949,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/bits/stl_tree.h:
 
+../include/json.hpp:
+
 /usr/include/opencv4/opencv2/dnn/version.hpp:
 
 /usr/include/opencv4/opencv2/flann/lsh_table.h:
@@ -5971,6 +6016,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/boost/asio/execution/detail/void_receiver.hpp:
 
 /usr/include/boost/static_assert.hpp:
+
+/usr/include/c++/11/bits/indirect_array.h:
 
 /usr/include/boost/asio/ip/impl/address.ipp:
 
@@ -6628,7 +6675,11 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/bits/atomic_lockfree_defines.h:
 
+/usr/include/c++/11/bits/stl_numeric.h:
+
 /usr/include/opencv4/opencv2/core/cuda.hpp:
+
+/usr/include/c++/11/bits/mask_array.h:
 
 /usr/include/boost/mpl/aux_/config/compiler.hpp:
 
@@ -7605,6 +7656,8 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/boost/preprocessor/repetition/repeat.hpp:
 
 /usr/include/boost/preprocessor/debug/error.hpp:
+
+/usr/include/c++/11/bits/slice_array.h:
 
 /usr/include/c++/11/bits/sstream.tcc:
 
