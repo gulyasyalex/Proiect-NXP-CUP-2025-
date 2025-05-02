@@ -206,7 +206,7 @@ void CameraProcessing::processFrames() {
     std::string serialString = "";
     
     bool isRadarEnabled = false;
-    int stoppingDistanceBoxLidar = config->stoppingDistanceBoxFrontEnd + config->distanceSensorError;  
+    int stoppingDistanceBoxLidar = config->stoppingDistanceBoxFrontEnd + config->distanceSensorError; 
 
     while (this->running) {
         try {
@@ -273,7 +273,7 @@ void CameraProcessing::processFrames() {
                     isBlueStatusLedOn = false;
                 }
 
-                if( EXITING_INTERSECTION == config->currentState)
+                if( EXITING_INTERSECTION == config->currentState || isFinishLineDetected)
                 {
                     isYellowStatusLedOn = true;
                 }
@@ -298,12 +298,10 @@ void CameraProcessing::processFrames() {
                         }
                         auto now = std::chrono::steady_clock::now();
                         double elapsedMillis = std::chrono::duration<double, std::milli>(now - finishLineTime).count();
-
-                        // INFO: e.g. CAR waits for 5 seconds then starts engine
                         
-                        if (elapsedMillis <= 1500.0) {
+                        // INFO: CAR waits for 1 seconds then starts engine            
+                        if (elapsedMillis >= 1000.0) {
                             config->currentEdfFanSpeed = 0;
-                            finishLineTimeEnabled = false;
                         }
                     }
                     /*else if((distance > distanceBeforeIssuesAppear))
@@ -424,7 +422,7 @@ void CameraProcessing::processFrames() {
                         this->drawHorizontalFromHeight(outputImage,frameHeight * config->lineStartPointY,cv::Scalar(255, 255, 255));
                         #if 1 == ENABLE_TCP_FRAMES 
                             this->drawLines(outputImage,lines,cv::Scalar(0, 0, 255));
-                            //this->liveVideoFeedTCP.sendFrame(outputImage);
+                            this->liveVideoFeedTCP.sendFrame(outputImage);
                         #endif
 
                         #if 1 != ENABLE_CAMERA_CALIBRATION 
@@ -520,6 +518,8 @@ void CameraProcessing::processFrames() {
                                 // NOTE TO SELF: check finish Line before removing lines, see what happens
                                 case APPROACHING_INTERSECTION:
                                 
+                                    config->currentState = FOLLOWING_LINE;
+                                    break;
                                     this->isValidLines = true;
                                     
                                     if (lines.size() >= 1)
@@ -538,6 +538,7 @@ void CameraProcessing::processFrames() {
                                             }
                                            
                                             tempLineSize = calculateLineLength(lines[i]);
+
                                             if( INTERSECTION_minLineLength < tempLineSize)
                                             {
                                                 newLines.push_back(lines[i]);
@@ -546,7 +547,7 @@ void CameraProcessing::processFrames() {
                                         }
                                         lines.clear();
                                         lines = std::move(newLines);
-                                                                                
+                                                                            
                                         if(!areAllLinesFromTheTop){
                                             this->isValidLines = false;
                                         }
@@ -563,7 +564,6 @@ void CameraProcessing::processFrames() {
                                     {
                                         lines.clear();
                                     }
-
                                     
                                     //std::cout << "Line size after():" << lines.size() << "\n";
                                     //std::cout << "isIntersection:" << this->isIntersection << "\n";
@@ -594,19 +594,9 @@ void CameraProcessing::processFrames() {
                                             this->extendLineToEdges(lines[i], birdsEyeViewWidth, birdsEyeViewHeight);
                                             lines[i] = this->evenlySpacePoints(lines[i], curveSamplePoints);
                                         }
-                                        
-                                        cv::Size frameSize2(birdsEyeViewWidth, birdsEyeViewHeight);
-
-                                        // Initialize an empty image (black by default)
-                                        cv::Mat birdEyeViewWithPoints2 = cv::Mat::zeros(frameSize2, CV_8UC3);
 
                                         this->getLeftRightLines(lines,this->leftLine,this->rightLine);
-                                        this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);
-                                    
-                                        this->drawLineVector(birdEyeViewWithPoints2,leftLine,cv::Scalar(0, 255, 0));
-                                        this->drawLineVector(birdEyeViewWithPoints2,allMidPoints,cv::Scalar(255, 255, 255));
-                                        this->drawLineVector(birdEyeViewWithPoints2,rightLine,cv::Scalar(0, 0, 255));
-                                        this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints2);
+                                        this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);    
                                     }
                                 break;
                                 case IN_INTERSECTION:   
@@ -797,7 +787,6 @@ void CameraProcessing::processFrames() {
                             //std::cout << "Calculated steeringAngleDegrees: " << ppObject.getSteeringAngleDegrees() << std::endl;
                             //std::cout << "Calculated speed: " << ppObject.getSpeed() << std::endl;
                                                 
-
                             #if 1 == ENABLE_TEENSY_SERIAL
                                 serialString = this->createSerialString(isBlueStatusLedOn, isYellowStatusLedOn, isRadarEnabled);
                                 serial.writeToSerial(serialString);

@@ -25,7 +25,6 @@ inline void to_json(json& j, const SharedConfig& cfg) {
         {"calibrateBottomLinePerc", cfg.calibrateBottomLinePerc},
         {"trackLaneWidthOffset", cfg.trackLaneWidthOffset},
         {"topImageCutPercentage", cfg.topImageCutPercentage},
-        {"bottomImageCutPercentage", cfg.bottomImageCutPercentage},
         {"topCutOffPercentageCustomConnected", cfg.topCutOffPercentageCustomConnected},
         {"lineStartPointY", cfg.lineStartPointY},
         {"line90DegreeAngleRange", cfg.line90DegreeAngleRange},
@@ -67,7 +66,6 @@ inline void from_json(const json& j, SharedConfig& cfg) {
     j.at("calibrateBottomLinePerc").get_to(cfg.calibrateBottomLinePerc);
     j.at("trackLaneWidthOffset").get_to(cfg.trackLaneWidthOffset);
     j.at("topImageCutPercentage").get_to(cfg.topImageCutPercentage);
-    j.at("bottomImageCutPercentage").get_to(cfg.bottomImageCutPercentage);
     j.at("topCutOffPercentageCustomConnected").get_to(cfg.topCutOffPercentageCustomConnected);
     j.at("lineStartPointY").get_to(cfg.lineStartPointY);
     j.at("line90DegreeAngleRange").get_to(cfg.line90DegreeAngleRange);

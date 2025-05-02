@@ -95,7 +95,6 @@ int main() {
     global_config->calibrateBottomLinePerc = DEFAULT_CALIBRATE_BOTTOM_LINE;
     global_config->trackLaneWidthOffset = DEFAULT_TRACK_LANE_WIDTH_OFFSET;
     global_config->topImageCutPercentage = DEFAULT_TOP_IMAGE_CUT_PERCENTAGE;
-    global_config->bottomImageCutPercentage = DEFAULT_BOTTOM_IMAGE_CUT_PERCENTAGE;
     global_config->topCutOffPercentageCustomConnected = DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED;
     global_config->lineStartPointY = DEFAULT_LINE_START_POINT_Y;
     global_config->line90DegreeAngleRange = DEFAULT_LINE_90_DEGREE_ANGLE_RANGE;
@@ -105,7 +104,6 @@ int main() {
     global_config->minSpeed = DEFAULT_MIN_SPEED;
     global_config->maxSpeed = DEFAULT_MAX_SPEED;
     global_config->minSpeedAfterFinish = DEFAULT_MIN_SPEED_AFTER_FINISH;
-    global_config->maxSpeedAfterFinish = DEFAULT_MAX_SPEED_AFTER_FINISH;
     global_config->currentEdfFanSpeed = 0; //this is set in startRace section -> DEFAULT_EDF_FAN_CURRENT_SPEED;
     global_config->curvatureFactor = DEFAULT_CURVATURE_FACTOR;
     global_config->k_min = DEFAULT_K_MIN;
@@ -140,7 +138,6 @@ int main() {
             << raw_config->calibrateBottomLinePerc << " " << " "
             << raw_config->trackLaneWidthOffset << " "
             << raw_config->topImageCutPercentage << " "
-            << raw_config->bottomImageCutPercentage << " "
             << raw_config->topCutOffPercentageCustomConnected << " "
             << raw_config->lineStartPointY << " "
             << raw_config->line90DegreeAngleRange << " "
@@ -180,7 +177,6 @@ int main() {
     std::cout << "calibrateBottomLinePerc: " << offsetof(SharedConfig, calibrateBottomLinePerc) << std::endl;
     std::cout << "trackLaneWidthOffset: " << offsetof(SharedConfig, trackLaneWidthOffset) << std::endl;
     std::cout << "topImageCutPercentage: " << offsetof(SharedConfig, topImageCutPercentage) << std::endl;
-    std::cout << "bottomImageCutPercentage: " << offsetof(SharedConfig, bottomImageCutPercentage) << std::endl;
     std::cout << "topCutOffPercentageCustomConnected: " << offsetof(SharedConfig, topCutOffPercentageCustomConnected) << std::endl;
     std::cout << "lineStartPointY: " << offsetof(SharedConfig, lineStartPointY) << std::endl;
     std::cout << "line90DegreeAngleRange: " << offsetof(SharedConfig, line90DegreeAngleRange) << std::endl;
@@ -415,7 +411,6 @@ bool isValidConfig(const SharedConfig& config) {
         config.calibrateBottomLinePerc >= 0.0 && config.calibrateBottomLinePerc <= 100.0 &&
         config.trackLaneWidthOffset >= -100.0 && config.trackLaneWidthOffset <= 200.0 &&
         config.topImageCutPercentage >= 0.0 && config.topImageCutPercentage <= 1.0 &&
-        config.bottomImageCutPercentage >= 0.0 && config.bottomImageCutPercentage <= 1.0 &&
         config.topCutOffPercentageCustomConnected >= 0.0 && config.topCutOffPercentageCustomConnected <= 1.0 &&
         config.lineStartPointY >= 0.0 && config.lineStartPointY <= 1.0 &&
         config.line90DegreeAngleRange >= 0.0 && config.line90DegreeAngleRange <= 90.0 &&
