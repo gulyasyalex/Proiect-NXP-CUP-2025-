@@ -518,8 +518,6 @@ void CameraProcessing::processFrames() {
                                 // NOTE TO SELF: check finish Line before removing lines, see what happens
                                 case APPROACHING_INTERSECTION:
                                 
-                                    config->currentState = FOLLOWING_LINE;
-                                    break;
                                     this->isValidLines = true;
                                     
                                     if (lines.size() >= 1)
@@ -1310,6 +1308,31 @@ bool CameraProcessing::removeHorizontalIf90Turn(std::vector<cv::Point2f>& line, 
     return has90DegreeTurn;
 
 }
+
+cv::Point2f CameraProcessing::normalize(const cv::Point2f& v) {
+    float len = std::sqrt(v.x * v.x + v.y * v.y);
+    if (len < 1e-6) return {0, 0};
+    return v * (1.0f / len);
+}
+
+cv::Point2f CameraProcessing::rightNormal(const cv::Point2f& v) {
+    return {v.y, -v.x};
+}
+
+cv::Point2f CameraProcessing::leftNormal(const cv::Point2f& v) {
+    return {-v.y, v.x};
+}
+
+cv::Point2f CameraProcessing:: ensureCorrectSide(const cv::Point2f& base, const cv::Point2f& offsetPoint, const cv::Point2f& historicalReference) {
+    cv::Point2f toOffset = offsetPoint - base;
+    cv::Point2f toHistory = historicalReference - base;
+    if (toOffset.dot(toHistory) < 0) {
+        return base - toOffset; // Flip the direction
+    }
+    return offsetPoint;
+}
+
+
 // Function that handles 2 Lines, 1 Line and No line cases in BirdEyeView
 void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point2f>>& lines, std::vector<cv::Point2f>& leftFitted, std::vector<cv::Point2f>& rightFitted)
 {
@@ -1476,15 +1499,11 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
         //std::cout << "Weighted Distance to Left: " << weightedDistToLeft << std::endl;
         //std::cout << "Weighted Distance to Right: " << weightedDistToRight << std::endl;
 
-        // Classify the line as left or right based on weighted distances
+        /*// Classify the line as left or right based on weighted distances
         if (weightedDistToLeft < weightedDistToRight) {
             // Single line is closer to historical left, so it is the left line
             leftFitted = lines[0];
             rightFitted.clear();
-            /*for (const auto& point : leftFitted) {
-                shiftedPoint = cv::Point2f(point.x + trackLaneWidthInPixel + (config->trackLaneWidthOffset * pixelSizeInCm), point.y);
-                rightFitted.push_back(shiftedPoint);
-            }*/
             for (size_t i = 0; i < leftFitted.size() - 1; ++i) {
                 // Compute the midpoint of each segment
                 float mid_x = (leftFitted[i].x + leftFitted[i + 1].x) / 2.0;
@@ -1511,10 +1530,6 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
             // Single line is closer to historical right, so it is the right line
             rightFitted = lines[0];
             leftFitted.clear();
-            /*for (const auto& point : rightFitted) {
-                shiftedPoint = cv::Point2f(point.x - trackLaneWidthInPixel - (config->trackLaneWidthOffset * pixelSizeInCm), point.y);
-                leftFitted.push_back(shiftedPoint);
-            }*/
             for (size_t i = 0; i < rightFitted.size() - 1; ++i) {
                 // Compute the midpoint of each segment
                 float mid_x = (rightFitted[i].x + rightFitted[i + 1].x) / 2.0;
@@ -1533,6 +1548,70 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
                 shiftedPoint = cv::Point2f(mid_x + offset_x, mid_y + offset_y);
                 leftFitted.push_back(shiftedPoint);
             }
+
+            
+            firstPointRightLine = pointFront; // Update historical right point
+            firstPointLeftLine = leftFitted[0]; // Update historical left point
+        }*/
+        // Classify the line as left or right based on weighted distances
+        if (weightedDistToLeft < weightedDistToRight) {
+            // Single line is closer to historical left, so it is the left line
+            leftFitted = lines[0];
+            rightFitted.clear();
+            
+            // First point
+            cv::Point2f dir0 = normalize(leftFitted[1] - leftFitted[0]);
+            cv::Point2f firstOffset = leftFitted[0] + rightNormal(dir0) * (trackLaneWidthInPixel + config->trackLaneWidthOffset);
+            rightFitted.push_back(ensureCorrectSide(leftFitted[0], firstOffset, firstPointRightLine));
+
+
+            // Middle points
+            for (size_t i = 1; i < leftFitted.size() - 1; ++i) {
+                cv::Point2f v1 = normalize(leftFitted[i] - leftFitted[i - 1]);
+                cv::Point2f v2 = normalize(leftFitted[i + 1] - leftFitted[i]);
+                cv::Point2f bisector = normalize(v1 + v2);
+
+                cv::Point2f normalR = (std::abs(bisector.x) < 1e-6 && std::abs(bisector.y) < 1e-6) ? rightNormal(v1) : rightNormal(bisector);
+                cv::Point2f offsetPoint = leftFitted[i] + normalR * (trackLaneWidthInPixel + config->trackLaneWidthOffset);
+                rightFitted.push_back(ensureCorrectSide(leftFitted[i], offsetPoint, rightFitted.back()));
+            }
+
+             // Last point
+            size_t last = leftFitted.size() - 1;
+            cv::Point2f dirN = normalize(leftFitted[last] - leftFitted[last - 1]);
+            cv::Point2f lastOffset = leftFitted[last] + rightNormal(dirN) * (trackLaneWidthInPixel + config->trackLaneWidthOffset);
+            rightFitted.push_back(ensureCorrectSide(leftFitted[last], lastOffset, rightFitted.back()));
+
+
+            firstPointLeftLine = pointFront; // Update historical left point
+            firstPointRightLine = rightFitted[0]; // Update historical right point
+        } else {
+            // Single line is closer to historical right, so it is the right line
+            rightFitted = lines[0];
+            leftFitted.clear();
+
+            // First point
+            cv::Point2f dir0 = normalize(rightFitted[1] - rightFitted[0]);
+            cv::Point2f firstOffset = rightFitted[0] + leftNormal(dir0) * (trackLaneWidthInPixel + config->trackLaneWidthOffset);
+            leftFitted.push_back(ensureCorrectSide(rightFitted[0], firstOffset, firstPointLeftLine));
+
+             // Middle points
+            for (size_t i = 1; i < rightFitted.size() - 1; ++i) {
+                cv::Point2f v1 = normalize(rightFitted[i] - rightFitted[i - 1]);
+                cv::Point2f v2 = normalize(rightFitted[i + 1] - rightFitted[i]);
+                cv::Point2f bisector = normalize(v1 + v2);
+
+                cv::Point2f normalL = (std::abs(bisector.x) < 1e-6 && std::abs(bisector.y) < 1e-6) ? leftNormal(v1) : leftNormal(bisector);
+                cv::Point2f offsetPoint = rightFitted[i] + normalL * (trackLaneWidthInPixel + config->trackLaneWidthOffset);
+                leftFitted.push_back(ensureCorrectSide(rightFitted[i], offsetPoint, leftFitted.back()));
+            }
+
+            
+            // Last point
+            size_t last = rightFitted.size() - 1;
+            cv::Point2f dirN = normalize(rightFitted[last] - rightFitted[last - 1]);
+            cv::Point2f lastOffset = rightFitted[last] + leftNormal(dirN) * (trackLaneWidthInPixel + config->trackLaneWidthOffset);
+            leftFitted.push_back(ensureCorrectSide(rightFitted[last], lastOffset, leftFitted.back()));
 
             
             firstPointRightLine = pointFront; // Update historical right point
@@ -1925,7 +2004,8 @@ std::string  CameraProcessing::createSerialString(bool isBlueStatusLedOn, bool i
     }
     if (config->enableCarSteering){
         //serialString += std::to_string(ppObject.getSteeringAngleServo()) + ";";
-        if(IN_INTERSECTION == config->currentState)
+        //if(IN_INTERSECTION == config->currentState)
+        if(false)
         {
             serialString += "0;";
         }

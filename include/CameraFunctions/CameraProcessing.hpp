@@ -47,9 +47,11 @@ class CameraProcessing {
         double trackLaneWidthInPixel;
         double trackLaneWidthInCm;
         double pixelSizeInCm;
-        #if 1 == ENABLE_TCP_FRAMES 
+        
+        TcpConnection liveVideoFeedTCP{9999};
+        /*#if 1 == ENABLE_TCP_FRAMES 
             TcpConnection liveVideoFeedTCP{9999};
-        #endif
+        #endif*/
 
         bool isValidLines = true;
         bool isIntersection = false;      // Used to check if we are really in an intersection
@@ -118,6 +120,11 @@ class CameraProcessing {
         bool are2PointsHorizontal(const cv::Point2f& p1, const cv::Point2f& p2, double slopeThreshold = 1);
         // Function to remove horizontal sections if a 90-degree turn is detected
         bool removeHorizontalIf90Turn(std::vector<cv::Point2f>& line, int currentState);
+        // Used in single line detection
+        cv::Point2f normalize(const cv::Point2f& v);
+        cv::Point2f rightNormal(const cv::Point2f& v);
+        cv::Point2f leftNormal(const cv::Point2f& v);
+        cv::Point2f ensureCorrectSide(const cv::Point2f& base, const cv::Point2f& offsetPoint, const cv::Point2f& historicalReference);
         // Function that handles 2 Lines, 1 Line and No line cases
         void getLeftRightLines(const std::vector<std::vector<cv::Point2f>>& lines, std::vector<cv::Point2f>& leftFitted, std::vector<cv::Point2f>& rightFitted); 
         std::vector<cv::Point2f> findMiddle(std::vector<cv::Point2f>& leftLine, std::vector<cv::Point2f>& rightLine, int providedFrameWidth, int providedFrameHeight);
