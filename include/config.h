@@ -9,7 +9,7 @@ extern debix::SerialPort& serial;
 #define ENABLE_CAMERA_CALIBRATION 0
 #define ENABLE_CAMERA_THRESHOLD_CHECK 0
 #define ENABLE_CAMERA_STREAMING 1
-#define ENABLE_TCP_FRAMES 0
+#define ENABLE_TCP_FRAMES 1
 #define ENABLE_TCP_SITE_DEBUG 1
 #define ENABLE_TEENSY_SERIAL 1
 #define ENABLE_FINISH_LINE_DETECTION 1
@@ -142,7 +142,7 @@ struct SharedConfig {
 #define DEFAULT_DISTANCE_ERROR_FROM_CHASSIS 0
 #define DEFAULT_LINE_MIN_PIXEL_COUNT 70 
 #define DEFAULT_DISTANCE_FROM_SENSOR_ERROR 10
-#define DEFAULT_STOPPING_DISTANCE_BOX_FRONT_END 2
+#define DEFAULT_STOPPING_DISTANCE_BOX_FRONT_END 3
 #define DEFAULT_INTERPOLATED_POINTS_SETUP 0         // 0 - Near View Setup 1 - Far View Setup (BirdEyeView)
 
 // Double values
@@ -162,11 +162,11 @@ struct SharedConfig {
 #define DEFAULT_MAX_SPEED 270.0
 #define DEFAULT_MIN_SPEED_AFTER_FINISH 35.0
 #define DEFAULT_MAX_SPEED_AFTER_FINISH 40.0
-#define DEFAULT_EDF_FAN_CURRENT_SPEED 270.0
+#define DEFAULT_EDF_FAN_CURRENT_SPEED 350.0
 #define DEFAULT_CURVATURE_FACTOR 13.0
-#define DEFAULT_K_MIN 16.8  //14.8
-#define DEFAULT_K_MAX 25.5  //18.25
-#define DEFAULT_R_MIN_IN_CM 0.0
+#define DEFAULT_K_MIN 16.8 //10 // 16.8  //14.8
+#define DEFAULT_K_MAX 25.5 //55 // 25.5  //18.25
+#define DEFAULT_R_MIN_IN_CM 100.0
 #define DEFAULT_R_MAX_IN_CM 1000.0
 #define DEFAULT_MIN_LOOKAHEAD_IN_CM 10.0
 #define DEFAULT_MAX_LOOKAHEAD_IN_CM 55.0
@@ -247,7 +247,7 @@ constexpr int  _minLinePixelCount = static_cast<int>(ScalingFactor * DEFAULT_LIN
 
 // Used in fitPolinomial()
 constexpr int fitPolyWindowSize = static_cast<int>(35 * ScalingFactor);  
-constexpr double fitPolyEpsilon = static_cast<double>(15.0 * ScalingFactor); // Epsilon value for curve approximation
+constexpr double fitPolyEpsilon = static_cast<double>(9.0 * ScalingFactor); // Epsilon value for curve approximation
 
 constexpr int captureFps = 100; // 120 for BUCHAREST;
 const cv::Point2f undefinedPoint(0.0f, 0.0f);
@@ -261,13 +261,16 @@ constexpr double birdsEyeViewWidth = 370;
 constexpr double birdsEyeViewHeight = 400;
 
 constexpr int maxThresholdValue = 255;
-constexpr double INTERSECTION_minLineLength = 40;  
+constexpr double INTERSECTION_minLineLength = 35;  
 constexpr double IN_INTERSECTION_minLineLength = 60;
 
 constexpr int distanceMedianFilterSampleSize = 5;
 
 // Used in findMiddle()
-constexpr int curveSamplePoints = 15;                           // 15 Number of points to sample the curve(High number equals more complexity)
+constexpr int curveSamplePoints = 12;                           // 15 Number of points to sample the curve(High number equals more complexity)
+
+// Used in computeCurvatureRadiusInFrontOfCar()
+constexpr int falsePositiveCurvatureRadius = 90;               // When Calculating lookahead false Positives appear in radius Calculus
 
 // Used in are2PointsHorizontal()
 constexpr double horizontalSlopeThreshold = 1;                  // Absolute value to handle horizontal line cutoffs

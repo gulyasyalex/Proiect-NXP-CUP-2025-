@@ -1,5 +1,4 @@
 #include "PurePursuitFunctions/PurePursuit.hpp"
-#include "MathFunctions/MathFunctions.hpp"
 
 PurePursuit::PurePursuit(){}
 void PurePursuit::setParameters(std::shared_ptr<SharedConfig> global_config){
@@ -10,7 +9,8 @@ void PurePursuit::computePurePursuit(std::vector<cv::Point2f> allMidPoints,
                                 double pixelSizeInCm, cv::Point2f carTopPoint, bool isFinishLineDetected)
 {
     // Track Curvature is used in speed and lookahead distance formulas
-    this->trackCurvatureRadius = computeCurvatureRadiusInFrontOfCar(allMidPoints, carInFramePositionBirdsEye, ((this->lookAheadDistanceInCm+30)*pixelSizeInCm));
+    //std::cout << "allMidPoints: " << allMidPoints << " \n";
+    this->trackCurvatureRadius = computeCurvatureRadiusInFrontOfCar(allMidPoints, carInFramePositionBirdsEye);
     
     //speed = adjustSpeed(trackCurvatureRadius, speed);
     this->lookAheadDistanceInCm = computeLookAheadDistance(trackCurvatureRadius, allMidPoints,
@@ -63,6 +63,7 @@ double PurePursuit::computeLookAheadDistance(double trackCurvatureRadius, std::v
     
     static double k = computeK(trackCurvatureRadius);  // Initialize once
 
+    //std::cout << "trackCurvatureRadius: " << trackCurvatureRadius << "  | k: " << k << "\n";
     /* Warning: We enter a corner with e.g. 270cm/s and we want minLookAhead to be 40cm
      *          k must be 0.148 so we have it configured as 14.8 and we divide by 100 (DO NOT CHANGE)
      */
@@ -71,6 +72,8 @@ double PurePursuit::computeLookAheadDistance(double trackCurvatureRadius, std::v
     k = k / 100;
     double minimumDistance = pixelSizeInCm * shortestDistanceToCurve(allMidPoints, carInFramePositionBirdsEye);
 
+    //CHANGE BEFORE OFFICIAL RUN
+    //double lookAheadDistance = k + minimumDistance;
     double lookAheadDistance = k * speed + minimumDistance;
     lookAheadDistance = std::max(config->minLookAheadInCm, std::min(config->maxLookAheadInCm, lookAheadDistance));
 
@@ -278,30 +281,30 @@ int PurePursuit::findClosestIndex(const std::vector<cv::Point2f> &points,
 }
 
 double PurePursuit::computeCurvatureRadiusInFrontOfCar(const std::vector<cv::Point2f> &midLine,
-                                                       const cv::Point2f &carPos,
-                                                       double lookAheadDistance) {
+                                                       const cv::Point2f &carPos) {
+                                                        
     if (midLine.size() < 3) {
         return 1e9; // Treat as nearly straight
     }
 
     int iClosest = findClosestIndex(midLine, carPos);
-    if (iClosest < 0) {
-        return 1e9;
-    }
-
     double minRadius = std::numeric_limits<double>::max();
 
     // Search forward until we exceed lookAheadDistance
-    for (int i = iClosest; i < (int)midLine.size() - 2; i++) {
+    for (int i = iClosest; i < midLine.size() - 3; i++) 
+    {
         double dist = cv::norm(midLine[i] - carPos);
-        if (dist > lookAheadDistance) break; // Stop once we exceed lookahead
 
         const cv::Point2f &A = midLine[i];
         const cv::Point2f &B = midLine[i + 1];
         const cv::Point2f &C = midLine[i + 2];
 
         double R = computeCurvatureRadius(A, B, C);
-        minRadius = std::min(minRadius, R);
+
+        if(R > falsePositiveCurvatureRadius)
+        {
+            minRadius = std::min(minRadius, R);
+        }
     }
 
     return minRadius;

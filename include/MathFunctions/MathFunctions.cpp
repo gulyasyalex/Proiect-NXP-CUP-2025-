@@ -93,7 +93,7 @@ std::vector<cv::Point2f> closestSegmentOnCurve(const std::vector<cv::Point2f>& c
 
 
 // Function to compute the angle between two vectors
-double angleBetweenVectors(const cv::Point2f& v1, const cv::Point2f& v2) 
+double computeAngleBetweenVectors(const cv::Point2f& v1, const cv::Point2f& v2) 
 {
     double dot = v1.x * v2.x + v1.y * v2.y;
     double mag1 = std::sqrt(v1.x * v1.x + v1.y * v1.y);

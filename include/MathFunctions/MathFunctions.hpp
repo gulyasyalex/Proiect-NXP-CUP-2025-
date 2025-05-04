@@ -18,7 +18,7 @@ cv::Point2f calculateMidpoint(const cv::Point2f& p1, const cv::Point2f& p2);
 cv::Point2f calculateCentroid(const std::vector<cv::Point2f>& line);
 std::vector<cv::Point2f> generateNeighborhood(int radius);
 std::vector<cv::Point2f> closestSegmentOnCurve(const std::vector<cv::Point2f>& curve, const cv::Point2f& point);
-double angleBetweenVectors(const cv::Point2f& v1, const cv::Point2f& v2);
+double computeAngleBetweenVectors(const cv::Point2f& v1, const cv::Point2f& v2);
 double roundToTwoDecimals(double value);
 std::string to_string_with_precision(double value, int precision);
 int doubleCmp(double num1, double num2);

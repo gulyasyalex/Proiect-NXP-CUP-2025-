@@ -8,6 +8,7 @@
 #include <cmath>
 #include <iostream>
 #include "MathFunctions/MathFunctions.hpp"
+#include "config.h"
 
 class PurePursuit {
 private:
@@ -44,9 +45,7 @@ public:
                                     
     int findClosestIndex(const std::vector<cv::Point2f> &points, const cv::Point2f &carPos);
     double computeCurvatureRadiusInFrontOfCar(const std::vector<cv::Point2f> &midLine,
-                                                       const cv::Point2f &carPos,
-                                                       double lookAheadDistance);
-                                                       
+                                                       const cv::Point2f &carPos);
     double carBoostExitCornerSpeed(double new_car_speed, double _turn_angle);
     double carTurnMaxSpeed(double _turn_radius, double _friction_coefficient, double _downward_acceleration);
     double RearWheelTurnRadius(double wheelBase, double turnAngle);

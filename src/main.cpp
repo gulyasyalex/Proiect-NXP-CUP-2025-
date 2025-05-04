@@ -104,6 +104,7 @@ int main() {
     global_config->minSpeed = DEFAULT_MIN_SPEED;
     global_config->maxSpeed = DEFAULT_MAX_SPEED;
     global_config->minSpeedAfterFinish = DEFAULT_MIN_SPEED_AFTER_FINISH;
+    global_config->maxSpeedAfterFinish = DEFAULT_MAX_SPEED_AFTER_FINISH;
     global_config->currentEdfFanSpeed = 0; //this is set in startRace section -> DEFAULT_EDF_FAN_CURRENT_SPEED;
     global_config->curvatureFactor = DEFAULT_CURVATURE_FACTOR;
     global_config->k_min = DEFAULT_K_MIN;
