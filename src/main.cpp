@@ -107,10 +107,10 @@ int main() {
     global_config->maxSpeedAfterFinish = DEFAULT_MAX_SPEED_AFTER_FINISH;
     global_config->currentEdfFanSpeed = 0; //this is set in startRace section -> DEFAULT_EDF_FAN_CURRENT_SPEED;
     global_config->curvatureFactor = DEFAULT_CURVATURE_FACTOR;
-    global_config->k_min = DEFAULT_K_MIN;
+    global_config->rdp_epsilon = DEFAULT_RDP_EPSILON;
     global_config->k_max = DEFAULT_K_MAX;
-    global_config->R_minInCm = DEFAULT_R_MIN_IN_CM;
-    global_config->R_maxInCm = DEFAULT_R_MAX_IN_CM;
+    global_config->minAngleLookAheadReference = DEFAULT_MIN_ANGLE_LOOKAHEAD_REFERENCE;
+    global_config->maxAngleLookAheadReference = DEFAULT_MAX_ANGLE_LOOKAHEAD_REFERENCE;
     global_config->minLookAheadInCm = DEFAULT_MIN_LOOKAHEAD_IN_CM;
     global_config->maxLookAheadInCm = DEFAULT_MAX_LOOKAHEAD_IN_CM;
     global_config->waitBeforeStartSeconds = DEFAULT_WAIT_BEFORE_START_SECONDS;                      
@@ -149,10 +149,10 @@ int main() {
             << raw_config->maxSpeed << " "
             << raw_config->currentEdfFanSpeed << " "
             << raw_config->curvatureFactor << " "
-            << raw_config->k_min << " "
+            << raw_config->rdp_epsilon << " "
             << raw_config->k_max << " "
-            << raw_config->R_minInCm << " "
-            << raw_config->R_maxInCm << " "
+            << raw_config->minAngleLookAheadReference << " "
+            << raw_config->maxAngleLookAheadReference << " "
             << raw_config->minLookAheadInCm << " "
             << raw_config->maxLookAheadInCm << " "
             << raw_config->waitBeforeStartSeconds << " "
@@ -188,10 +188,10 @@ int main() {
     std::cout << "maxSpeed: " << offsetof(SharedConfig, maxSpeed) << std::endl;
     std::cout << "currentEdfFanSpeed: " << offsetof(SharedConfig, currentEdfFanSpeed) << std::endl;
     std::cout << "curvatureFactor: " << offsetof(SharedConfig, curvatureFactor) << std::endl;
-    std::cout << "k_min: " << offsetof(SharedConfig, k_min) << std::endl;
+    std::cout << "rdp_epsilon: " << offsetof(SharedConfig, rdp_epsilon) << std::endl;
     std::cout << "k_max: " << offsetof(SharedConfig, k_max) << std::endl;
-    std::cout << "R_minInCm: " << offsetof(SharedConfig, R_minInCm) << std::endl;
-    std::cout << "R_maxInCm: " << offsetof(SharedConfig, R_maxInCm) << std::endl;
+    std::cout << "minAngleLookAheadReference: " << offsetof(SharedConfig, minAngleLookAheadReference) << std::endl;
+    std::cout << "maxAngleLookAheadReference: " << offsetof(SharedConfig, maxAngleLookAheadReference) << std::endl;
     std::cout << "minLookAheadInCm: " << offsetof(SharedConfig, minLookAheadInCm) << std::endl;
     std::cout << "maxLookAheadInCm: " << offsetof(SharedConfig, maxLookAheadInCm) << std::endl;
     std::cout << "waitBeforeStartSeconds: " << offsetof(SharedConfig, waitBeforeStartSeconds) << std::endl;
@@ -424,10 +424,10 @@ bool isValidConfig(const SharedConfig& config) {
         config.maxSpeedAfterFinish >= 0.0 && config.maxSpeedAfterFinish <= 350.0 &&
         config.currentEdfFanSpeed >= 0.0 && config.currentEdfFanSpeed <= 350.0 &&
         config.curvatureFactor >= 0.0 && config.curvatureFactor <= 200.0 &&
-        config.k_min >= 0.0 && config.k_min <= 25.0 &&
+        config.rdp_epsilon >= 0.0 && config.rdp_epsilon <= 25.0 &&
         config.k_max >= 0.0 && config.k_max <= 25.0 &&
-        config.R_minInCm >= 0.0 && config.R_minInCm <= 4000.0 &&
-        config.R_maxInCm >= 0.0 && config.R_maxInCm <= 4000.0 &&
+        config.minAngleLookAheadReference >= 0.0 && config.minAngleLookAheadReference <= 4000.0 &&
+        config.maxAngleLookAheadReference >= 0.0 && config.maxAngleLookAheadReference <= 4000.0 &&
         config.minLookAheadInCm >= 0.0 && config.minLookAheadInCm <= 100.0 &&
         config.maxLookAheadInCm >= 0.0 && config.maxLookAheadInCm <= 100.0 &&
         config.waitBeforeStartSeconds >= 0.0 && config.waitBeforeStartSeconds <= 10.0 &&

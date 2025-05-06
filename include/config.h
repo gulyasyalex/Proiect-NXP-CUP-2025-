@@ -122,10 +122,10 @@ struct SharedConfig {
     double maxSpeedAfterFinish;                             //Range: 0 - 350
     double currentEdfFanSpeed;                              //Range: 0 - 350
     double curvatureFactor;                                 //Range: 0 - 200
-    double k_min;                                           //Range: 0 - 25
+    double rdp_epsilon;                                     //Range: 0 - 25
     double k_max;                                           //Range: 0 - 25
-    double R_minInCm;                                       //Range: 0 - 4000
-    double R_maxInCm;                                       //Range: 0 - 4000
+    double minAngleLookAheadReference;                      //Range: 0 - 180
+    double maxAngleLookAheadReference;                                       //Range: 0 - 180
     double minLookAheadInCm;                                //Range: 0 - 100
     double maxLookAheadInCm;                                //Range: 0 - 100
     double waitBeforeStartSeconds;                          //Range: 0 - 10
@@ -138,7 +138,7 @@ struct SharedConfig {
 // Integer values
 #define DEFAULT_ENABLE_CAR_ENGINE 0
 #define DEFAULT_ENABLE_CAR_STEERING 0
-#define DEFAULT_THRESHOLD_VALUE 81 //150
+#define DEFAULT_THRESHOLD_VALUE 75 //150
 #define DEFAULT_DISTANCE_ERROR_FROM_CHASSIS 0
 #define DEFAULT_LINE_MIN_PIXEL_COUNT 70 
 #define DEFAULT_DISTANCE_FROM_SENSOR_ERROR 10
@@ -148,34 +148,35 @@ struct SharedConfig {
 // Double values
 #define DEFAULT_CALIBRATE_TOP_LINE 36.6//41.6(percentage) //100
 #define DEFAULT_CALIBRATE_BOTTOM_LINE 90.8//95.8(percentage) //230
-#define DEFAULT_TRACK_LANE_WIDTH_OFFSET 0
+#define DEFAULT_TRACK_LANE_WIDTH_OFFSET -8.4 //SET TO 0 AT FINALS
 #define DEFAULT_TOP_IMAGE_CUT_PERCENTAGE 0.0
 #define DEFAULT_BOTTOM_IMAGE_CUT_PERCENTAGE 0.35
 #define DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 0.35 // Cuts pixels from first 45% of image 
 #define DEFAULT_LINE_START_POINT_Y 0.50 //0.60 // Used for intersection // birdsEyeViewHeight * lineStartPointY = Y threshold
 #define DEFAULT_BOTTOM_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 1 //0.65
-#define DEFAULT_LINE_90_DEGREE_ANGLE_RANGE 20.0                          // abs(degree-90) < range
+#define DEFAULT_LINE_90_DEGREE_ANGLE_RANGE 22.0                          // abs(degree-90) < range
 #define DEFAULT_FINISH_LINE_ANGLE_RANGE 15.0
-#define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 1.0 //1.0
-#define DEFAULT_CORNERING_SPEED_COEFFICIENT 1.1 //0.6
-#define DEFAULT_MIN_SPEED 50.0
+#define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 1.3 //1.0
+#define DEFAULT_CORNERING_SPEED_COEFFICIENT 1.3 //0.6
+#define DEFAULT_MIN_SPEED 150.0
 #define DEFAULT_MAX_SPEED 270.0
 #define DEFAULT_MIN_SPEED_AFTER_FINISH 35.0
 #define DEFAULT_MAX_SPEED_AFTER_FINISH 40.0
-#define DEFAULT_EDF_FAN_CURRENT_SPEED 350.0
+#define DEFAULT_EDF_FAN_CURRENT_SPEED 250.0
 #define DEFAULT_CURVATURE_FACTOR 13.0
-#define DEFAULT_K_MIN 16.8 //10 // 16.8  //14.8
+#define DEFAULT_RDP_EPSILON 18
 #define DEFAULT_K_MAX 25.5 //55 // 25.5  //18.25
-#define DEFAULT_R_MIN_IN_CM 100.0
-#define DEFAULT_R_MAX_IN_CM 1000.0
-#define DEFAULT_MIN_LOOKAHEAD_IN_CM 10.0
-#define DEFAULT_MAX_LOOKAHEAD_IN_CM 55.0
+#define DEFAULT_MIN_ANGLE_LOOKAHEAD_REFERENCE 0.0
+#define DEFAULT_MAX_ANGLE_LOOKAHEAD_REFERENCE 50.0
+#define DEFAULT_MIN_LOOKAHEAD_IN_CM 40.0
+#define DEFAULT_MAX_LOOKAHEAD_IN_CM 65.0
 #define DEFAULT_WAIT_BEFORE_START_SECONDS 4.0
 #define DEFAULT_STRAIGHT_WHEEL_TIMER_SECONDS 1.2
 
-// DEFAULT USED AFTER FINISH LINE
+// OTHER DEFAULTS
 #define DEFAULT_AFTER_FINISH_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 0.4 // Cuts pixels from first 45% of image 
 #define DEFAULT_EDF_FAN_AFTER_FINISH_SPEED 350.0
+#define DEFAULT_TORQUE_SPEED 60;
 
 /*
 // Global values
@@ -261,7 +262,7 @@ constexpr double birdsEyeViewWidth = 370;
 constexpr double birdsEyeViewHeight = 400;
 
 constexpr int maxThresholdValue = 255;
-constexpr double INTERSECTION_minLineLength = 35;  
+constexpr double INTERSECTION_minLineLength = 40;  
 constexpr double IN_INTERSECTION_minLineLength = 60;
 
 constexpr int distanceMedianFilterSampleSize = 5;

@@ -208,7 +208,7 @@ void CameraProcessing::processFrames() {
     
     bool isRadarEnabled = false;
     int stoppingDistanceBoxLidar = config->stoppingDistanceBoxFrontEnd + config->distanceSensorError; 
-
+    std::vector<cv::Point2f> simplifiedLine;
     cv::Point2f midReferencePoint;
 
     while (this->running) {
@@ -434,7 +434,7 @@ void CameraProcessing::processFrames() {
                             {
                                 this->drawPoints(outputImage, lines[i], cv::Scalar(0, 255, 0));
                             }
-                            this->liveVideoFeedTCP.sendFrame(outputImage);
+                            //this->liveVideoFeedTCP.sendFrame(outputImage);
                         #endif
 
                         #if 1 != ENABLE_CAMERA_CALIBRATION 
@@ -445,6 +445,11 @@ void CameraProcessing::processFrames() {
                                     for (int i = 0; i < lines.size(); i++){
                                         
                                         lines[i] = this->perspectiveChangeLine(lines[i], this->MatrixBirdsEyeView);
+                                        if(lines[i].size() > 3) 
+                                        {
+                                            rdpSimplify(lines[i], config->rdp_epsilon, simplifiedLine);
+                                            lines[i] = simplifiedLine;
+                                        }
                                         this->is90DegreeLine = this->removeHorizontalIf90Turn(lines[i], config->currentState);
 
                                         if (this->is90DegreeLine)
@@ -598,7 +603,7 @@ void CameraProcessing::processFrames() {
                                             }
                                            
                                             tempLineSize = calculateLineLength(lines[i]);
-                                            std::cout << "calculateLineLength  " << i << " : " << tempLineSize << "\n";
+                                            //std::cout << "calculateLineLength  " << i << " : " << tempLineSize << "\n";
                                             if( INTERSECTION_minLineLength < tempLineSize)
                                             {
                                                 newLines.push_back(lines[i]);
@@ -638,6 +643,11 @@ void CameraProcessing::processFrames() {
                                         for (int i = 0; i < lines.size(); i++)
                                         {
                                             lines[i] = this->perspectiveChangeLine(lines[i], this->MatrixBirdsEyeView);
+                                            if(lines[i].size() > 3) 
+                                            {
+                                                rdpSimplify(lines[i], config->rdp_epsilon, simplifiedLine);
+                                                lines[i] = simplifiedLine;
+                                            }
                                             this->is90DegreeLine = this->removeHorizontalIf90Turn(lines[i], config->currentState);
                                             if (this->is90DegreeLine)
                                             {
@@ -665,6 +675,11 @@ void CameraProcessing::processFrames() {
                                         for (int i = 0; i < lines.size(); i++)
                                         {
                                             lines[i] = this->perspectiveChangeLine(lines[i], this->MatrixBirdsEyeView);
+                                            if(lines[i].size() > 3) 
+                                            {
+                                                rdpSimplify(lines[i], config->rdp_epsilon, simplifiedLine);
+                                                lines[i] = simplifiedLine;
+                                            }
                                            this->is90DegreeLine = this->removeHorizontalIf90Turn(lines[i], config->currentState);
                                         }
 
@@ -738,6 +753,11 @@ void CameraProcessing::processFrames() {
                                     
                                     for (int i = 0; i < lines.size(); i++){
                                         lines[i] = this->perspectiveChangeLine(lines[i], this->MatrixBirdsEyeView);
+                                        if(lines[i].size() > 3) 
+                                        {
+                                            rdpSimplify(lines[i], config->rdp_epsilon, simplifiedLine);
+                                            lines[i] = simplifiedLine;
+                                        }
                                         this->is90DegreeLine = this->removeHorizontalIf90Turn(lines[i], config->currentState);
                                         if (this->is90DegreeLine)
                                         {
@@ -868,7 +888,7 @@ void CameraProcessing::processFrames() {
                                 this->drawPoints(birdEyeViewWithPoints, leftLine, cv::Scalar(0, 255, 0));
                                 this->drawPoints(birdEyeViewWithPoints, rightLine, cv::Scalar(0, 0, 255));
 
-                                //this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints);
+                                this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints);
                                 
                                 std::vector<cv::Point2f> l_leftLine = this->perspectiveChangeLine(this->leftLine, MatrixInverseBirdsEyeView);
                                 std::vector<cv::Point2f> l_rightLine = this->perspectiveChangeLine(this->rightLine, MatrixInverseBirdsEyeView);
@@ -1313,11 +1333,15 @@ bool CameraProcessing::removeHorizontalIf90Turn(std::vector<cv::Point2f>& line, 
     double maxAngle = 0.0; // Variable to store the maximum angle
 
     // Check for 90-degree turns along the line
+    if (line.size() == 4){
+        std::cout << "ALERT:" << line << "\n";
+    }
     for (int i = 1; i < line.size() - 1; ++i) 
     {
-        double angle = std::abs(calculateSignedAngle(line[i - 1], line[i], line[i + 1])* 180.0 / CV_PI);
+        double angle = std::abs(calculateSignedAngleThreePoints(line[i - 1], line[i], line[i + 1])* 180.0 / CV_PI);
         maxAngle = std::max(maxAngle, angle); // Update maxAngle if the current angle is larger
-        
+        std::cout << "angle[" << i << "]: "  << angle << std::endl;
+
         if (std::abs(angle - 90) < config->line90DegreeAngleRange) // Close to 90 degrees
         {  
             has90DegreeTurn = true;

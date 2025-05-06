@@ -10,14 +10,15 @@ void PurePursuit::computePurePursuit(std::vector<cv::Point2f> allMidPoints,
 {
     // Track Curvature is used in speed and lookahead distance formulas
     //std::cout << "allMidPoints: " << allMidPoints << " \n";
-    this->trackCurvatureRadius = computeCurvatureRadiusInFrontOfCar(allMidPoints, carInFramePositionBirdsEye);
+    //this->trackCurvatureRadius = computeCurvatureRadiusInFrontOfCar(allMidPoints, carInFramePositionBirdsEye);
     
     //speed = adjustSpeed(trackCurvatureRadius, speed);
-    this->lookAheadDistanceInCm = computeLookAheadDistance(trackCurvatureRadius, allMidPoints,
-                                         carInFramePositionBirdsEye, pixelSizeInCm, this->speed);
+    /*this->lookAheadDistanceInCm = computeLookAheadDistance(trackCurvatureRadius, allMidPoints,
+                                         carInFramePositionBirdsEye, pixelSizeInCm, this->speed);*/
+    this->lookAheadDistanceInCm = computeLookAheadDistance(allMidPoints, carInFramePositionBirdsEye, carTopPoint, pixelSizeInCm);
     // std::cout << "lookAheadDistanceInCm:" << lookAheadDistanceInCm << std::endl;
     this->lookAheadPoint = findHighestIntersection(allMidPoints, carInFramePositionBirdsEye, lookAheadDistanceInCm/pixelSizeInCm);  
-    this->angleHeadingTarget = calculateSignedAngle(carTopPoint, carInFramePositionBirdsEye, this->lookAheadPoint);
+    this->angleHeadingTarget = calculateSignedAngleThreePoints(carTopPoint, carInFramePositionBirdsEye, this->lookAheadPoint);
     
     if(startSpeedOptimizedForTorque)
     {
@@ -55,7 +56,8 @@ double PurePursuit::adjustSpeed(double trackCurvatureRadius, double currentSpeed
 }
 
 
-double PurePursuit::computeLookAheadDistance(double trackCurvatureRadius, std::vector<cv::Point2f> allMidPoints,
+
+/*double PurePursuit::computeLookAheadDistance(double trackCurvatureRadius, std::vector<cv::Point2f> allMidPoints,
                                 cv::Point2f carInFramePositionBirdsEye, double pixelSizeInCm, double speed) 
 {
 
@@ -66,16 +68,38 @@ double PurePursuit::computeLookAheadDistance(double trackCurvatureRadius, std::v
     //std::cout << "trackCurvatureRadius: " << trackCurvatureRadius << "  | k: " << k << "\n";
     /* Warning: We enter a corner with e.g. 270cm/s and we want minLookAhead to be 40cm
      *          k must be 0.148 so we have it configured as 14.8 and we divide by 100 (DO NOT CHANGE)
-     */
-    //k = (0.8 * k + 0.2 * computeK(trackCurvatureRadius));  // Update with smoothing
-    k = computeK(trackCurvatureRadius);
-    k = k / 100;
+     *
+    k = (0.8 * k + 0.2 * computeK(trackCurvatureRadius));  // Update with smoothing
+    //k = computeK(trackCurvatureRadius);
+    //k = k / 100;
+    double minimumDistance = pixelSizeInCm * shortestDistanceToCurve(allMidPoints, carInFramePositionBirdsEye);
+
+    //CHANGE BEFORE OFFICIAL RUN
+    double lookAheadDistance = k;
+    //double lookAheadDistance = k * speed + minimumDistance;
+    lookAheadDistance = std::max(minimumDistance, std::max(config->minLookAheadInCm, std::min(config->maxLookAheadInCm, lookAheadDistance)));
+
+    return lookAheadDistance;
+}*/
+double PurePursuit::computeLookAheadDistance(std::vector<cv::Point2f> allMidPoints,
+                                cv::Point2f carInFramePositionBirdsEye, cv::Point2f carTopPoint, double pixelSizeInCm) 
+{
+
+    /*cv::Point2f segCurve;
+    cv::Point2f segCarPos;
+    segCarPos = carInFramePositionBirdsEye - carTopPoint;
+    segCurve = allMidPoints.front() - allMidPoints.back();*/
+    //double angle = computeAngleBetweenVectors(segCarPos, segCurve);
+    carInFramePositionBirdsEye.y = carInFramePositionBirdsEye.y;
+    double angle = std::abs(calculateSignedAngleThreePoints(carTopPoint, carInFramePositionBirdsEye, allMidPoints.back())* 180.0 / CV_PI);
+    std:: cout << "angle: " << angle << "\n";
+    double k = computeK(angle);
     double minimumDistance = pixelSizeInCm * shortestDistanceToCurve(allMidPoints, carInFramePositionBirdsEye);
 
     //CHANGE BEFORE OFFICIAL RUN
     //double lookAheadDistance = k + minimumDistance;
-    double lookAheadDistance = k * speed + minimumDistance;
-    lookAheadDistance = std::max(config->minLookAheadInCm, std::min(config->maxLookAheadInCm, lookAheadDistance));
+    double lookAheadDistance = k;
+    lookAheadDistance = std::max(minimumDistance, std::max(config->minLookAheadInCm, std::min(config->maxLookAheadInCm, lookAheadDistance)));
 
     return lookAheadDistance;
 }
@@ -136,15 +160,28 @@ cv::Point2f PurePursuit::findHighestIntersection(const std::vector<cv::Point2f>&
     return lowestYPoint;
 }
 
-double PurePursuit::computeK(double R)
+
+/*double PurePursuit::computeK(double R)
 {
     // std::cout << "Computed K R Parameter: " << R << "\n";
-    if (R <= config->R_minInCm) return config->k_min;
-    if (R >= config->R_maxInCm) return config->k_max;
+    if (R <= config->R_minInCm) return config->minLookAheadInCm;
+    if (R >= config->R_maxInCm) return config->maxLookAheadInCm;
 
     // Linear interpolation between k_min and k_max
     double ratio = (R - config->R_minInCm) / (config->R_maxInCm - config->R_minInCm);
-    double k = config->k_min + ratio * (config->k_max - config->k_min);
+    double k = config->minLookAheadInCm + ratio * (config->maxLookAheadInCm - config->minLookAheadInCm);
+    return k;
+}*/
+double PurePursuit::computeK(double angle)
+{
+    // std::cout << "Computed K R Parameter: " << R << "\n";
+    if (angle <= config->minAngleLookAheadReference) return config->maxLookAheadInCm;
+    if (angle >= config->maxAngleLookAheadReference) return config->minLookAheadInCm;
+
+    // Linear interpolation between k_min and k_max
+    double ratio = (config->maxAngleLookAheadReference - angle) / (config->maxAngleLookAheadReference - config->minAngleLookAheadReference);
+    std::cout << "angle: " << angle << " Ratio: " << ratio << "\n";
+    double k = config->minLookAheadInCm + ratio * (config->maxLookAheadInCm - config->minLookAheadInCm);
     return k;
 }
 

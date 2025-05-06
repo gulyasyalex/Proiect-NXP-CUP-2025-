@@ -1,8 +1,6 @@
 #ifndef PURE_PURSUIT_HPP
 #define PURE_PURSUIT_HPP
 
-#define DEFAULT_TORQUE_SPEED 100;
-
 #include <opencv2/opencv.hpp>
 #include <vector>
 #include <cmath>
@@ -29,12 +27,15 @@ public:
                                 cv::Point2f carInFramePositionBirdsEye,
                                 double pixelSizeInCm, cv::Point2f carTopPoint, bool isFinishLineDetected);
     double adjustSpeed(double trackCurvatureRadius, double currentSpeed);
-    double computeLookAheadDistance(double trackCurvatureRadius, std::vector<cv::Point2f> allMidPoints,
-                                cv::Point2f carInFramePositionBirdsEye,double pixelSizeInCm, double speed);
+    /*double computeLookAheadDistance(double trackCurvatureRadius, std::vector<cv::Point2f> allMidPoints,
+                                cv::Point2f carInFramePositionBirdsEye,double pixelSizeInCm, double speed);*/
+    double computeLookAheadDistance(std::vector<cv::Point2f> allMidPoints,
+                                cv::Point2f carInFramePositionBirdsEye, cv::Point2f carTopPoint, double pixelSizeInCm);
     cv::Point2f findHighestIntersection(const std::vector<cv::Point2f>& curve, 
                                     const cv::Point2f& circleCenter, double circleRadius); 
                                     
-    double computeK(double R);                 
+    //double computeK(double R);                 
+    double computeK(double angle);                 
     double calculateServoValue(double angleRadians, double lookaheadDistance);
     double shortestDistanceToCurve(const std::vector<cv::Point2f>& curve, const cv::Point2f& point);
     void radiusIncrease(double& radius);

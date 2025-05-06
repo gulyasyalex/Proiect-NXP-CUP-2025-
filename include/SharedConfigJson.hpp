@@ -37,10 +37,10 @@ inline void to_json(json& j, const SharedConfig& cfg) {
         {"maxSpeedAfterFinish", cfg.maxSpeedAfterFinish},
         {"currentEdfFanSpeed", cfg.currentEdfFanSpeed},
         {"curvatureFactor", cfg.curvatureFactor},
-        {"k_min", cfg.k_min},
+        {"rdp_epsilon", cfg.rdp_epsilon},
         {"k_max", cfg.k_max},
-        {"R_minInCm", cfg.R_minInCm},
-        {"R_maxInCm", cfg.R_maxInCm},
+        {"minAngleLookAheadReference", cfg.minAngleLookAheadReference},
+        {"maxAngleLookAheadReference", cfg.maxAngleLookAheadReference},
         {"minLookAheadInCm", cfg.minLookAheadInCm},
         {"maxLookAheadInCm", cfg.maxLookAheadInCm},
         {"waitBeforeStartSeconds", cfg.waitBeforeStartSeconds},
@@ -78,10 +78,10 @@ inline void from_json(const json& j, SharedConfig& cfg) {
     j.at("maxSpeedAfterFinish").get_to(cfg.maxSpeedAfterFinish);
     j.at("currentEdfFanSpeed").get_to(cfg.currentEdfFanSpeed);
     j.at("curvatureFactor").get_to(cfg.curvatureFactor);
-    j.at("k_min").get_to(cfg.k_min);
+    j.at("rdp_epsilon").get_to(cfg.rdp_epsilon);
     j.at("k_max").get_to(cfg.k_max);
-    j.at("R_minInCm").get_to(cfg.R_minInCm);
-    j.at("R_maxInCm").get_to(cfg.R_maxInCm);
+    j.at("minAngleLookAheadReference").get_to(cfg.minAngleLookAheadReference);
+    j.at("maxAngleLookAheadReference").get_to(cfg.maxAngleLookAheadReference);
     j.at("minLookAheadInCm").get_to(cfg.minLookAheadInCm);
     j.at("maxLookAheadInCm").get_to(cfg.maxLookAheadInCm);
     j.at("waitBeforeStartSeconds").get_to(cfg.waitBeforeStartSeconds);
