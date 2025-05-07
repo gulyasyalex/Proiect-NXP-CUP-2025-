@@ -434,7 +434,7 @@ void CameraProcessing::processFrames() {
                             {
                                 this->drawPoints(outputImage, lines[i], cv::Scalar(0, 255, 0));
                             }
-                            //this->liveVideoFeedTCP.sendFrame(outputImage);
+                            this->liveVideoFeedTCP.sendFrame(outputImage);
                         #endif
 
                         #if 1 != ENABLE_CAMERA_CALIBRATION 
@@ -443,7 +443,10 @@ void CameraProcessing::processFrames() {
                             {
                                 case FOLLOWING_LINE:
                                     for (int i = 0; i < lines.size(); i++){
-                                        
+                                        if (4 == lines[i].size())
+                                        {
+                                            continue;
+                                        }
                                         lines[i] = this->perspectiveChangeLine(lines[i], this->MatrixBirdsEyeView);
                                         if(lines[i].size() > 3) 
                                         {
@@ -603,7 +606,7 @@ void CameraProcessing::processFrames() {
                                             }
                                            
                                             tempLineSize = calculateLineLength(lines[i]);
-                                            //std::cout << "calculateLineLength  " << i << " : " << tempLineSize << "\n";
+                                            std::cout << "calculateLineLength  " << i << " : " << tempLineSize << "\n";
                                             if( INTERSECTION_minLineLength < tempLineSize)
                                             {
                                                 newLines.push_back(lines[i]);
@@ -726,12 +729,12 @@ void CameraProcessing::processFrames() {
                                 case EXITING_INTERSECTION:{
                                     double tempLineSize1 = 0;
                                     double longestLineSize1 = 0;
-                                    double longestLineIndex1 = 0;
+                                    double longestLineIndex1 = 0;                    
+                                    double tempLineSize = 0;
 
                                     
                                     if (lines.size() >= 1){
                                         std::vector<std::vector<cv::Point2f>> newLines;
-                                        double tempLineSize = 0;
 
                                         /* WARNING: This was used to counter unrecognized intersection
                                         *           The top lines that appear in an intersection are giving fals negatives
@@ -750,8 +753,13 @@ void CameraProcessing::processFrames() {
                                             }
                                         }
                                     }
+                                    else
+                                    {
+                                        break;
+                                    } 
                                     
-                                    for (int i = 0; i < lines.size(); i++){
+                                    for (int i = 0; i < lines.size(); i++)
+                                    {
                                         lines[i] = this->perspectiveChangeLine(lines[i], this->MatrixBirdsEyeView);
                                         if(lines[i].size() > 3) 
                                         {
@@ -768,9 +776,17 @@ void CameraProcessing::processFrames() {
                                             break;
                                         }
                                     }
-                                    if(!this->is90DegreeLine){
+                                    tempLineSize = calculateLineLength(lines.front());
+                                    std::cout << "EXITING_INTERSECTION tempLineSize:" << tempLineSize << "\n";
+                                    if (INTERSECTION_minLineLength > tempLineSize)
+                                    {
+                                        break; // skip new middle
+                                    }
+                                    if(!this->is90DegreeLine)
+                                    {
                                         exitingIntersectionCounter++;
-                                        if(exitingIntersectionCounter > 10){
+                                        if(exitingIntersectionCounter > 10)
+                                        {
                                             if ( 1 == config->enableFinishLineDetection)
                                             {
                                                 config->currentState = FOLLOWING_LINE;
@@ -888,7 +904,7 @@ void CameraProcessing::processFrames() {
                                 this->drawPoints(birdEyeViewWithPoints, leftLine, cv::Scalar(0, 255, 0));
                                 this->drawPoints(birdEyeViewWithPoints, rightLine, cv::Scalar(0, 0, 255));
 
-                                this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints);
+                                //this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints);
                                 
                                 std::vector<cv::Point2f> l_leftLine = this->perspectiveChangeLine(this->leftLine, MatrixInverseBirdsEyeView);
                                 std::vector<cv::Point2f> l_rightLine = this->perspectiveChangeLine(this->rightLine, MatrixInverseBirdsEyeView);

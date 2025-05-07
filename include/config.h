@@ -152,19 +152,19 @@ struct SharedConfig {
 #define DEFAULT_TOP_IMAGE_CUT_PERCENTAGE 0.0
 #define DEFAULT_BOTTOM_IMAGE_CUT_PERCENTAGE 0.35
 #define DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 0.35 // Cuts pixels from first 45% of image 
-#define DEFAULT_LINE_START_POINT_Y 0.50 //0.60 // Used for intersection // birdsEyeViewHeight * lineStartPointY = Y threshold
+#define DEFAULT_LINE_START_POINT_Y 0.40 //0.50 // Used for intersection // birdsEyeViewHeight * lineStartPointY = Y threshold
 #define DEFAULT_BOTTOM_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 1 //0.65
 #define DEFAULT_LINE_90_DEGREE_ANGLE_RANGE 22.0                          // abs(degree-90) < range
 #define DEFAULT_FINISH_LINE_ANGLE_RANGE 15.0
 #define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 1.3 //1.0
-#define DEFAULT_CORNERING_SPEED_COEFFICIENT 1.3 //0.6
+#define DEFAULT_CORNERING_SPEED_COEFFICIENT 1.4 //0.6
 #define DEFAULT_MIN_SPEED 150.0
-#define DEFAULT_MAX_SPEED 270.0
+#define DEFAULT_MAX_SPEED 280.0
 #define DEFAULT_MIN_SPEED_AFTER_FINISH 35.0
 #define DEFAULT_MAX_SPEED_AFTER_FINISH 40.0
-#define DEFAULT_EDF_FAN_CURRENT_SPEED 250.0
+#define DEFAULT_EDF_FAN_CURRENT_SPEED 350.0
 #define DEFAULT_CURVATURE_FACTOR 13.0
-#define DEFAULT_RDP_EPSILON 18
+#define DEFAULT_RDP_EPSILON 13
 #define DEFAULT_K_MAX 25.5 //55 // 25.5  //18.25
 #define DEFAULT_MIN_ANGLE_LOOKAHEAD_REFERENCE 0.0
 #define DEFAULT_MAX_ANGLE_LOOKAHEAD_REFERENCE 50.0
@@ -262,7 +262,7 @@ constexpr double birdsEyeViewWidth = 370;
 constexpr double birdsEyeViewHeight = 400;
 
 constexpr int maxThresholdValue = 255;
-constexpr double INTERSECTION_minLineLength = 40;  
+constexpr double INTERSECTION_minLineLength = 45;  
 constexpr double IN_INTERSECTION_minLineLength = 60;
 
 constexpr int distanceMedianFilterSampleSize = 5;
