@@ -211,6 +211,11 @@ void CameraProcessing::processFrames() {
     std::vector<cv::Point2f> simplifiedLine;
     cv::Point2f midReferencePoint;
 
+    std::vector<std::vector<cv::Point2f>> newLines;
+    double tempLineSize = 0;
+    double longestLineIndex = 0;
+    double longestLineSize = 0;
+
     while (this->running) {
         try {
             this->lastInterpolatedPointsSetup = config->interpolatedPointsSetup;
@@ -442,17 +447,11 @@ void CameraProcessing::processFrames() {
                             switch (state)
                             {
                                 case FOLLOWING_LINE:
+                                    newLines.clear();
+                                    tempLineSize = 0;
+
                                     for (int i = 0; i < lines.size(); i++){
-                                        if (4 == lines[i].size())
-                                        {
-                                            continue;
-                                        }
                                         lines[i] = this->perspectiveChangeLine(lines[i], this->MatrixBirdsEyeView);
-                                        if(lines[i].size() > 3) 
-                                        {
-                                            rdpSimplify(lines[i], config->rdp_epsilon, simplifiedLine);
-                                            lines[i] = simplifiedLine;
-                                        }
                                         this->is90DegreeLine = this->removeHorizontalIf90Turn(lines[i], config->currentState);
 
                                         if (this->is90DegreeLine)
@@ -573,6 +572,25 @@ void CameraProcessing::processFrames() {
                                                 }
                                             }
                                         }
+                                        if(lines.size() > 1)
+                                        {
+                                            newLines.clear();
+                                            tempLineSize = 0;
+                                            longestLineSize = 0;
+                                            
+                                            for(int i = 0; i < lines.size(); i++){
+                                        
+                                                tempLineSize = calculateLineLength(lines[i]);
+                                                if(longestLineSize < tempLineSize)
+                                                {
+                                                    longestLineSize = tempLineSize;
+                                                    longestLineIndex = i;
+                                                }
+                                            }
+                                            newLines.push_back(lines[longestLineIndex]);
+                                            lines.clear();
+                                            lines = std::move(newLines);
+                                        }
                                     }
                                     if (!this->isFinishLineDetected) 
                                     {
@@ -588,11 +606,11 @@ void CameraProcessing::processFrames() {
                                 // NOTE TO SELF: check finish Line before removing lines, see what happens
                                 case APPROACHING_INTERSECTION:
                                     this->isValidLines = true;
+                                    newLines.clear();
+                                    tempLineSize = 0;
                                     
                                     if (lines.size() >= 1)
                                     {
-                                        std::vector<std::vector<cv::Point2f>> newLines;
-                                        double tempLineSize = 0;
 
                                         /* WARNING: This was used to counter unrecognized intersection
                                         *           The top lines that appear in an intersection are giving fals negatives
@@ -686,8 +704,8 @@ void CameraProcessing::processFrames() {
                                            this->is90DegreeLine = this->removeHorizontalIf90Turn(lines[i], config->currentState);
                                         }
 
-                                        std::vector<std::vector<cv::Point2f>> newLines;
-                                        double tempLineSize = 0;
+                                        newLines.clear();
+                                        tempLineSize = 0;
 
                                         for(int i = 0; i < lines.size(); i++){
                                            
@@ -726,35 +744,11 @@ void CameraProcessing::processFrames() {
                                         }
                                     }
                                 break;
-                                case EXITING_INTERSECTION:{
-                                    double tempLineSize1 = 0;
-                                    double longestLineSize1 = 0;
-                                    double longestLineIndex1 = 0;                    
+                                case EXITING_INTERSECTION:{                
                                     double tempLineSize = 0;
 
                                     
-                                    if (lines.size() >= 1){
-                                        std::vector<std::vector<cv::Point2f>> newLines;
-
-                                        /* WARNING: This was used to counter unrecognized intersection
-                                        *           The top lines that appear in an intersection are giving fals negatives
-                                        */
-                                        
-                                        for(int i = 0; i < lines.size(); i++){
-                                    
-                                            tempLineSize = calculateLineLength(lines[i]);
-                                            if( INTERSECTION_minLineLength < tempLineSize)
-                                            {
-                                                if(longestLineSize1 < tempLineSize1)
-                                                {
-                                                    longestLineSize1 = tempLineSize1;
-                                                    longestLineIndex1 = i;
-                                                }
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
+                                    if (lines.size() < 1){
                                         break;
                                     } 
                                     
@@ -904,7 +898,7 @@ void CameraProcessing::processFrames() {
                                 this->drawPoints(birdEyeViewWithPoints, leftLine, cv::Scalar(0, 255, 0));
                                 this->drawPoints(birdEyeViewWithPoints, rightLine, cv::Scalar(0, 0, 255));
 
-                                //this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints);
+                                this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints);
                                 
                                 std::vector<cv::Point2f> l_leftLine = this->perspectiveChangeLine(this->leftLine, MatrixInverseBirdsEyeView);
                                 std::vector<cv::Point2f> l_rightLine = this->perspectiveChangeLine(this->rightLine, MatrixInverseBirdsEyeView);
@@ -941,7 +935,7 @@ void CameraProcessing::processFrames() {
                                 // Add the visualization (outputImage) on top of the original frame
                                 cv::Mat overlayedImage;
                                 cv::addWeighted(frame, overlayFrameWeight, outputImage, overlayFrameWeight, 0, overlayedImage);
-                                liveVideoFeedTCP.sendFrame(overlayedImage);
+                                //liveVideoFeedTCP.sendFrame(overlayedImage);
                             #endif
                         #endif
                     }
