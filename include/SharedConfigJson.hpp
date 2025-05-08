@@ -44,7 +44,8 @@ inline void to_json(json& j, const SharedConfig& cfg) {
         {"minLookAheadInCm", cfg.minLookAheadInCm},
         {"maxLookAheadInCm", cfg.maxLookAheadInCm},
         {"waitBeforeStartSeconds", cfg.waitBeforeStartSeconds},
-        {"straightWheelTimerSeconds", cfg.straightWheelTimerSeconds}
+        {"waitBeforeEdfStartSeconds", cfg.waitBeforeEdfStartSeconds},
+        {"waitBeforeFinishDetectionSeconds", cfg.waitBeforeFinishDetectionSeconds}
     };
 }
 
@@ -85,6 +86,7 @@ inline void from_json(const json& j, SharedConfig& cfg) {
     j.at("minLookAheadInCm").get_to(cfg.minLookAheadInCm);
     j.at("maxLookAheadInCm").get_to(cfg.maxLookAheadInCm);
     j.at("waitBeforeStartSeconds").get_to(cfg.waitBeforeStartSeconds);
-    j.at("straightWheelTimerSeconds").get_to(cfg.straightWheelTimerSeconds);
+    j.at("waitBeforeEdfStartSeconds").get_to(cfg.waitBeforeEdfStartSeconds);
+    j.at("waitBeforeFinishDetectionSeconds").get_to(cfg.waitBeforeFinishDetectionSeconds);
 }
 #endif

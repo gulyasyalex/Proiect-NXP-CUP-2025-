@@ -83,7 +83,7 @@ int main() {
     global_config->enableCarSteering = DEFAULT_ENABLE_CAR_STEERING;
     global_config->enableCameraThresholdCheck = ENABLE_CAMERA_THRESHOLD_CHECK;
     global_config->enableFinishLineDetection = ENABLE_FINISH_LINE_DETECTION;
-    global_config->currentState = APPROACHING_INTERSECTION;
+    global_config->currentState = FOLLOWING_LINE;
     global_config->thresholdValue = DEFAULT_THRESHOLD_VALUE;
     global_config->distanceErrorFromChassis = DEFAULT_DISTANCE_ERROR_FROM_CHASSIS;
     global_config->lineMinPixelCount = _minLinePixelCount;
@@ -114,7 +114,8 @@ int main() {
     global_config->minLookAheadInCm = DEFAULT_MIN_LOOKAHEAD_IN_CM;
     global_config->maxLookAheadInCm = DEFAULT_MAX_LOOKAHEAD_IN_CM;
     global_config->waitBeforeStartSeconds = DEFAULT_WAIT_BEFORE_START_SECONDS;                      
-    global_config->straightWheelTimerSeconds = DEFAULT_STRAIGHT_WHEEL_TIMER_SECONDS;                   
+    global_config->waitBeforeEdfStartSeconds = DEFAULT_WAIT_BEFORE_EDF_START_SECONDS;                   
+    global_config->waitBeforeFinishDetectionSeconds = DEFAULT_WAIT_BEFORE_FINISH_DETECTION_SECONDS;                   
 
     std::cout << "Shared memory initialized with defaults: " << std::endl;
 
@@ -156,7 +157,8 @@ int main() {
             << raw_config->minLookAheadInCm << " "
             << raw_config->maxLookAheadInCm << " "
             << raw_config->waitBeforeStartSeconds << " "
-            << raw_config->straightWheelTimerSeconds << std::endl;
+            << raw_config->waitBeforeEdfStartSeconds << " "
+            << raw_config->waitBeforeFinishDetectionSeconds << std::endl;
 
     std::cout << "sizeof(SharedConfig): " << sizeof(SharedConfig) << " bytes" << std::endl;
 
@@ -195,7 +197,8 @@ int main() {
     std::cout << "minLookAheadInCm: " << offsetof(SharedConfig, minLookAheadInCm) << std::endl;
     std::cout << "maxLookAheadInCm: " << offsetof(SharedConfig, maxLookAheadInCm) << std::endl;
     std::cout << "waitBeforeStartSeconds: " << offsetof(SharedConfig, waitBeforeStartSeconds) << std::endl;
-    std::cout << "straightWheelTimerSeconds: " << offsetof(SharedConfig, straightWheelTimerSeconds) << std::endl;
+    std::cout << "waitBeforeEdfStartSeconds: " << offsetof(SharedConfig, waitBeforeEdfStartSeconds) << std::endl;
+    std::cout << "waitBeforeFinishDetectionSeconds: " << offsetof(SharedConfig, waitBeforeFinishDetectionSeconds) << std::endl;
 
     std::cout << "sizeof(SharedConfig): " << sizeof(SharedConfig) << " bytes" << std::endl;
 
@@ -431,6 +434,7 @@ bool isValidConfig(const SharedConfig& config) {
         config.minLookAheadInCm >= 0.0 && config.minLookAheadInCm <= 100.0 &&
         config.maxLookAheadInCm >= 0.0 && config.maxLookAheadInCm <= 100.0 &&
         config.waitBeforeStartSeconds >= 0.0 && config.waitBeforeStartSeconds <= 10.0 &&
-        config.straightWheelTimerSeconds >= 0.0 && config.straightWheelTimerSeconds <= 5.0
+        config.waitBeforeEdfStartSeconds >= 0.0 && config.waitBeforeEdfStartSeconds <= 5.0 &&
+        config.waitBeforeFinishDetectionSeconds >= 0.0 && config.waitBeforeFinishDetectionSeconds <= 20.0
     );
 }

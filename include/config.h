@@ -12,7 +12,7 @@ extern debix::SerialPort& serial;
 #define ENABLE_TCP_FRAMES 1
 #define ENABLE_TCP_SITE_DEBUG 1
 #define ENABLE_TEENSY_SERIAL 1
-#define ENABLE_FINISH_LINE_DETECTION 1
+#define ENABLE_FINISH_LINE_DETECTION 0 //THIS is set to 1 by timer after START_RACE
 #define DEFAULT_START_RACE 0  // When set to 1 car starts 
 
 //#define SERIAL_PORT "/dev/ttymxc2"      
@@ -80,7 +80,6 @@ for B020 curved track
 
 enum State {
     FOLLOWING_LINE = 0,
-    APPROACHING_INTERSECTION,
     IN_INTERSECTION,
     EXITING_INTERSECTION
 };
@@ -129,7 +128,8 @@ struct SharedConfig {
     double minLookAheadInCm;                                //Range: 0 - 100
     double maxLookAheadInCm;                                //Range: 0 - 100
     double waitBeforeStartSeconds;                          //Range: 0 - 10
-    double straightWheelTimerSeconds;                       //Range: 0 - 5
+    double waitBeforeEdfStartSeconds;                       //Range: 0 - 5
+    double waitBeforeFinishDetectionSeconds;                //Range: 0 - 20
 };
 #pragma pack(pop)  // Restore default padding
 
@@ -156,13 +156,13 @@ struct SharedConfig {
 #define DEFAULT_BOTTOM_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 1 //0.65
 #define DEFAULT_LINE_90_DEGREE_ANGLE_RANGE 22.0                          // abs(degree-90) < range
 #define DEFAULT_FINISH_LINE_ANGLE_RANGE 15.0
-#define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 1.3 //1.0
-#define DEFAULT_CORNERING_SPEED_COEFFICIENT 1.3 //0.6
+#define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 1.4 //1.0
+#define DEFAULT_CORNERING_SPEED_COEFFICIENT 1.4 //0.6
 #define DEFAULT_MIN_SPEED 150.0
-#define DEFAULT_MAX_SPEED 270.0
+#define DEFAULT_MAX_SPEED 320.0
 #define DEFAULT_MIN_SPEED_AFTER_FINISH 35.0
 #define DEFAULT_MAX_SPEED_AFTER_FINISH 40.0
-#define DEFAULT_EDF_FAN_CURRENT_SPEED 250.0
+#define DEFAULT_EDF_FAN_CURRENT_SPEED 350.0
 #define DEFAULT_CURVATURE_FACTOR 13.0
 #define DEFAULT_RDP_EPSILON 18
 #define DEFAULT_K_MAX 25.5 //55 // 25.5  //18.25
@@ -171,7 +171,8 @@ struct SharedConfig {
 #define DEFAULT_MIN_LOOKAHEAD_IN_CM 40.0
 #define DEFAULT_MAX_LOOKAHEAD_IN_CM 65.0
 #define DEFAULT_WAIT_BEFORE_START_SECONDS 4.0
-#define DEFAULT_STRAIGHT_WHEEL_TIMER_SECONDS 1.2
+#define DEFAULT_WAIT_BEFORE_EDF_START_SECONDS 0.7
+#define DEFAULT_WAIT_BEFORE_FINISH_DETECTION_SECONDS 2
 
 // OTHER DEFAULTS
 #define DEFAULT_AFTER_FINISH_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 0.4 // Cuts pixels from first 45% of image 
@@ -262,7 +263,7 @@ constexpr double birdsEyeViewWidth = 370;
 constexpr double birdsEyeViewHeight = 400;
 
 constexpr int maxThresholdValue = 255;
-constexpr double INTERSECTION_minLineLength = 40;  
+constexpr double INTERSECTION_minLineLength = 45;  
 constexpr double IN_INTERSECTION_minLineLength = 60;
 
 constexpr int distanceMedianFilterSampleSize = 5;
