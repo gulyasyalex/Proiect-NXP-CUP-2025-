@@ -92,7 +92,7 @@ double PurePursuit::computeLookAheadDistance(std::vector<cv::Point2f> allMidPoin
     //double angle = computeAngleBetweenVectors(segCarPos, segCurve);
     carInFramePositionBirdsEye.y = carInFramePositionBirdsEye.y;
     double angle = std::abs(calculateSignedAngleThreePoints(carTopPoint, carInFramePositionBirdsEye, allMidPoints.back())* 180.0 / CV_PI);
-    std:: cout << "angle: " << angle << "\n";
+    //std::cout << "angle: " << angle << "\n";
     double k = computeK(angle);
     double minimumDistance = pixelSizeInCm * shortestDistanceToCurve(allMidPoints, carInFramePositionBirdsEye);
 
@@ -180,7 +180,7 @@ double PurePursuit::computeK(double angle)
 
     // Linear interpolation between k_min and k_max
     double ratio = (config->maxAngleLookAheadReference - angle) / (config->maxAngleLookAheadReference - config->minAngleLookAheadReference);
-    std::cout << "angle: " << angle << " Ratio: " << ratio << "\n";
+    //std::cout << "angle: " << angle << " Ratio: " << ratio << "\n";
     double k = config->minLookAheadInCm + ratio * (config->maxLookAheadInCm - config->minLookAheadInCm);
     return k;
 }

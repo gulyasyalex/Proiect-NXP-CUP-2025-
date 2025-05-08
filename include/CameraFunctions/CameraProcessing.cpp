@@ -267,7 +267,7 @@ void CameraProcessing::processFrames() {
                 uint16_t distance = getDistanceFromCarsBumper();
                 std::cout << "Distance: " << distance << std::endl;
                 std::cout << "CURRENT STATE: "<< config->currentState << "\n";
-                if( FOLLOWING_LINE == config->currentState)
+                if( EXITING_INTERSECTION == config->currentState)
                 {
                     isBlueStatusLedOn = true;
                 }
@@ -276,7 +276,7 @@ void CameraProcessing::processFrames() {
                     isBlueStatusLedOn = false;
                 }
 
-                if( EXITING_INTERSECTION == config->currentState || isFinishLineDetected)
+                if( isFinishLineDetected ) 
                 {
                     isYellowStatusLedOn = true;
                 }
@@ -593,7 +593,17 @@ void CameraProcessing::processFrames() {
                                             this->extendLineToEdges(lines[i], birdsEyeViewWidth, birdsEyeViewHeight);
                                             lines[i] = this->evenlySpacePoints(lines[i], curveSamplePoints);
                                         }
-
+                                        std::cout << "Lines.size(): " << lines.size() << "\n";
+                                        
+                                        cv::Size frameSize1(birdsEyeViewWidth, birdsEyeViewHeight);
+                                        cv::Mat birdEyeViewWithPoints1 = cv::Mat::zeros(frameSize1, CV_8UC3); // 3 channels (color)
+                            
+                                        this->drawLines(birdEyeViewWithPoints1,lines,cv::Scalar(0, 0, 255));
+                                        for(int i = 0; i < lines.size(); ++i)
+                                        {
+                                            this->drawPoints(birdEyeViewWithPoints1, lines[i], cv::Scalar(0, 255, 0));
+                                        }
+                                        this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints1);
                                         this->getLeftRightLines(lines,this->leftLine,this->rightLine);
                                         this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);    
                                     }
@@ -810,7 +820,7 @@ void CameraProcessing::processFrames() {
                                 this->drawPoints(birdEyeViewWithPoints, leftLine, cv::Scalar(0, 255, 0));
                                 this->drawPoints(birdEyeViewWithPoints, rightLine, cv::Scalar(0, 0, 255));
 
-                                this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints);
+                                //this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints);
                                 
                                 std::vector<cv::Point2f> l_leftLine = this->perspectiveChangeLine(this->leftLine, MatrixInverseBirdsEyeView);
                                 std::vector<cv::Point2f> l_rightLine = this->perspectiveChangeLine(this->rightLine, MatrixInverseBirdsEyeView);
@@ -1262,7 +1272,7 @@ bool CameraProcessing::removeHorizontalIf90Turn(std::vector<cv::Point2f>& line, 
     {
         double angle = std::abs(calculateSignedAngleThreePoints(line[i - 1], line[i], line[i + 1])* 180.0 / CV_PI);
         maxAngle = std::max(maxAngle, angle); // Update maxAngle if the current angle is larger
-        std::cout << "angle[" << i << "]: "  << angle << std::endl;
+        //std::cout << "angle[" << i << "]: "  << angle << std::endl;
 
         if (std::abs(angle - 90) < config->line90DegreeAngleRange) // Close to 90 degrees
         {  
@@ -1275,7 +1285,7 @@ bool CameraProcessing::removeHorizontalIf90Turn(std::vector<cv::Point2f>& line, 
     }
 
     // Print the maximum angle after the loop
-    std::cout << "Maximum angle detected: " << maxAngle << " degrees" << std::endl;
+    //std::cout << "Maximum angle detected: " << maxAngle << " degrees" << std::endl;
 
 
     // If there is a 90-degree turn, remove the horizontal parts
@@ -1492,7 +1502,7 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
             if (pointFront.x < (birdsEyeViewWidth / 2))
             {
                 weightedDistToLeft = 0;
-                weightedDistToRight = 1;
+                weightedDistToRight = 1;        
             } 
             else
             {
