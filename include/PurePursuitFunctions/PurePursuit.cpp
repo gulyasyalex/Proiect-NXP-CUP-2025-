@@ -95,11 +95,14 @@ double PurePursuit::computeLookAheadDistance(std::vector<cv::Point2f> allMidPoin
     //std::cout << "angle: " << angle << "\n";
     double k = computeK(angle);
     double minimumDistance = pixelSizeInCm * shortestDistanceToCurve(allMidPoints, carInFramePositionBirdsEye);
+    // WARNING: -1 to mitigate error
+    double maximumDistance = pixelSizeInCm * longestDistanceOnCurveFromPoint(allMidPoints, carInFramePositionBirdsEye) - 1;
 
     //CHANGE BEFORE OFFICIAL RUN
     //double lookAheadDistance = k + minimumDistance;
     double lookAheadDistance = k;
-    lookAheadDistance = std::max(minimumDistance, std::max(config->minLookAheadInCm, std::min(config->maxLookAheadInCm, lookAheadDistance)));
+    lookAheadDistance = std::max(config->minLookAheadInCm, std::min(config->maxLookAheadInCm, lookAheadDistance));
+    lookAheadDistance = std::max(minimumDistance, std::min(maximumDistance, lookAheadDistance));
 
     return lookAheadDistance;
 }
@@ -242,6 +245,21 @@ double PurePursuit::shortestDistanceToCurve(const std::vector<cv::Point2f>& curv
 
     minDistance = minDistance + tolerance;
     return minDistance;
+}
+
+double PurePursuit::longestDistanceOnCurveFromPoint(const std::vector<cv::Point2f>& curve, const cv::Point2f& point)
+{
+    double maxDistance = 0;
+    double distance = 0;
+    for (int i = 0; i < curve.size() - 1; i++)
+    {
+        distance = euclideanDistance(point, curve[i]);
+        if  (maxDistance < distance)
+        {
+            maxDistance = distance;
+        }
+    }
+    return distance;
 }
 
 void PurePursuit::radiusIncrease(double& radius){

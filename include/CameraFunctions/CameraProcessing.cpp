@@ -211,6 +211,9 @@ void CameraProcessing::processFrames() {
     std::vector<cv::Point2f> simplifiedLine;
     cv::Point2f midReferencePoint;
 
+    double finishLineLeftAngle = 0;
+    double finishLineRightAngle = 0;
+
     while (this->running) {
         try {
             this->lastInterpolatedPointsSetup = config->interpolatedPointsSetup;
@@ -276,7 +279,7 @@ void CameraProcessing::processFrames() {
                     isBlueStatusLedOn = false;
                 }
 
-                if( isFinishLineDetected ) 
+                if( this->isFinishLineDetected ) 
                 {
                     isYellowStatusLedOn = true;
                 }
@@ -285,7 +288,11 @@ void CameraProcessing::processFrames() {
                     isYellowStatusLedOn = false;
                 }
                 
-                std::cout << " (BIG LOOP) isFinishLineDetected: " << isFinishLineDetected << std::endl;
+
+                std::cout << " Angle to Left: " << finishLineLeftAngle << " degrees\n";
+                std::cout << " Angle to Right: " << finishLineRightAngle << " degrees\n";
+
+                std::cout << " (BIG LOOP) isFinishLineDetected: " << this->isFinishLineDetected << std::endl;
                 if ( 1 == config->enableFinishLineDetection)
                 {
                     /* WARNING: distanceBeforeIssuesAppear Is the distance where the car still sees the track and not the box in FOV*/
@@ -397,6 +404,10 @@ void CameraProcessing::processFrames() {
                                     startTimeEnabled = false;
                                 }
                             }
+                            else
+                            {
+                                startTimeEnabled = false;
+                            }
                         #endif
                         
                         //this->liveVideoFeedTCP.sendFrame(thresholdFrame);
@@ -457,7 +468,11 @@ void CameraProcessing::processFrames() {
                                             tempLineSize = calculateLineLength(lines[i]);
                                             //std::cout << "calculateLineLength  " << i << " : " << tempLineSize << "\n";
                                             
-                                            if ( 0 == config->enableFinishLineDetection)
+                                            /* INFO: At start we do not detect small lines
+                                             *       After finish we do not detect small lines
+                                             *       Error mitigation purposes
+                                             */
+                                            if ( 0 == config->enableFinishLineDetection || this->isFinishLineDetected)
                                             {
                                                 if( INTERSECTION_minLineLength < tempLineSize)
                                                 {
@@ -555,15 +570,15 @@ void CameraProcessing::processFrames() {
                                                                 cv::Point2f rightVec = rightSegment[1] - rightSegment[0];
 
                                                                 // Compute angles
-                                                                double angleLeft = computeAngleBetweenVectors(leftVec, finishVec);
-                                                                double angleRight = computeAngleBetweenVectors(rightVec, finishVec);
+                                                                finishLineLeftAngle = computeAngleBetweenVectors(leftVec, finishVec);
+                                                                finishLineRightAngle = computeAngleBetweenVectors(rightVec, finishVec);
 
-                                                                std::cout << "Finish Line " << (i - 1) << " Angle to Left: " << angleLeft << " degrees\n";
-                                                                std::cout << "Finish Line " << (i - 1) << " Angle to Right: " << angleRight << " degrees\n";
+                                                                std::cout << "Finish Line " << (i - 1) << " Angle to Left: " << finishLineLeftAngle << " degrees\n";
+                                                                std::cout << "Finish Line " << (i - 1) << " Angle to Right: " << finishLineRightAngle << " degrees\n";
 
                                                                 
-                                                                if (std::abs(angleLeft - 90) < config->finishLineAngleRange 
-                                                                    || std::abs(angleRight - 90) < config->finishLineAngleRange) {
+                                                                if (std::abs(finishLineLeftAngle - 90) < config->finishLineAngleRange 
+                                                                    || std::abs(finishLineRightAngle - 90) < config->finishLineAngleRange) {
 
                                                                     std::cout << "Finish Line " << (i - 1) << " is perpendicular to at least one boundary.\n";
                                                                     if(config->enableCarSteering)
@@ -595,15 +610,18 @@ void CameraProcessing::processFrames() {
                                         }
                                         std::cout << "Lines.size(): " << lines.size() << "\n";
                                         
-                                        cv::Size frameSize1(birdsEyeViewWidth, birdsEyeViewHeight);
-                                        cv::Mat birdEyeViewWithPoints1 = cv::Mat::zeros(frameSize1, CV_8UC3); // 3 channels (color)
-                            
-                                        this->drawLines(birdEyeViewWithPoints1,lines,cv::Scalar(0, 0, 255));
-                                        for(int i = 0; i < lines.size(); ++i)
-                                        {
-                                            this->drawPoints(birdEyeViewWithPoints1, lines[i], cv::Scalar(0, 255, 0));
-                                        }
-                                        this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints1);
+                                        #if 1 == ENABLE_TCP_FRAMES 
+                                            cv::Size frameSize1(birdsEyeViewWidth, birdsEyeViewHeight);
+                                            cv::Mat birdEyeViewWithPoints1 = cv::Mat::zeros(frameSize1, CV_8UC3); // 3 channels (color)
+                                
+                                            this->drawLines(birdEyeViewWithPoints1,lines,cv::Scalar(0, 0, 255));
+                                            for(int i = 0; i < lines.size(); ++i)
+                                            {
+                                                this->drawPoints(birdEyeViewWithPoints1, lines[i], cv::Scalar(0, 255, 0));
+                                            }
+                                            this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints1);
+                                        #endif
+
                                         this->getLeftRightLines(lines,this->leftLine,this->rightLine);
                                         this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);    
                                     }
@@ -663,31 +681,10 @@ void CameraProcessing::processFrames() {
                                     }
                                 break;
                                 case EXITING_INTERSECTION:{
-                                    double tempLineSize1 = 0;
-                                    double longestLineSize1 = 0;
-                                    double longestLineIndex1 = 0;
-
-                                    
-                                    if (lines.size() >= 1){
-                                        std::vector<std::vector<cv::Point2f>> newLines;
-                                        double tempLineSize = 0;
-
-                                        /* WARNING: This was used to counter unrecognized intersection
-                                        *           The top lines that appear in an intersection are giving fals negatives
-                                        */
-                                        
-                                        for(int i = 0; i < lines.size(); i++){
-                                    
-                                            tempLineSize = calculateLineLength(lines[i]);
-                                            if( INTERSECTION_minLineLength < tempLineSize)
-                                            {
-                                                if(longestLineSize1 < tempLineSize1)
-                                                {
-                                                    longestLineSize1 = tempLineSize1;
-                                                    longestLineIndex1 = i;
-                                                }
-                                            }
-                                        }
+                                                                        
+                                    if (lines.size() < 1)
+                                    {
+                                        break;
                                     }
                                     
                                     for (int i = 0; i < lines.size(); i++){
@@ -1338,19 +1335,19 @@ cv::Point2f CameraProcessing::normalize(const cv::Point2f& v) {
 }
 
 cv::Point2f CameraProcessing::rightNormal(const cv::Point2f& v) {
-    return {v.y, -v.x};
-}
-
-cv::Point2f CameraProcessing::leftNormal(const cv::Point2f& v) {
     return {-v.y, v.x};
 }
 
+cv::Point2f CameraProcessing::leftNormal(const cv::Point2f& v) {
+    return {v.y, -v.x};
+}
+
 cv::Point2f CameraProcessing:: ensureCorrectSide(const cv::Point2f& base, const cv::Point2f& offsetPoint, const cv::Point2f& historicalReference) {
-    cv::Point2f toOffset = offsetPoint - base;
+    /*cv::Point2f toOffset = offsetPoint - base;
     cv::Point2f toHistory = historicalReference - base;
     if (toOffset.dot(toHistory) < 0) {
         return base - toOffset; // Flip the direction
-    }
+    }*/
     return offsetPoint;
 }
 
@@ -1576,6 +1573,12 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
             firstPointLeftLine = leftFitted[0]; // Update historical left point
         }*/
         // Classify the line as left or right based on weighted distances
+        if(weightedDistToLeft < weightedDistToRight)
+        {
+            std::cout << "Mirroring Right" << "\n";
+        }else{
+            std::cout << "Mirroring Left" << "\n";
+        }
         if (weightedDistToLeft < weightedDistToRight) {
             // Single line is closer to historical left, so it is the left line
             leftFitted = lines[0];

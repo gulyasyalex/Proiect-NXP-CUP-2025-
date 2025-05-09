@@ -374,6 +374,8 @@ void websiteTCPLoop(TcpConnection& connection)
         {
             global_config->enableCarEngine = 0;
             global_config->currentEdfFanSpeed = 0;
+            global_config->enableFinishLineDetection = 0;
+            global_config->startRace = 0;
         }
         else if(command == "READ") 
         {

@@ -21,26 +21,18 @@ extern debix::SerialPort& serial;
 
 /*
 
-for indoor track
-84 99
--49 229
-242 99
-353 229
-151 239
-
-240x180
-35 73
--57 171
-163 73
-250 171
-96 179
-
 //NEAR View Camera 200x150 setup
 29 61
 -43 142
 157 61
 221 142
 88 149
+
+43 61
+-38 142
+147 61
+209 142
+84 149
 
 //FAR View Camera 200x150 setup
 45 53
@@ -49,6 +41,14 @@ for indoor track
 208 135
 87 149
 
+57 53
+-26 135
+145 53
+207 135
+89 149
+
+
+
 // NXP BUCHAREST
 39 53
 -44 135
@@ -56,21 +56,6 @@ for indoor track
 214 135
 83 149
 
-
-
-
-for B020 curved track
-74 84
--71 229
-231 84
-373 229
-150 239
-
-64 99
--54 229
-238 99
-369 229
-158 239
 */
 
 #define GPIO_CHIP "/dev/gpiochip0"
@@ -146,8 +131,8 @@ struct SharedConfig {
 #define DEFAULT_INTERPOLATED_POINTS_SETUP 0         // 0 - Near View Setup 1 - Far View Setup (BirdEyeView)
 
 // Double values
-#define DEFAULT_CALIBRATE_TOP_LINE 36.6//41.6(percentage) //100
-#define DEFAULT_CALIBRATE_BOTTOM_LINE 90.8//95.8(percentage) //230
+#define DEFAULT_CALIBRATE_TOP_LINE 36.6 //41.6(percentage) //100
+#define DEFAULT_CALIBRATE_BOTTOM_LINE 90.8 //95.8(percentage) //230
 #define DEFAULT_TRACK_LANE_WIDTH_OFFSET -8.4 //SET TO 0 AT FINALS
 #define DEFAULT_TOP_IMAGE_CUT_PERCENTAGE 0.0
 #define DEFAULT_BOTTOM_IMAGE_CUT_PERCENTAGE 0.35
@@ -171,7 +156,7 @@ struct SharedConfig {
 #define DEFAULT_MIN_LOOKAHEAD_IN_CM 40.0
 #define DEFAULT_MAX_LOOKAHEAD_IN_CM 65.0
 #define DEFAULT_WAIT_BEFORE_START_SECONDS 4.0
-#define DEFAULT_WAIT_BEFORE_EDF_START_SECONDS 0.7
+#define DEFAULT_WAIT_BEFORE_EDF_START_SECONDS 0.5
 #define DEFAULT_WAIT_BEFORE_FINISH_DETECTION_SECONDS 2
 
 // OTHER DEFAULTS
