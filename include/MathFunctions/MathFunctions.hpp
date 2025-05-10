@@ -23,5 +23,6 @@ double roundToTwoDecimals(double value);
 std::string to_string_with_precision(double value, int precision);
 int doubleCmp(double num1, double num2);
 double mapDouble(double x, double in_min, double in_max, double out_min, double out_max);
+void rdpSimplify(const std::vector<cv::Point2f>& input, double epsilon, std::vector<cv::Point2f>& output);
 
 #endif

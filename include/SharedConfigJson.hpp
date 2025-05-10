@@ -37,6 +37,7 @@ inline void to_json(json& j, const SharedConfig& cfg) {
         {"maxSpeedAfterFinish", cfg.maxSpeedAfterFinish},
         {"currentEdfFanSpeed", cfg.currentEdfFanSpeed},
         {"curvatureFactor", cfg.curvatureFactor},
+        {"rdpEpsilon", cfg.rdpEpsilon},
         {"k_min", cfg.k_min},
         {"k_max", cfg.k_max},
         {"R_minInCm", cfg.R_minInCm},
@@ -44,7 +45,8 @@ inline void to_json(json& j, const SharedConfig& cfg) {
         {"minLookAheadInCm", cfg.minLookAheadInCm},
         {"maxLookAheadInCm", cfg.maxLookAheadInCm},
         {"waitBeforeStartSeconds", cfg.waitBeforeStartSeconds},
-        {"straightWheelTimerSeconds", cfg.straightWheelTimerSeconds}
+        {"waitBeforeEdfStartSeconds", cfg.waitBeforeEdfStartSeconds},
+        {"waitBeforeFinishDetectionSeconds", cfg.waitBeforeFinishDetectionSeconds}
     };
 }
 
@@ -78,6 +80,7 @@ inline void from_json(const json& j, SharedConfig& cfg) {
     j.at("maxSpeedAfterFinish").get_to(cfg.maxSpeedAfterFinish);
     j.at("currentEdfFanSpeed").get_to(cfg.currentEdfFanSpeed);
     j.at("curvatureFactor").get_to(cfg.curvatureFactor);
+    j.at("rdpEpsilon").get_to(cfg.rdpEpsilon);
     j.at("k_min").get_to(cfg.k_min);
     j.at("k_max").get_to(cfg.k_max);
     j.at("R_minInCm").get_to(cfg.R_minInCm);
@@ -85,6 +88,7 @@ inline void from_json(const json& j, SharedConfig& cfg) {
     j.at("minLookAheadInCm").get_to(cfg.minLookAheadInCm);
     j.at("maxLookAheadInCm").get_to(cfg.maxLookAheadInCm);
     j.at("waitBeforeStartSeconds").get_to(cfg.waitBeforeStartSeconds);
-    j.at("straightWheelTimerSeconds").get_to(cfg.straightWheelTimerSeconds);
+    j.at("waitBeforeEdfStartSeconds").get_to(cfg.waitBeforeEdfStartSeconds);
+    j.at("waitBeforeFinishDetectionSeconds").get_to(cfg.waitBeforeFinishDetectionSeconds);
 }
 #endif

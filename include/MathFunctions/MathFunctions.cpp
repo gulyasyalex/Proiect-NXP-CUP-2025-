@@ -125,3 +125,47 @@ double mapDouble(double x, double in_min, double in_max, double out_min, double 
 {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
+
+/* Ramer–Douglas–Peucker algorithm */
+void rdpSimplify(const std::vector<cv::Point2f>& input, double epsilon, std::vector<cv::Point2f>& output) {
+    if (input.size() < 2) {
+        output = input;
+        return;
+    }
+
+    // Find the point with the maximum perpendicular distance
+    double maxDist = 0.0;
+    size_t index = 0;
+
+    const cv::Point2f& start = input.front();
+    const cv::Point2f& end = input.back();
+
+    for (size_t i = 1; i < input.size() - 1; ++i) {
+        // Calculate perpendicular distance from input[i] to line (start - end)
+        double num = std::abs((end.y - start.y) * input[i].x - (end.x - start.x) * input[i].y + end.x * start.y - end.y * start.x);
+        double den = euclideanDistance(start, end);
+        double dist = den > 0 ? num / den : 0;
+
+        if (dist > maxDist) {
+            index = i;
+            maxDist = dist;
+        }
+    }
+
+    // If max distance is greater than epsilon, recursively simplify
+    if (maxDist > epsilon) {
+        std::vector<cv::Point2f> left(input.begin(), input.begin() + index + 1);
+        std::vector<cv::Point2f> right(input.begin() + index, input.end());
+
+        std::vector<cv::Point2f> simplifiedLeft, simplifiedRight;
+        rdpSimplify(left, epsilon, simplifiedLeft);
+        rdpSimplify(right, epsilon, simplifiedRight);
+
+        // Merge results, remove duplicate point at boundary
+        output = simplifiedLeft;
+        output.pop_back();
+        output.insert(output.end(), simplifiedRight.begin(), simplifiedRight.end());
+    } else {
+        output = { start, end };
+    }
+}

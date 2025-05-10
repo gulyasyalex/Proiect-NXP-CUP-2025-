@@ -107,6 +107,7 @@ int main() {
     global_config->maxSpeedAfterFinish = DEFAULT_MAX_SPEED_AFTER_FINISH;
     global_config->currentEdfFanSpeed = 0; //this is set in startRace section -> DEFAULT_EDF_FAN_CURRENT_SPEED;
     global_config->curvatureFactor = DEFAULT_CURVATURE_FACTOR;
+    global_config->rdpEpsilon = DEFAULT_RDP_EPSILON;
     global_config->k_min = DEFAULT_K_MIN;
     global_config->k_max = DEFAULT_K_MAX;
     global_config->R_minInCm = DEFAULT_R_MIN_IN_CM;
@@ -114,7 +115,8 @@ int main() {
     global_config->minLookAheadInCm = DEFAULT_MIN_LOOKAHEAD_IN_CM;
     global_config->maxLookAheadInCm = DEFAULT_MAX_LOOKAHEAD_IN_CM;
     global_config->waitBeforeStartSeconds = DEFAULT_WAIT_BEFORE_START_SECONDS;                      
-    global_config->straightWheelTimerSeconds = DEFAULT_STRAIGHT_WHEEL_TIMER_SECONDS;                   
+    global_config->waitBeforeEdfStartSeconds = DEFAULT_WAIT_BEFORE_EDF_START_SECONDS;                      
+    global_config->waitBeforeFinishDetectionSeconds = DEFAULT_WAIT_BEFORE_FINISH_DETECTION_SECONDS;                   
 
     std::cout << "Shared memory initialized with defaults: " << std::endl;
 
@@ -149,6 +151,7 @@ int main() {
             << raw_config->maxSpeed << " "
             << raw_config->currentEdfFanSpeed << " "
             << raw_config->curvatureFactor << " "
+            << raw_config->rdpEpsilon << " "
             << raw_config->k_min << " "
             << raw_config->k_max << " "
             << raw_config->R_minInCm << " "
@@ -156,7 +159,8 @@ int main() {
             << raw_config->minLookAheadInCm << " "
             << raw_config->maxLookAheadInCm << " "
             << raw_config->waitBeforeStartSeconds << " "
-            << raw_config->straightWheelTimerSeconds << std::endl;
+            << raw_config->waitBeforeEdfStartSeconds << " "
+            << raw_config->waitBeforeFinishDetectionSeconds << std::endl;
 
     std::cout << "sizeof(SharedConfig): " << sizeof(SharedConfig) << " bytes" << std::endl;
 
@@ -188,6 +192,7 @@ int main() {
     std::cout << "maxSpeed: " << offsetof(SharedConfig, maxSpeed) << std::endl;
     std::cout << "currentEdfFanSpeed: " << offsetof(SharedConfig, currentEdfFanSpeed) << std::endl;
     std::cout << "curvatureFactor: " << offsetof(SharedConfig, curvatureFactor) << std::endl;
+    std::cout << "rdpEpsilon: " << offsetof(SharedConfig, rdpEpsilon) << std::endl;
     std::cout << "k_min: " << offsetof(SharedConfig, k_min) << std::endl;
     std::cout << "k_max: " << offsetof(SharedConfig, k_max) << std::endl;
     std::cout << "R_minInCm: " << offsetof(SharedConfig, R_minInCm) << std::endl;
@@ -195,7 +200,8 @@ int main() {
     std::cout << "minLookAheadInCm: " << offsetof(SharedConfig, minLookAheadInCm) << std::endl;
     std::cout << "maxLookAheadInCm: " << offsetof(SharedConfig, maxLookAheadInCm) << std::endl;
     std::cout << "waitBeforeStartSeconds: " << offsetof(SharedConfig, waitBeforeStartSeconds) << std::endl;
-    std::cout << "straightWheelTimerSeconds: " << offsetof(SharedConfig, straightWheelTimerSeconds) << std::endl;
+    std::cout << "waitBeforeEdfStartSeconds: " << offsetof(SharedConfig, waitBeforeEdfStartSeconds) << std::endl;
+    std::cout << "waitBeforeFinishDetectionSeconds: " << offsetof(SharedConfig, waitBeforeFinishDetectionSeconds) << std::endl;
 
     std::cout << "sizeof(SharedConfig): " << sizeof(SharedConfig) << " bytes" << std::endl;
 
@@ -371,6 +377,8 @@ void websiteTCPLoop(TcpConnection& connection)
         {
             global_config->enableCarEngine = 0;
             global_config->currentEdfFanSpeed = 0;
+            global_config->enableFinishLineDetection = 0;
+            global_config->startRace = 0;
         }
         else if(command == "READ") 
         {
@@ -424,6 +432,7 @@ bool isValidConfig(const SharedConfig& config) {
         config.maxSpeedAfterFinish >= 0.0 && config.maxSpeedAfterFinish <= 350.0 &&
         config.currentEdfFanSpeed >= 0.0 && config.currentEdfFanSpeed <= 350.0 &&
         config.curvatureFactor >= 0.0 && config.curvatureFactor <= 200.0 &&
+        config.rdpEpsilon >= 0.0 && config.rdpEpsilon <= 20.0 &&
         config.k_min >= 0.0 && config.k_min <= 25.0 &&
         config.k_max >= 0.0 && config.k_max <= 25.0 &&
         config.R_minInCm >= 0.0 && config.R_minInCm <= 4000.0 &&
@@ -431,6 +440,7 @@ bool isValidConfig(const SharedConfig& config) {
         config.minLookAheadInCm >= 0.0 && config.minLookAheadInCm <= 100.0 &&
         config.maxLookAheadInCm >= 0.0 && config.maxLookAheadInCm <= 100.0 &&
         config.waitBeforeStartSeconds >= 0.0 && config.waitBeforeStartSeconds <= 10.0 &&
-        config.straightWheelTimerSeconds >= 0.0 && config.straightWheelTimerSeconds <= 5.0
+        config.waitBeforeEdfStartSeconds >= 0.0 && config.waitBeforeEdfStartSeconds <= 10.0 &&
+        config.waitBeforeFinishDetectionSeconds >= 0.0 && config.waitBeforeFinishDetectionSeconds <= 30.0
     );
 }

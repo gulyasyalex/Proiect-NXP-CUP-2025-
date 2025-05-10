@@ -12,7 +12,7 @@ extern debix::SerialPort& serial;
 #define ENABLE_TCP_FRAMES 1
 #define ENABLE_TCP_SITE_DEBUG 1
 #define ENABLE_TEENSY_SERIAL 1
-#define ENABLE_FINISH_LINE_DETECTION 1
+#define ENABLE_FINISH_LINE_DETECTION 0
 #define DEFAULT_START_RACE 0  // When set to 1 car starts 
 
 //#define SERIAL_PORT "/dev/ttymxc2"      
@@ -122,6 +122,7 @@ struct SharedConfig {
     double maxSpeedAfterFinish;                             //Range: 0 - 350
     double currentEdfFanSpeed;                              //Range: 0 - 350
     double curvatureFactor;                                 //Range: 0 - 200
+    double rdpEpsilon;                                      //Range: 0 - 20
     double k_min;                                           //Range: 0 - 25
     double k_max;                                           //Range: 0 - 25
     double R_minInCm;                                       //Range: 0 - 4000
@@ -129,7 +130,8 @@ struct SharedConfig {
     double minLookAheadInCm;                                //Range: 0 - 100
     double maxLookAheadInCm;                                //Range: 0 - 100
     double waitBeforeStartSeconds;                          //Range: 0 - 10
-    double straightWheelTimerSeconds;                       //Range: 0 - 5
+    double waitBeforeEdfStartSeconds;                       //Range: 0 - 10
+    double waitBeforeFinishDetectionSeconds;                //Range: 0 - 30
 };
 #pragma pack(pop)  // Restore default padding
 
@@ -157,21 +159,23 @@ struct SharedConfig {
 #define DEFAULT_LINE_90_DEGREE_ANGLE_RANGE 20.0                          // abs(degree-90) < range
 #define DEFAULT_FINISH_LINE_ANGLE_RANGE 15.0
 #define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 1.0 //1.0
-#define DEFAULT_CORNERING_SPEED_COEFFICIENT 1.1 //0.6
-#define DEFAULT_MIN_SPEED 50.0
-#define DEFAULT_MAX_SPEED 270.0
+#define DEFAULT_CORNERING_SPEED_COEFFICIENT 2.0 //0.6
+#define DEFAULT_MIN_SPEED 160.0
+#define DEFAULT_MAX_SPEED 350.0
 #define DEFAULT_MIN_SPEED_AFTER_FINISH 35.0
 #define DEFAULT_MAX_SPEED_AFTER_FINISH 40.0
 #define DEFAULT_EDF_FAN_CURRENT_SPEED 350.0
 #define DEFAULT_CURVATURE_FACTOR 13.0
-#define DEFAULT_K_MIN 16.8 //10 // 16.8  //14.8
+#define DEFAULT_RDP_EPSILON 11.0
+#define DEFAULT_K_MIN 12.8 //10 // 16.8  //14.8
 #define DEFAULT_K_MAX 25.5 //55 // 25.5  //18.25
 #define DEFAULT_R_MIN_IN_CM 100.0
 #define DEFAULT_R_MAX_IN_CM 1000.0
 #define DEFAULT_MIN_LOOKAHEAD_IN_CM 10.0
 #define DEFAULT_MAX_LOOKAHEAD_IN_CM 55.0
 #define DEFAULT_WAIT_BEFORE_START_SECONDS 4.0
-#define DEFAULT_STRAIGHT_WHEEL_TIMER_SECONDS 1.2
+#define DEFAULT_WAIT_BEFORE_EDF_START_SECONDS 0.4
+#define DEFAULT_WAIT_BEFORE_FINISH_DETECTION_SECONDS 7.0
 
 // DEFAULT USED AFTER FINISH LINE
 #define DEFAULT_AFTER_FINISH_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 0.4 // Cuts pixels from first 45% of image 
@@ -261,8 +265,9 @@ constexpr double birdsEyeViewWidth = 370;
 constexpr double birdsEyeViewHeight = 400;
 
 constexpr int maxThresholdValue = 255;
-constexpr double INTERSECTION_minLineLength = 35;  
-constexpr double IN_INTERSECTION_minLineLength = 60;
+constexpr double INTERSECTION_minLineLength = 50;  
+constexpr double EXITING_INTERSECTION_minLineLength = 60;
+constexpr double EXITING_INTERSECTION_minLineLengthBeforeCut = 120;
 
 constexpr int distanceMedianFilterSampleSize = 5;
 

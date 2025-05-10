@@ -37,6 +37,7 @@ public:
     double computeK(double R);                 
     double calculateServoValue(double angleRadians, double lookaheadDistance);
     double shortestDistanceToCurve(const std::vector<cv::Point2f>& curve, const cv::Point2f& point);
+    double longestDistanceOnCurveFromPoint(const std::vector<cv::Point2f>& curve, const cv::Point2f& point);
     void radiusIncrease(double& radius);
     void pointMoveAcrossFrame(cv::Point2f& point, cv::Point2f& topPoint);
     double computeCurvatureRadius(const cv::Point2f &A,
