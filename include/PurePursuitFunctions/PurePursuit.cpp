@@ -336,10 +336,11 @@ double PurePursuit::carTurnMaxSpeed(double _turn_radius, double _friction_coeffi
 
 double PurePursuit::carBoostExitCornerSpeed(double new_car_speed, double _turn_angle)
 {
-    const double threshold = 0.35;
+    const double threshold = 1.2;
     const double boostSpeedValue = 0;
 
-    if (fabs(_turn_angle) < threshold) 
+    std::cout << " _turn_angle: " << _turn_angle << "\n";
+    if (fabs(_turn_angle) > threshold) 
     {
         new_car_speed = new_car_speed + boostSpeedValue;
     }

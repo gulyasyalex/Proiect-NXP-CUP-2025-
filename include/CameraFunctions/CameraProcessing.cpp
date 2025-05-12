@@ -750,6 +750,7 @@ void CameraProcessing::processFrames() {
                                     {
                                         for(int i = 0; i < lines.size(); i++)
                                         {
+                                            
                                             tempLineSize = calculateLineLength(lines[i]);
                                         
                                             if( EXITING_INTERSECTION_minLineLength < tempLineSize)
