@@ -33,7 +33,7 @@ void CameraProcessing::setParameters(int cameraIndex, int width, int height, int
                           
     // Apply v4l2-ctl camera settings for manual exposure TIMISOARA
     std::string command = "v4l2-ctl -d /dev/video" + std::to_string(cameraIndex) +
-                          " -c auto_exposure=1 -c exposure_time_absolute=100";
+                          " -c auto_exposure=1 -c exposure_time_absolute=15";
     system(command.c_str());
 
     double actualWidth = cap.get(cv::CAP_PROP_FRAME_WIDTH);
@@ -439,7 +439,7 @@ void CameraProcessing::processFrames() {
                             {
                                 this->drawPoints(outputImage, lines[i], cv::Scalar(0, 255, 0));
                             }
-                            //this->liveVideoFeedTCP.sendFrame(outputImage);
+                            this->liveVideoFeedTCP.sendFrame(outputImage);
                         #endif
 
                         #if 1 != ENABLE_CAMERA_CALIBRATION 
@@ -610,7 +610,7 @@ void CameraProcessing::processFrames() {
                                         }
                                         std::cout << "Lines.size(): " << lines.size() << "\n";
                                         
-                                        #if 1 == ENABLE_TCP_FRAMES 
+                                        /*#if 1 == ENABLE_TCP_FRAMES 
                                             cv::Size frameSize1(birdsEyeViewWidth, birdsEyeViewHeight);
                                             cv::Mat birdEyeViewWithPoints1 = cv::Mat::zeros(frameSize1, CV_8UC3); // 3 channels (color)
                                 
@@ -620,7 +620,7 @@ void CameraProcessing::processFrames() {
                                                 this->drawPoints(birdEyeViewWithPoints1, lines[i], cv::Scalar(0, 255, 0));
                                             }
                                             this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints1);
-                                        #endif
+                                        #endif*/
 
                                         this->getLeftRightLines(lines,this->leftLine,this->rightLine);
                                         this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);    
