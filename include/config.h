@@ -276,6 +276,6 @@ constexpr double maxLeftServoAngle = -30.0;                     // Used to limit
 constexpr double maxRightServoAngle = 30.0;                     // Used to limit servo rotation
 
 // Used in processFrames()
-constexpr double overlayFrameWeight = 1.0;                      // Used for visualization of two frames on top of eachother
+constexpr double overlayFrameWeight = 0.6;                      // Used for visualization of two frames on top of eachother
 
 #endif

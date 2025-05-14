@@ -305,7 +305,11 @@ void CameraProcessing::processFrames() {
                         if(!finishLineTimeEnabled){
                             finishLineTime = std::chrono::steady_clock::now();
                             finishLineTimeEnabled = true;
+                            config->topCutOffPercentageCustomConnected = DEFAULT_AFTER_FINISH_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED;
                             config->currentEdfFanSpeed = DEFAULT_EDF_FAN_AFTER_FINISH_SPEED;
+                            config->corneringSpeedCoefficient = 1;
+                            config->servoTurnAdjustmentCoefficient = 1;
+                            config->minLookAheadInCm = 30;
                         }
                         auto now = std::chrono::steady_clock::now();
                         double elapsedMillis = std::chrono::duration<double, std::milli>(now - finishLineTime).count();
@@ -331,6 +335,8 @@ void CameraProcessing::processFrames() {
                     this->isObjectCloserThanDistanceBeforeIssuesAppear = false;
                     finishLineTimeEnabled = false;
                     isSlowDownSpeedActivated = false;
+                    config->corneringSpeedCoefficient = DEFAULT_CORNERING_SPEED_COEFFICIENT;
+                    config->servoTurnAdjustmentCoefficient = DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT;
                 }
                 
                 /* NOTE: this boolean is used to block the frameProcessing algorithm after the box is closer then certain distance */
@@ -542,6 +548,8 @@ void CameraProcessing::processFrames() {
                                                         if (lines.size() >= 2) 
                                                         {
                                                             
+                                                            finishLineLeftAngle = 0;
+                                                            finishLineRightAngle = 0;
                                                             // Loop through all finish lines (starting from index 2)
                                                             for (size_t i = 2; i < lines.size(); ++i) {
                                                                 if (lines[i].size() < 2) continue;
@@ -584,9 +592,7 @@ void CameraProcessing::processFrames() {
                                                                     if(config->enableCarSteering)
                                                                     {                                                              
                                                                         this->isFinishLineDetected = true;
-                                                                        config->topCutOffPercentageCustomConnected = DEFAULT_AFTER_FINISH_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED;
-                                                                        config->currentState = FOLLOWING_LINE;
-                                                                        config->minLookAheadInCm = 30;
+                                                                        std::cout << "---------------FINISH DETECTED---------------------------\n";
                                                                     }
                                                                     break;
                                                                 } else {
@@ -610,7 +616,7 @@ void CameraProcessing::processFrames() {
                                         }
                                         std::cout << "Lines.size(): " << lines.size() << "\n";
                                         
-                                        /*#if 1 == ENABLE_TCP_FRAMES 
+                                        #if 1 == ENABLE_TCP_FRAMES 
                                             cv::Size frameSize1(birdsEyeViewWidth, birdsEyeViewHeight);
                                             cv::Mat birdEyeViewWithPoints1 = cv::Mat::zeros(frameSize1, CV_8UC3); // 3 channels (color)
                                 
@@ -619,8 +625,8 @@ void CameraProcessing::processFrames() {
                                             {
                                                 this->drawPoints(birdEyeViewWithPoints1, lines[i], cv::Scalar(0, 255, 0));
                                             }
-                                            this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints1);
-                                        #endif*/
+                                            //this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints1);
+                                        #endif
 
                                         this->getLeftRightLines(lines,this->leftLine,this->rightLine);
                                         this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);    
