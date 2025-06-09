@@ -211,9 +211,6 @@ void CameraProcessing::processFrames() {
     std::vector<cv::Point2f> simplifiedLine;
     cv::Point2f midReferencePoint;
 
-    double finishLineLeftAngle = 0;
-    double finishLineRightAngle = 0;
-
     while (this->running) {
         try {
             this->lastInterpolatedPointsSetup = config->interpolatedPointsSetup;
@@ -287,10 +284,6 @@ void CameraProcessing::processFrames() {
                 {
                     isYellowStatusLedOn = false;
                 }
-                
-
-                std::cout << " Angle to Left: " << finishLineLeftAngle << " degrees\n";
-                std::cout << " Angle to Right: " << finishLineRightAngle << " degrees\n";
 
                 std::cout << " (BIG LOOP) isFinishLineDetected: " << this->isFinishLineDetected << std::endl;
                 if ( 1 == config->enableFinishLineDetection)
@@ -369,6 +362,7 @@ void CameraProcessing::processFrames() {
                             liveVideoFeedTCP.sendFrame(frame);
                             liveVideoFeedTCP.sendFrame(thresholdFrame);
                         #endif
+                        std::cout << "TCP Disabled for threshold\n";
                     } 
                     else 
                     {
@@ -445,7 +439,7 @@ void CameraProcessing::processFrames() {
                             {
                                 this->drawPoints(outputImage, lines[i], cv::Scalar(0, 255, 0));
                             }
-                            this->liveVideoFeedTCP.sendFrame(outputImage);
+                            //this->liveVideoFeedTCP.sendFrame(outputImage);
                         #endif
 
                         #if 1 != ENABLE_CAMERA_CALIBRATION 
@@ -487,7 +481,7 @@ void CameraProcessing::processFrames() {
                                             }
                                         }
                                         
-                                        if ( 0 == config->enableFinishLineDetection)
+                                        if ( 0 == config->enableFinishLineDetection || this->isFinishLineDetected)
                                         {
                                             lines.clear();
                                             lines = std::move(newLines);
@@ -523,6 +517,23 @@ void CameraProcessing::processFrames() {
                                         for (int i = 0; i < lines.size(); i++)
                                         {
                                             lines[i] = this->perspectiveChangeLine(lines[i], this->MatrixBirdsEyeView);
+                                        }
+
+                                        std::cout << "Lines.size(): " << lines.size() << "\n";
+                                        #if 1 == ENABLE_TCP_FRAMES 
+                                            cv::Size frameSize1(birdsEyeViewWidth, birdsEyeViewHeight);
+                                            cv::Mat birdEyeViewWithPoints1 = cv::Mat::zeros(frameSize1, CV_8UC3); // 3 channels (color)
+                                
+                                            this->drawLines(birdEyeViewWithPoints1,lines,cv::Scalar(0, 0, 255));
+                                            for(int i = 0; i < lines.size(); ++i)
+                                            {
+                                                this->drawPoints(birdEyeViewWithPoints1, lines[i], cv::Scalar(0, 255, 0));
+                                            }
+                                            this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints1);
+                                        #endif
+
+                                        for (int i = 0; i < lines.size(); i++)
+                                        {
                                             if(lines[i].size() > 3) 
                                             {
                                                 rdpSimplify(lines[i], config->rdp_epsilon, simplifiedLine);
@@ -548,8 +559,6 @@ void CameraProcessing::processFrames() {
                                                         if (lines.size() >= 2) 
                                                         {
                                                             
-                                                            finishLineLeftAngle = 0;
-                                                            finishLineRightAngle = 0;
                                                             // Loop through all finish lines (starting from index 2)
                                                             for (size_t i = 2; i < lines.size(); ++i) {
                                                                 if (lines[i].size() < 2) continue;
@@ -578,8 +587,8 @@ void CameraProcessing::processFrames() {
                                                                 cv::Point2f rightVec = rightSegment[1] - rightSegment[0];
 
                                                                 // Compute angles
-                                                                finishLineLeftAngle = computeAngleBetweenVectors(leftVec, finishVec);
-                                                                finishLineRightAngle = computeAngleBetweenVectors(rightVec, finishVec);
+                                                                double finishLineLeftAngle = computeAngleBetweenVectors(leftVec, finishVec);
+                                                                double finishLineRightAngle = computeAngleBetweenVectors(rightVec, finishVec);
 
                                                                 std::cout << "Finish Line " << (i - 1) << " Angle to Left: " << finishLineLeftAngle << " degrees\n";
                                                                 std::cout << "Finish Line " << (i - 1) << " Angle to Right: " << finishLineRightAngle << " degrees\n";
@@ -588,11 +597,14 @@ void CameraProcessing::processFrames() {
                                                                 if (std::abs(finishLineLeftAngle - 90) < config->finishLineAngleRange 
                                                                     || std::abs(finishLineRightAngle - 90) < config->finishLineAngleRange) {
 
+                                                                    std::cout << "leftVec: "<< lines[0] << "\n";
+                                                                    std::cout << "rightVec: "<< lines[1] << "\n";
+                                                                    std::cout << "finishVec: "<< lines[i] << "\n";
+                                                                    
                                                                     std::cout << "Finish Line " << (i - 1) << " is perpendicular to at least one boundary.\n";
                                                                     if(config->enableCarSteering)
-                                                                    {                                                              
+                                                                    {                              
                                                                         this->isFinishLineDetected = true;
-                                                                        std::cout << "---------------FINISH DETECTED---------------------------\n";
                                                                     }
                                                                     break;
                                                                 } else {
@@ -614,19 +626,6 @@ void CameraProcessing::processFrames() {
                                             this->extendLineToEdges(lines[i], birdsEyeViewWidth, birdsEyeViewHeight);
                                             lines[i] = this->evenlySpacePoints(lines[i], curveSamplePoints);
                                         }
-                                        std::cout << "Lines.size(): " << lines.size() << "\n";
-                                        
-                                        #if 1 == ENABLE_TCP_FRAMES 
-                                            cv::Size frameSize1(birdsEyeViewWidth, birdsEyeViewHeight);
-                                            cv::Mat birdEyeViewWithPoints1 = cv::Mat::zeros(frameSize1, CV_8UC3); // 3 channels (color)
-                                
-                                            this->drawLines(birdEyeViewWithPoints1,lines,cv::Scalar(0, 0, 255));
-                                            for(int i = 0; i < lines.size(); ++i)
-                                            {
-                                                this->drawPoints(birdEyeViewWithPoints1, lines[i], cv::Scalar(0, 255, 0));
-                                            }
-                                            //this->liveVideoFeedTCP.sendFrame(birdEyeViewWithPoints1);
-                                        #endif
 
                                         this->getLeftRightLines(lines,this->leftLine,this->rightLine);
                                         this->allMidPoints = this->findMiddle(this->leftLine,this->rightLine,birdsEyeViewWidth,birdsEyeViewHeight);    
