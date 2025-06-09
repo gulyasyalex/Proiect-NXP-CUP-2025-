@@ -48,10 +48,9 @@ class CameraProcessing {
         double trackLaneWidthInCm;
         double pixelSizeInCm;
         
-        TcpConnection liveVideoFeedTCP{9999};
-        /*#if 1 == ENABLE_TCP_FRAMES 
+        #if 1 == ENABLE_TCP_FRAMES 
             TcpConnection liveVideoFeedTCP{9999};
-        #endif*/
+        #endif
 
         bool isValidLines = true;
         bool isIntersection = false;      // Used to check if we are really in an intersection

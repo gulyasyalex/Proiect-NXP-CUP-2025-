@@ -34,7 +34,7 @@ DEBOUNCE_TIME = 0.01
 # --- Open Global Shared Memory ---
 SHM_NAME = "/dev/shm/config_shared_memory"
 
-SHM_FORMAT = "12i x 24d"  
+SHM_FORMAT = "12i x 25d"  
 SHM_SIZE = struct.calcsize(SHM_FORMAT)
 
 shm_fd = os.open(SHM_NAME, os.O_RDWR)
