@@ -947,7 +947,7 @@ cv::Mat CameraProcessing::cropFrameBottom(const cv::Mat& frame, double l_bottomC
 }
 
 
-cv::Mat CameraProcessing::skeletonizeFrame(cv::Mat& thresholdedImage) {
+/*cv::Mat CameraProcessing::skeletonizeFrame(cv::Mat& thresholdedImage) {
     cv::Mat skeleton(cv::Mat::zeros(thresholdedImage.size(), CV_8UC1));
     cv::Mat temp, eroded;
     cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(3, 3));
@@ -965,7 +965,14 @@ cv::Mat CameraProcessing::skeletonizeFrame(cv::Mat& thresholdedImage) {
     }
 
     return skeleton;
+}*/
+
+cv::Mat CameraProcessing::skeletonizeFrame(cv::Mat& thresholdedImage) {
+    cv::Mat skeleton;
+    cv::ximgproc::thinning(thresholdedImage, skeleton, cv::ximgproc::THINNING_ZHANGSUEN);
+    return skeleton;
 }
+
 // Apply color segmentation to isolate specific features in the image
 cv::Mat CameraProcessing::segmentEdges(const cv::Mat& frame) {
     cv::Mat thresholdFrame;
