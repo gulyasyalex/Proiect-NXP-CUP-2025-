@@ -237,7 +237,7 @@ constexpr int fitPolyWindowSize = static_cast<int>(35 * ScalingFactor);
 constexpr double fitPolyEpsilon = static_cast<double>(9.0 * ScalingFactor); // Epsilon value for curve approximation
 
 constexpr int captureFps = 100; // 120 for BUCHAREST;
-const cv::Point2f undefinedPoint(0.0f, 0.0f);
+const cv::Point2f undefinedPoint(0.0f, float(resizeFrameHeight));
 
 constexpr int distanceBeforeIssuesAppear = 60;
 
