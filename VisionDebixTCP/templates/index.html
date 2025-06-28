@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Debix Web Control</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: 100vh;
+    }
+    .left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .left img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ccc;
+    }
+    .left button {
+      margin-top: 10px;
+      width: 120px;
+      padding: 10px;
+    }
+    .right {
+      overflow-y: auto;
+      padding: 20px;
+    }
+    .config-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2px;
+  }
+
+  .config-item label {
+    width: 250px;
+    font-weight: bold;
+    margin-right: 10px;
+  }
+
+  .config-item input {
+    flex: 1;
+    padding: 5px;
+  }
+  </style>
+</head>
+<body>
+  <div class="left">
+    <img id="videoStream0">
+    <img id="videoStream1">
+    <button onclick="readConfig()">Config Read</button>
+    <button onclick="writeConfig()">Config Write</button>
+    <button onclick="sendStopCommand()">STOP CAR</button>
+  </div>
+  <div class="right" id="configForm">
+    <!-- Config items will go here -->
+  </div>
+
+  <script>
+    async function readConfig() {
+        
+      const res = await fetch("/read-config");
+      const config = await res.json();
+
+      const form = document.getElementById("configForm");
+      form.innerHTML = ""; // clear previous
+      for (const key in config) {
+        const div = document.createElement("div");
+        div.className = "config-item";
+        div.innerHTML = `
+          <label>${key}</label>
+          <input type="text" id="${key}" value="${config[key]}">
+        `;
+        form.appendChild(div);
+      }
+    }
+
+    async function sendStopCommand() {
+      try {
+        const res = await fetch("/stop", { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+          console.log("STOP command sent successfully");
+        } else {
+          console.error("Failed to send STOP:", data.error);
+        }
+      } catch (err) {
+        console.error("Error sending STOP:", err);
+      }
+    }
+
+
+    async function writeConfig() {
+      const inputs = document.querySelectorAll(".config-item input");
+      const config = {};
+      inputs.forEach(input => {
+        const value = input.value;
+        config[input.id] = isNaN(value) ? value : Number(value);
+      });
+      await fetch("/write-config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(config)
+      });
+      
+    }
+
+    async function writeBeforeReload() {
+      const inputs = document.querySelectorAll(".config-item input");
+      const config = {};
+      inputs.forEach(input => {
+        const value = input.value;
+        config[input.id] = isNaN(value) ? value : Number(value);
+      });
+
+      // Save to localStorage in case we want to restore manually
+      localStorage.setItem("tempConfig", JSON.stringify(config));
+
+      // Send to backend
+      await fetch("/write-config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(config)
+      });
+
+      // Reload page after it's sent
+      location.reload();
+    }
+
+    // Intercept F5 and replace with our own logic
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "F5") {
+        event.preventDefault(); // Stop default refresh
+        writeBeforeReload();    // Save + write + reload
+      }
+    });
+
+    // On page load, read config from backend
+    window.onload = function () {
+      readConfig();
+    };
+
+    // Auto-refresh image every 100ms
+    setInterval(() => {
+      const img0 = document.getElementById("videoStream0");
+      img0.src = "/frame0?" + new Date().getTime();
+      const img1 = document.getElementById("videoStream1");
+      img1.src = "/frame1?" + new Date().getTime();
+    }, 100);
+
+  </script>
+</body>
+</html>
