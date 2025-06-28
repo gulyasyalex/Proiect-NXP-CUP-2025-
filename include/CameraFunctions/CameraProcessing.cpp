@@ -197,11 +197,9 @@ void CameraProcessing::processFrames() {
     bool isStartLineSetup = true;
     int rowTopCutOffThreshold;
 
-    std::chrono::time_point<std::chrono::steady_clock> startTime;
-    std::chrono::time_point<std::chrono::steady_clock> finishLineTime;
+    timerState finishLineTimeState;
+    timerState startTimeState;
 
-    bool startTimeEnabled = false;
-    bool finishLineTimeEnabled = false;
     bool isSlowDownSpeedActivated = false;
     
     std::string serialString = "";
@@ -300,9 +298,9 @@ void CameraProcessing::processFrames() {
                     }
                     if(this->isFinishLineDetected){
                         isRadarEnabled = true;
-                        if(!finishLineTimeEnabled){
-                            finishLineTime = std::chrono::steady_clock::now();
-                            finishLineTimeEnabled = true;
+                        if(!finishLineTimeState.startTimeEnabled){
+                            finishLineTimeState.startTime = std::chrono::steady_clock::now();
+                            finishLineTimeState.startTimeEnabled = true;
                             config->topCutOffPercentageCustomConnected = DEFAULT_AFTER_FINISH_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED;
                             config->currentEdfFanSpeed = DEFAULT_EDF_FAN_AFTER_FINISH_SPEED;
                             config->corneringSpeedCoefficient = 1;
@@ -310,8 +308,8 @@ void CameraProcessing::processFrames() {
                             config->minLookAheadInCm = 30;
                         }
                         auto now = std::chrono::steady_clock::now();
-                        double elapsedMillis = std::chrono::duration<double, std::milli>(now - finishLineTime).count();
-                        
+                        double elapsedMillis = std::chrono::duration<double, std::milli>(now - finishLineTimeState.startTime).count();
+
                         // INFO: CAR waits for 1 seconds then stops edf   
                         if (elapsedMillis >= 500.0) {
                             isSlowDownSpeedActivated = true;
@@ -320,10 +318,6 @@ void CameraProcessing::processFrames() {
                             config->currentEdfFanSpeed = 0;
                         }
                     }
-                    /*else if((distance > distanceBeforeIssuesAppear))
-                    {
-                        isObjectCloserThanDistanceBeforeIssuesAppear = false;
-                    }*/
                 }
                 else
                 {
@@ -331,7 +325,7 @@ void CameraProcessing::processFrames() {
                     config->topCutOffPercentageCustomConnected = DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED;
                     this->isFinishLineDetected = false;
                     this->isObjectCloserThanDistanceBeforeIssuesAppear = false;
-                    finishLineTimeEnabled = false;
+                    finishLineTimeState.startTimeEnabled = false;
                     isSlowDownSpeedActivated = false;
                     config->corneringSpeedCoefficient = DEFAULT_CORNERING_SPEED_COEFFICIENT;
                     config->servoTurnAdjustmentCoefficient = DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT;
@@ -350,18 +344,18 @@ void CameraProcessing::processFrames() {
                         ppObject.setSpeed(config->minSpeedAfterFinish);
                     }
 
-                    serialString = this->createSerialString(isBlueStatusLedOn, isYellowStatusLedOn, isRadarEnabled);
+                    serialString = this->createSerialString(isBlueStatusLedOn, 
+                        isYellowStatusLedOn, isRadarEnabled);
                     serial.writeToSerial(serialString);
                 }
                 else
                 {
                     // * cv::TickMeter timer;
                     // * timer.start();
-                    cv::Mat thresholdFrame = this->segmentEdges(frame);
-                    rowTopCutOffThreshold = static_cast<int>(frame.rows * config->topCutOffPercentageCustomConnected); 
+                    cv::Mat thresholdFrame = this->applyThreshold(frame);
                     // * timer.stop();
-                    // * std::cout << "segmentEdges Time: " << timer.getTimeMilli() << " ms" << std::endl;
-                    
+                    // * std::cout << "applyThreshold Time: " << timer.getTimeMilli() << " ms" << std::endl;
+                     
                     if ( 1 == config->enableCameraThresholdCheck ){
                         #if 1 == ENABLE_TCP_FRAMES 
                             liveVideoFeedTCP.sendFrame(frame);
@@ -372,52 +366,13 @@ void CameraProcessing::processFrames() {
                     else 
                     {
                         #if 1 != ENABLE_CAMERA_CALIBRATION 
-                            
-                            
-                            if (config->startRace){
-                                if(!startTimeEnabled){
-                                    startTime = std::chrono::steady_clock::now();
-                                    startTimeEnabled = true;
-                                }
-                                auto now = std::chrono::steady_clock::now();
-                                double elapsedMillis = std::chrono::duration<double, std::milli>(now - startTime).count();
-
-                                double totalWaitMillis = (config->waitBeforeStartSeconds + 
-                                    config->waitBeforeEdfStartSeconds + config->waitBeforeFinishDetectionSeconds) * 1000.0;
-                                // INFO: e.g. CAR waits for 5 seconds then starts engine
-                                
-                                
-                                if (elapsedMillis >= (config->waitBeforeStartSeconds * 1000.0)) 
-                                {
-                                    config->enableCarEngine = true;
-                                    config->enableCarSteering = true;
-                                    ppObject.setStartSpeedOptimizedForTorque(true);
-                                }
-                                if (elapsedMillis >= ((config->waitBeforeStartSeconds * 1000 + config->waitBeforeEdfStartSeconds * 1000)))
-                                { 
-                                    ppObject.setStartSpeedOptimizedForTorque(false);
-                                    config->currentEdfFanSpeed = DEFAULT_EDF_FAN_CURRENT_SPEED;
-                                }
-                                /* INFO: e.g. for 2 more seconds the car locks steering on 0 degrees to
-                                 *       mitigate Start Line error
-                                 */        
-                                if (elapsedMillis >= totalWaitMillis) 
-                                {
-                                    config->enableFinishLineDetection = 1;
-                                    this->isFinishLineDetected = false;
-                                    config->startRace = false;
-                                    startTimeEnabled = false;
-                                }
-                            }
-                            else
-                            {
-                                startTimeEnabled = false;
-                            }
+                            handleRaceStart(config, startTimeState, ppObject, DEFAULT_EDF_FAN_CURRENT_SPEED, this->isFinishLineDetected);
                         #endif
                         
                         //this->liveVideoFeedTCP.sendFrame(thresholdFrame);
                         cv::Mat skeleton = this->skeletonizeFrame(thresholdFrame); 
 
+                        rowTopCutOffThreshold = static_cast<int>(frame.rows * config->topCutOffPercentageCustomConnected);
                         std::vector<std::vector<cv::Point2f>> lines = this->findLines(skeleton, config->currentState, rowTopCutOffThreshold);
 
                         cv::Mat outputImage = cv::Mat::zeros(frame.size(), CV_8UC3);
@@ -456,13 +411,10 @@ void CameraProcessing::processFrames() {
                                     newLines.clear();
                                     tempLineSize = 0;
                                     
+                                    // Check if all lines are from the top
+                                    // Mitigate error by removing smaller lines then minLineLength
                                     if (lines.size() >= 1)
                                     {
-
-                                        /* WARNING: This was used to counter unrecognized intersection
-                                        *           The top lines that appear in an intersection are giving fals negatives
-                                        */
-
                                         bool areAllLinesFromTheTop = true;
                                         for(int i = 0; i < lines.size(); i++){
                                              
@@ -471,12 +423,6 @@ void CameraProcessing::processFrames() {
                                             }
                                            
                                             tempLineSize = calculateLineLength(lines[i]);
-                                            //std::cout << "calculateLineLength  " << i << " : " << tempLineSize << "\n";
-                                            
-                                            /* INFO: At start we do not detect small lines
-                                             *       After finish we do not detect small lines
-                                             *       Error mitigation purposes
-                                             */
                                             if ( 0 == config->enableFinishLineDetection || this->isFinishLineDetected)
                                             {
                                                 if( INTERSECTION_minLineLength < tempLineSize)
@@ -497,6 +443,8 @@ void CameraProcessing::processFrames() {
                                         }
                                     }
 
+                                    // Check if we have no lines in the image
+                                    // or no lines in the bottom part of the image
                                     this->isIntersection = true;
                                     for (int i = 0; i < lines.size(); i++)
                                     {
@@ -508,10 +456,8 @@ void CameraProcessing::processFrames() {
                                     {
                                         lines.clear();
                                     }
-                                    
-                                    //std::cout << "Line size after():" << lines.size() << "\n";
-                                    //std::cout << "isIntersection:" << this->isIntersection << "\n";
-                                    //std::cout << "isValidLines:" << isValidLines << "\n";
+
+                                    // If conditions are met, we are in an intersection
                                     if(this->isIntersection && isValidLines)
                                     {
                                         config->currentState = IN_INTERSECTION;
@@ -844,6 +790,7 @@ void CameraProcessing::processFrames() {
                                 outputImage = cv::Mat::zeros(frame.size(),CV_8UC3);
 
                                 
+                                rowTopCutOffThreshold = static_cast<int>(frame.rows * config->topCutOffPercentageCustomConnected);
                                 this->drawHorizontalFromHeight(outputImage,rowTopCutOffThreshold,cv::Scalar(0, 0, 255));
                                 this->drawHorizontalFromHeight(outputImage,frameHeight * config->lineStartPointY,cv::Scalar(255, 255, 255));
 
@@ -973,8 +920,8 @@ cv::Mat CameraProcessing::skeletonizeFrame(cv::Mat& thresholdedImage) {
     return skeleton;
 }
 
-// Apply color segmentation to isolate specific features in the image
-cv::Mat CameraProcessing::segmentEdges(const cv::Mat& frame) {
+// THRESHOLDING
+cv::Mat CameraProcessing::applyThreshold(const cv::Mat& frame) {
     cv::Mat thresholdFrame;
     cv::threshold(frame, thresholdFrame, config->thresholdValue, maxThresholdValue, cv::THRESH_BINARY);
     //cv::threshold(frame, thresholdFrame, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
@@ -983,12 +930,13 @@ cv::Mat CameraProcessing::segmentEdges(const cv::Mat& frame) {
 }
         
 // Function to find lines in a skeletonized frame
-std::vector<std::vector<cv::Point2f>> CameraProcessing::findLines(const cv::Mat& thresholdedImage, int currentState, const int rowTopCutOffThreshold){
-
+std::vector<std::vector<cv::Point2f>> CameraProcessing::findLines(const cv::Mat& thresholdedImage,
+     int currentState, const int rowTopCutOffThreshold)
+{
     // Perform connected component analysis
     cv::Mat labels;
     std::vector<std::vector<cv::Point2f>> lines;
-    int numLabels = customConnectedComponentsWithThreshold(thresholdedImage, labels, 6, lines, currentState, rowTopCutOffThreshold);
+    int numLabels = customConnectedComponents(thresholdedImage, labels, 6, lines, currentState, rowTopCutOffThreshold);
     
     // Return only the first 4 lines (or fewer if there are less than 4)
     if (lines.size() > 4) {
@@ -998,7 +946,7 @@ std::vector<std::vector<cv::Point2f>> CameraProcessing::findLines(const cv::Mat&
     return lines;
 }
         
-int CameraProcessing::customConnectedComponentsWithThreshold(const cv::Mat& binaryImage, cv::Mat& labelImage,
+int CameraProcessing::customConnectedComponents(const cv::Mat& binaryImage, cv::Mat& labelImage,
      int radius, std::vector<std::vector<cv::Point2f>>& lines, int currentState, const int rowTopCutOffThreshold)
 {
     CV_Assert(binaryImage.type() == CV_8UC1);
@@ -1009,95 +957,77 @@ int CameraProcessing::customConnectedComponentsWithThreshold(const cv::Mat& bina
     std::vector<cv::Point2f> neighborhood = generateNeighborhood(radius); // Generate dynamic neighborhood
     int pixelCount;
 
-    if (EXITING_INTERSECTION == currentState || IN_INTERSECTION == currentState){
-        for (int y = rowTopCutOffThreshold; y <= binaryImage.rows - 1; ++y) { // Top to bottom
-            for (int x = 0; x < binaryImage.cols; ++x) {  // Left to right
-                if (binaryImage.at<uchar>(y, x) == 255 && labelImage.at<int>(y, x) == 0) {
-
-                    std::queue<cv::Point2f> queue;
-                    queue.push(cv::Point2f(x, y));
-                    labelImage.at<int>(y, x) = label;
-
-                    pixelCount = 0;
-                    std::vector<cv::Point2f> componentPixels;
-
-                    while (!queue.empty()) {
-                        cv::Point2f p = queue.front();
-                        queue.pop();
-                        pixelCount++;
-                        componentPixels.push_back(p);
-
-                        for (const auto& offset : neighborhood) {
-                            int nx = p.x + offset.x;
-                            int ny = p.y + offset.y;
-
-                            if (nx >= 0 && ny >= rowTopCutOffThreshold  && nx < binaryImage.cols && ny < binaryImage.rows) {
-                                if (binaryImage.at<uchar>(ny, nx) == 255 && labelImage.at<int>(ny, nx) == 0) {
-                                    labelImage.at<int>(ny, nx) = label;
-                                    queue.push(cv::Point2f(nx, ny));
-                                }
-                            }
-                        }
-                    }
-
-                    if (pixelCount < config->lineMinPixelCount) {
-                        for (const auto& p : componentPixels) {
-                            labelImage.at<int>(p.y, p.x) = 0;
-                        }
-                    } else {
-                        std::reverse(componentPixels.begin(), componentPixels.end());
-                        lines.push_back(std::move(componentPixels));
-                        label++;
-                    }
-                }
-            }
-        }
+    int startY, endY, stepY;
+    if (EXITING_INTERSECTION == currentState || IN_INTERSECTION == currentState)
+    {
+        startY = rowTopCutOffThreshold;
+        endY = binaryImage.rows - 1;
+        stepY = +1;  // Top to bottom
     }
     else
     {
-        for (int y = binaryImage.rows - 1; y >= rowTopCutOffThreshold; --y) { // Bottom to top
-            for (int x = 0; x < binaryImage.cols; ++x) {  // Left to right
-                if (binaryImage.at<uchar>(y, x) == 255 && labelImage.at<int>(y, x) == 0) {
+        startY = binaryImage.rows - 1;
+        endY = rowTopCutOffThreshold;
+        stepY = -1;  // Bottom to top
+    }
+    
+    for (int y = startY; (stepY > 0) ? (y <= endY) : (y >= endY); y += stepY)
+    {
+        for (int x = 0; x < binaryImage.cols; ++x)
+        {
+            if (binaryImage.at<uchar>(y, x) == 255 && labelImage.at<int>(y, x) == 0)
+            {
+                std::queue<cv::Point2f> queue;
+                queue.push(cv::Point2f(x, y));
+                labelImage.at<int>(y, x) = label;
 
-                    std::queue<cv::Point2f> queue;
-                    queue.push(cv::Point2f(x, y));
-                    labelImage.at<int>(y, x) = label;
+                pixelCount = 0;
+                std::vector<cv::Point2f> componentPixels;
 
-                    pixelCount = 0;
-                    std::vector<cv::Point2f> componentPixels;
+                while (!queue.empty())
+                {
+                    cv::Point2f p = queue.front();
+                    queue.pop();
+                    pixelCount++;
+                    componentPixels.push_back(p);
 
-                    while (!queue.empty()) {
-                        cv::Point2f p = queue.front();
-                        queue.pop();
-                        pixelCount++;
-                        componentPixels.push_back(p);
+                    for (const auto& offset : neighborhood)
+                    {
+                        int nx = p.x + offset.x;
+                        int ny = p.y + offset.y;
 
-                        for (const auto& offset : neighborhood) {
-                            int nx = p.x + offset.x;
-                            int ny = p.y + offset.y;
-
-                            if (nx >= 0 && ny >= rowTopCutOffThreshold  && nx < binaryImage.cols && ny < binaryImage.rows) {
-                                if (binaryImage.at<uchar>(ny, nx) == 255 && labelImage.at<int>(ny, nx) == 0) {
-                                    labelImage.at<int>(ny, nx) = label;
-                                    queue.push(cv::Point2f(nx, ny));
-                                }
+                        if (nx >= 0 && ny >= rowTopCutOffThreshold && 
+                            nx < binaryImage.cols && ny < binaryImage.rows)
+                        {
+                            if (binaryImage.at<uchar>(ny, nx) == 255 && 
+                            labelImage.at<int>(ny, nx) == 0)
+                            {
+                                labelImage.at<int>(ny, nx) = label;
+                                queue.push(cv::Point2f(nx, ny));
                             }
                         }
                     }
+                }
 
-                    if (pixelCount < config->lineMinPixelCount) {
-                        for (const auto& p : componentPixels) {
-                            labelImage.at<int>(p.y, p.x) = 0;
-                        }
-                    } else {
-                        lines.push_back(std::move(componentPixels));
-                        label++;
+                if (pixelCount < config->lineMinPixelCount)
+                {
+                    for (const auto& p : componentPixels)
+                    {
+                        labelImage.at<int>(p.y, p.x) = 0;
                     }
+                }
+                else
+                {
+                    if (stepY > 0)
+                        std::reverse(componentPixels.begin(), componentPixels.end());
+
+                    lines.push_back(std::move(componentPixels));
+                    label++;
                 }
             }
         }
     }
-    
+
 
     return label - 1;
 }
@@ -1149,8 +1079,7 @@ std::vector<cv::Point2f> CameraProcessing::fitPolinomial(const std::vector<cv::P
     }else{
         smoothedLine = line;
     }
-    // Approximate the contours to further smooth them
-    cv::approxPolyDP(smoothedLine, smoothedLine, fitPolyEpsilon, false);  // false = open curve  
+    cv::approxPolyDP(smoothedLine, smoothedLine, fitPolyEpsilon, false);  
     return smoothedLine;
 }
 
@@ -2116,4 +2045,53 @@ std::string  CameraProcessing::createSerialString(bool isBlueStatusLedOn, bool i
     serialString += ";" + std::to_string(checksum);
     
     return serialString;
+}
+
+void CameraProcessing::handleRaceStart(
+    ConfigStruct* config,
+    timerState& startTimeState,
+    PurePursuit& ppObject,
+    int DEFAULT_EDF_FAN_CURRENT_SPEED,
+    bool& isFinishLineDetected
+)
+{
+    if (config->startRace)
+    {
+        if (!startTimeState.startTimeEnabled)
+        {
+            startTimeState.startTime = std::chrono::steady_clock::now();
+            startTimeState.startTimeEnabled = true;
+        }
+
+        auto now = std::chrono::steady_clock::now();
+        double elapsedMillis = std::chrono::duration<double, std::milli>(now - startTimeState.startTime).count();
+
+        double totalWaitMillis = (config->waitBeforeStartSeconds + 
+            config->waitBeforeEdfStartSeconds + config->waitBeforeFinishDetectionSeconds) * 1000.0;
+
+        if (elapsedMillis >= (config->waitBeforeStartSeconds * 1000.0)) 
+        {
+            config->enableCarEngine = true;
+            config->enableCarSteering = true;
+            ppObject.setStartSpeedOptimizedForTorque(true);
+        }
+
+        if (elapsedMillis >= (config->waitBeforeStartSeconds * 1000.0 + config->waitBeforeEdfStartSeconds * 1000.0))
+        { 
+            ppObject.setStartSpeedOptimizedForTorque(false);
+            config->currentEdfFanSpeed = DEFAULT_EDF_FAN_CURRENT_SPEED;
+        }
+
+        if (elapsedMillis >= totalWaitMillis) 
+        {
+            config->enableFinishLineDetection = 1;
+            isFinishLineDetected = false;
+            config->startRace = false;
+            startTimeState.startTimeEnabled = false;
+        }
+    }
+    else
+    {
+        startTimeState.startTimeEnabled = false;
+    }
 }

@@ -1,0 +1,11 @@
+Plotted to 'D:\NXP_CUP_2024\Modul_LCD\NXP_CUP_Main_Board\Modul_LCD-F_Cu.gbr'.
+Plotted to 'D:\NXP_CUP_2024\Modul_LCD\NXP_CUP_Main_Board\Modul_LCD-B_Cu.gbr'.
+Plotted to 'D:\NXP_CUP_2024\Modul_LCD\NXP_CUP_Main_Board\Modul_LCD-F_Paste.gbr'.
+Plotted to 'D:\NXP_CUP_2024\Modul_LCD\NXP_CUP_Main_Board\Modul_LCD-B_Paste.gbr'.
+Plotted to 'D:\NXP_CUP_2024\Modul_LCD\NXP_CUP_Main_Board\Modul_LCD-F_Silkscreen.gbr'.
+Plotted to 'D:\NXP_CUP_2024\Modul_LCD\NXP_CUP_Main_Board\Modul_LCD-B_Silkscreen.gbr'.
+Plotted to 'D:\NXP_CUP_2024\Modul_LCD\NXP_CUP_Main_Board\Modul_LCD-F_Mask.gbr'.
+Plotted to 'D:\NXP_CUP_2024\Modul_LCD\NXP_CUP_Main_Board\Modul_LCD-B_Mask.gbr'.
+Plotted to 'D:\NXP_CUP_2024\Modul_LCD\NXP_CUP_Main_Board\Modul_LCD-Edge_Cuts.gbr'.
+Created Gerber job file 'D:\NXP_CUP_2024\Modul_LCD\NXP_CUP_Main_Board\Modul_LCD-job.gbrjob'.
+Info: Done.

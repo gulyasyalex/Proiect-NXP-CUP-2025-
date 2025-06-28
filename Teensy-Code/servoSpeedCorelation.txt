@@ -1,0 +1,113 @@
+Servo Write to Speed Mapping – Discussion Summary
+
+Measured Data:
+---------------
+Servo write = 91:
+   Speed = 0 cm/s (wheels do not move)
+
+Servo write = 100:
+   Speed ≈ 214 cm/s
+
+Servo write = 110:
+   Speed ≈ 493 cm/s
+
+Servo write = 120:
+   Speed ≈ 668 cm/s
+
+------------------------------------------------------------
+Step 1: Define a Shifted Variable
+
+Since the wheels do not move at a servo write of 91, define:
+    t = servo write - 91
+
+This yields:
+    t = 0   →   0 cm/s
+    t = 9   →   214 cm/s
+    t = 19  →   493 cm/s
+    t = 29  →   668 cm/s
+
+------------------------------------------------------------
+Step 2: Fitting a Mathematical Formula
+
+Assume that the speed can be modeled by a cubic polynomial (with no constant term, since when t = 0, speed = 0):
+
+    Speed (cm/s) = A*t^3 + B*t^2 + C*t
+
+Data Equations:
+1. For t = 9:
+      A*(9)^3 + B*(9)^2 + C*(9) = 214
+2. For t = 19:
+      A*(19)^3 + B*(19)^2 + C*(19) = 493
+3. For t = 29:
+      A*(29)^3 + B*(29)^2 + C*(29) = 668
+
+Fitted (approximate) coefficients:
+    A ≈ -0.02545
+    B ≈ 0.929
+    C ≈ 17.48
+
+Thus, the forward mapping formula is:
+    Speed (cm/s) ≈ -0.02545*t^3 + 0.929*t^2 + 17.48*t,  where t = servo write - 91
+
+Checking the Formula:
+----------------------
+At servo write = 100:
+   t = 100 - 91 = 9
+   Speed ≈ -0.02545*(9^3) + 0.929*(9^2) + 17.48*9 ≈ 214 cm/s
+
+At servo write = 110:
+   t = 110 - 91 = 19
+   Speed ≈ 493 cm/s
+
+At servo write = 120:
+   t = 120 - 91 = 29
+   Speed ≈ 668 cm/s
+
+------------------------------------------------------------
+Step 3: Inverting the Relationship
+
+To determine the required servo write for a desired speed (for example, 493 cm/s):
+
+1. Start with the equation:
+      -0.02545*t^3 + 0.929*t^2 + 17.48*t = v,
+   where v is the desired speed (in cm/s).
+
+2. Rearranged, the equation is:
+      -0.02545*t^3 + 0.929*t^2 + 17.48*t - v = 0
+
+For v = 493 cm/s, we know t = 19 (since 110 servo write gives 493 cm/s, and 110 - 91 = 19).
+
+Once t is found, compute:
+      servo write = t + 91
+
+General Inversion Methods:
+---------------------------
+- Exact Method: Use the cubic formula (Cardano’s method) to solve for t.
+- Numerical Method: Use an iterative numerical method (e.g., Newton–Raphson) to solve for t.
+- Lookup Table: For a limited range, pre-calculate values and use a lookup table.
+
+------------------------------------------------------------
+Summary:
+--------
+Forward Mapping:
+   1. Calculate t = servo write - 91.
+   2. Compute Speed (cm/s) as:
+         v ≈ -0.02545*t^3 + 0.929*t^2 + 17.48*t
+
+Inverse Mapping:
+   1. Given a desired speed v, solve:
+         -0.02545*t^3 + 0.929*t^2 + 17.48*t - v = 0
+      for t.
+   2. Then, compute:
+         servo write = t + 91
+
+Example:
+   For a desired speed of 493 cm/s:
+      t = 19 (since 493 cm/s is achieved at t = 19)
+      Therefore, servo write = 19 + 91 = 110.
+
+
+
+
+
+Cardano’s Formula

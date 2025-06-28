@@ -183,7 +183,7 @@ double topImageCutPercentage = 0; //0.35;
 // Used to calculate where chassis should be in image
 int distanceErrorFromChassis = 0;                    // Measured in Pixels
 
-// Used in customConnectedComponentsWithThreshold()
+// Used in customConnectedComponents()
 int lineMinPixelCount = 45;                           // 45 Defines how many pixel can make a line (removes noise)  finish lines sizes: 57 64       
 double topCutOffPercentageCustomConnected = 0.35;      // Top 40% cutoff to mitigate Far View error                (Range: 0.0 - 1.0)
 

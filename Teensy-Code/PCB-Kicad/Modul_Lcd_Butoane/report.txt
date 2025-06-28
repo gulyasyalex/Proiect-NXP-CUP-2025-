@@ -1,0 +1,11 @@
+Plotted to 'D:\NXP_CUP_2024\Modul_Lcd_Butoane\NXP_CUP_Lcd_Board_Gerber\Modul_Lcd_Butoane-F_Cu.gbr'.
+Plotted to 'D:\NXP_CUP_2024\Modul_Lcd_Butoane\NXP_CUP_Lcd_Board_Gerber\Modul_Lcd_Butoane-B_Cu.gbr'.
+Plotted to 'D:\NXP_CUP_2024\Modul_Lcd_Butoane\NXP_CUP_Lcd_Board_Gerber\Modul_Lcd_Butoane-F_Paste.gbr'.
+Plotted to 'D:\NXP_CUP_2024\Modul_Lcd_Butoane\NXP_CUP_Lcd_Board_Gerber\Modul_Lcd_Butoane-B_Paste.gbr'.
+Plotted to 'D:\NXP_CUP_2024\Modul_Lcd_Butoane\NXP_CUP_Lcd_Board_Gerber\Modul_Lcd_Butoane-F_Silkscreen.gbr'.
+Plotted to 'D:\NXP_CUP_2024\Modul_Lcd_Butoane\NXP_CUP_Lcd_Board_Gerber\Modul_Lcd_Butoane-B_Silkscreen.gbr'.
+Plotted to 'D:\NXP_CUP_2024\Modul_Lcd_Butoane\NXP_CUP_Lcd_Board_Gerber\Modul_Lcd_Butoane-F_Mask.gbr'.
+Plotted to 'D:\NXP_CUP_2024\Modul_Lcd_Butoane\NXP_CUP_Lcd_Board_Gerber\Modul_Lcd_Butoane-B_Mask.gbr'.
+Plotted to 'D:\NXP_CUP_2024\Modul_Lcd_Butoane\NXP_CUP_Lcd_Board_Gerber\Modul_Lcd_Butoane-Edge_Cuts.gbr'.
+Created Gerber job file 'D:\NXP_CUP_2024\Modul_Lcd_Butoane\NXP_CUP_Lcd_Board_Gerber\Modul_Lcd_Butoane-job.gbrjob'.
+Info: Done.

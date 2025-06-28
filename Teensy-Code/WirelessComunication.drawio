@@ -1,0 +1,339 @@
+<mxfile host="app.diagrams.net" modified="2024-06-10T12:20:11.874Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36" etag="hqyhwM7WplhU_Y22wEhR" version="24.2.5" type="device">
+  <diagram name="Page-1" id="Oe33CdpyqQPxROZXdDlh">
+    <mxGraphModel dx="2100" dy="1114" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2500" pageHeight="1500" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="rW6QCKEK7angmyw1Fok6-13" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="rW6QCKEK7angmyw1Fok6-5" target="wO1Nlap3nljr65miblBk-4" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="743" y="1050" as="sourcePoint" />
+            <mxPoint x="617.5" y="1150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-31" value="bidirectional connection:&lt;br&gt;CSV&lt;br&gt;formatted data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="rW6QCKEK7angmyw1Fok6-13" connectable="0" vertex="1">
+          <mxGeometry x="0.0497" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-20" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="rW6QCKEK7angmyw1Fok6-56" target="rW6QCKEK7angmyw1Fok6-6" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1000" y="740" as="sourcePoint" />
+            <mxPoint x="1000" y="690" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-35" value="bidirectional connection:&lt;br&gt;JSON&lt;br&gt;formatted data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="rW6QCKEK7angmyw1Fok6-20" connectable="0" vertex="1">
+          <mxGeometry x="0.009" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-87" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="ZKe3k0HI6D6ZrNZTQiI9-3" target="wO1Nlap3nljr65miblBk-24" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1043.5" y="320" as="sourcePoint" />
+            <mxPoint x="567.5" y="590" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-88" value="bidirectional connection:&lt;br&gt;CSV&lt;br&gt;formatted data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="rW6QCKEK7angmyw1Fok6-87" connectable="0" vertex="1">
+          <mxGeometry x="0.0497" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-92" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="wO1Nlap3nljr65miblBk-35" target="ZKe3k0HI6D6ZrNZTQiI9-5" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1652.25" y="665" as="sourcePoint" />
+            <mxPoint x="1216" y="630" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-93" value="bidirectional connection:&lt;br&gt;JSON&lt;br&gt;formatted data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="rW6QCKEK7angmyw1Fok6-92" connectable="0" vertex="1">
+          <mxGeometry x="0.009" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-1" value="Car n" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="70" y="840" width="490" height="360" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-20" value="&lt;span style=&quot;font-weight: 400; text-wrap: nowrap;&quot;&gt;ESP8266 esp-01&lt;/span&gt;" style="swimlane;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-1" vertex="1">
+          <mxGeometry x="290" y="40" width="160" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-4" value="TCP Server" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-20" vertex="1">
+          <mxGeometry x="30" y="225" width="85" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-5" value="Serial port" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-20" vertex="1">
+          <mxGeometry x="37.5" y="90" width="70" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-6" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="wO1Nlap3nljr65miblBk-20" source="wO1Nlap3nljr65miblBk-4" target="wO1Nlap3nljr65miblBk-5" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="350" y="-310" as="sourcePoint" />
+            <mxPoint x="220.00000000000023" y="-370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-7" value="bidirectional connection:&lt;br&gt;CSV&lt;br&gt;formatted data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="wO1Nlap3nljr65miblBk-6" connectable="0" vertex="1">
+          <mxGeometry x="-0.1862" y="-1" relative="1" as="geometry">
+            <mxPoint x="-1" y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-8" value="ip_v4: n" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="wO1Nlap3nljr65miblBk-20" vertex="1">
+          <mxGeometry x="37.5" y="40" width="70" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-21" value="&lt;span style=&quot;font-weight: 400; text-wrap: nowrap;&quot;&gt;Microcontroller&lt;/span&gt;" style="swimlane;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-1" vertex="1">
+          <mxGeometry x="35" y="75" width="120" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-11" value="Serial port" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-21" vertex="1">
+          <mxGeometry x="20" y="50" width="70" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-12" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="wO1Nlap3nljr65miblBk-1" source="wO1Nlap3nljr65miblBk-5" target="wO1Nlap3nljr65miblBk-11" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint y="230" as="sourcePoint" />
+            <mxPoint x="200" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-13" value="bidirectional connection:&lt;br&gt;CSV&lt;br&gt;formatted data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="wO1Nlap3nljr65miblBk-12" connectable="0" vertex="1">
+          <mxGeometry x="0.0116" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-14" value="Browser" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1940" y="340" width="346" height="640" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-33" value="&lt;span style=&quot;font-weight: 400; text-wrap: nowrap;&quot;&gt;Page n: http://localhost:3000/car-monitor/${ip_v4}&lt;/span&gt;" style="swimlane;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-14" vertex="1">
+          <mxGeometry x="16" y="340" width="314" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-56" value="Websocket Client" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-33" vertex="1">
+          <mxGeometry x="106.24999999999977" y="60" width="77.5" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-57" value="Display&lt;br&gt;data" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-33" vertex="1">
+          <mxGeometry x="17.499999999999773" y="195" width="77.5" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-58" value="Send&lt;div&gt;data&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-33" vertex="1">
+          <mxGeometry x="189.99999999999977" y="195" width="90" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-59" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0;exitY=1;exitDx=0;exitDy=0;" parent="wO1Nlap3nljr65miblBk-33" source="rW6QCKEK7angmyw1Fok6-56" target="rW6QCKEK7angmyw1Fok6-57" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="829.9999999999998" y="-165" as="sourcePoint" />
+            <mxPoint x="879.9999999999998" y="-215" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-60" value="directional connection:&lt;br&gt;JSON&lt;br&gt;formatted data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="rW6QCKEK7angmyw1Fok6-59" connectable="0" vertex="1">
+          <mxGeometry x="0.0016" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-61" value="" style="endArrow=classic;html=1;rounded=0;entryX=1;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="wO1Nlap3nljr65miblBk-33" source="rW6QCKEK7angmyw1Fok6-58" target="rW6QCKEK7angmyw1Fok6-56" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="829.9999999999998" y="-165" as="sourcePoint" />
+            <mxPoint x="879.9999999999998" y="-215" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-62" value="directional connection:&lt;br&gt;JSON&lt;br&gt;formatted data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="rW6QCKEK7angmyw1Fok6-61" connectable="0" vertex="1">
+          <mxGeometry x="0.0407" relative="1" as="geometry">
+            <mxPoint x="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-34" value="&lt;span style=&quot;font-weight: 400; text-wrap: nowrap;&quot;&gt;Page 1: http://localhost:3000/car-monitor/192.168.0.32&lt;/span&gt;" style="swimlane;whiteSpace=wrap;html=1;startSize=23;" parent="wO1Nlap3nljr65miblBk-14" vertex="1">
+          <mxGeometry x="16" y="40" width="314" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-35" value="Websocket Client" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-34" vertex="1">
+          <mxGeometry x="106.24999999999977" y="60" width="77.5" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-36" value="Display&lt;br&gt;data" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-34" vertex="1">
+          <mxGeometry x="17.499999999999773" y="195" width="77.5" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-37" value="Send&lt;div&gt;data&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-34" vertex="1">
+          <mxGeometry x="189.99999999999977" y="195" width="90" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-38" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0;exitY=1;exitDx=0;exitDy=0;" parent="wO1Nlap3nljr65miblBk-34" source="wO1Nlap3nljr65miblBk-35" target="wO1Nlap3nljr65miblBk-36" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="829.9999999999998" y="-165" as="sourcePoint" />
+            <mxPoint x="879.9999999999998" y="-215" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-39" value="directional connection:&lt;br&gt;JSON&lt;br&gt;formatted data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="wO1Nlap3nljr65miblBk-38" connectable="0" vertex="1">
+          <mxGeometry x="0.0016" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-40" value="" style="endArrow=classic;html=1;rounded=0;entryX=1;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="wO1Nlap3nljr65miblBk-34" source="wO1Nlap3nljr65miblBk-37" target="wO1Nlap3nljr65miblBk-35" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="829.9999999999998" y="-165" as="sourcePoint" />
+            <mxPoint x="879.9999999999998" y="-215" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-41" value="directional connection:&lt;br&gt;JSON&lt;br&gt;formatted data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="wO1Nlap3nljr65miblBk-40" connectable="0" vertex="1">
+          <mxGeometry x="0.0407" relative="1" as="geometry">
+            <mxPoint x="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-17" value="&lt;span style=&quot;font-weight: 400; text-wrap: nowrap;&quot;&gt;Web server&lt;/span&gt;" style="swimlane;whiteSpace=wrap;html=1;startSize=23;" parent="1" vertex="1">
+          <mxGeometry x="860" y="170" width="740" height="1000" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-16" value="&lt;span style=&quot;font-weight: 400; text-wrap: nowrap;&quot;&gt;Connection array&lt;/span&gt;" style="swimlane;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-17" vertex="1">
+          <mxGeometry x="30" y="35" width="441" height="950" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-19" value="Connection n" style="swimlane;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-16" vertex="1">
+          <mxGeometry x="20" y="505" width="400" height="430" as="geometry" />
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-5" value="TCP Client" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-19" vertex="1">
+          <mxGeometry x="100" y="40" width="55" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-36" value="CSV to JSON parser" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-19" vertex="1">
+          <mxGeometry x="62.5" y="175" width="130" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-6" value="Websocket Server&lt;br&gt;&lt;span style=&quot;text-wrap: nowrap;&quot;&gt;ws://localhost:3000/car-monitor/${&lt;/span&gt;&lt;span style=&quot;text-wrap: nowrap;&quot;&gt;ip_v4&lt;/span&gt;&lt;span style=&quot;text-wrap: nowrap;&quot;&gt;}&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-19" vertex="1">
+          <mxGeometry x="10" y="330" width="290" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-14" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="wO1Nlap3nljr65miblBk-19" source="rW6QCKEK7angmyw1Fok6-36" target="rW6QCKEK7angmyw1Fok6-5" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-698.5" y="875" as="sourcePoint" />
+            <mxPoint x="-706.5" y="835" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-32" value="bidirectional connection:&lt;br&gt;CSV&lt;br&gt;formatted data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="rW6QCKEK7angmyw1Fok6-14" connectable="0" vertex="1">
+          <mxGeometry x="0.1614" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-39" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="wO1Nlap3nljr65miblBk-19" source="rW6QCKEK7angmyw1Fok6-36" target="rW6QCKEK7angmyw1Fok6-6" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-128" y="825" as="sourcePoint" />
+            <mxPoint x="-336" y="1070" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rW6QCKEK7angmyw1Fok6-40" value="bidirectional connection:&lt;br&gt;JSON&lt;br&gt;formatted data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="rW6QCKEK7angmyw1Fok6-39" connectable="0" vertex="1">
+          <mxGeometry x="0.009" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-54" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" parent="wO1Nlap3nljr65miblBk-19" source="rW6QCKEK7angmyw1Fok6-6" target="wO1Nlap3nljr65miblBk-56" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="294" y="322" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-55" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="wO1Nlap3nljr65miblBk-19" source="wO1Nlap3nljr65miblBk-56" target="rW6QCKEK7angmyw1Fok6-5" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="220" y="40" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-56" value="If zero clients are connected&lt;div&gt;to the Websocket server than close the websocket Server and the TCP Client&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-19" vertex="1">
+          <mxGeometry x="220" y="142.5" width="170" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="ZKe3k0HI6D6ZrNZTQiI9-2" value="Connection 1" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="wO1Nlap3nljr65miblBk-16">
+          <mxGeometry x="20" y="35" width="400" height="430" as="geometry" />
+        </mxCell>
+        <mxCell id="ZKe3k0HI6D6ZrNZTQiI9-3" value="TCP Client" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="ZKe3k0HI6D6ZrNZTQiI9-2">
+          <mxGeometry x="100" y="40" width="55" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ZKe3k0HI6D6ZrNZTQiI9-4" value="CSV to JSON parser" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="ZKe3k0HI6D6ZrNZTQiI9-2">
+          <mxGeometry x="62.5" y="175" width="130" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ZKe3k0HI6D6ZrNZTQiI9-5" value="Websocket Server&lt;br&gt;&lt;span style=&quot;text-wrap: nowrap;&quot;&gt;ws://localhost:3000/car-monitor/&lt;/span&gt;&lt;span style=&quot;text-wrap: nowrap;&quot;&gt;192.168.0.32&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="ZKe3k0HI6D6ZrNZTQiI9-2">
+          <mxGeometry x="10" y="330" width="290" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ZKe3k0HI6D6ZrNZTQiI9-6" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="ZKe3k0HI6D6ZrNZTQiI9-2" source="ZKe3k0HI6D6ZrNZTQiI9-4" target="ZKe3k0HI6D6ZrNZTQiI9-3">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-698.5" y="875" as="sourcePoint" />
+            <mxPoint x="-706.5" y="835" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZKe3k0HI6D6ZrNZTQiI9-7" value="bidirectional connection:&lt;br&gt;CSV&lt;br&gt;formatted data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" connectable="0" vertex="1" parent="ZKe3k0HI6D6ZrNZTQiI9-6">
+          <mxGeometry x="0.1614" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZKe3k0HI6D6ZrNZTQiI9-8" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="ZKe3k0HI6D6ZrNZTQiI9-2" source="ZKe3k0HI6D6ZrNZTQiI9-4" target="ZKe3k0HI6D6ZrNZTQiI9-5">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-128" y="825" as="sourcePoint" />
+            <mxPoint x="-336" y="1070" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZKe3k0HI6D6ZrNZTQiI9-9" value="bidirectional connection:&lt;br&gt;JSON&lt;br&gt;formatted data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" connectable="0" vertex="1" parent="ZKe3k0HI6D6ZrNZTQiI9-8">
+          <mxGeometry x="0.009" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZKe3k0HI6D6ZrNZTQiI9-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" edge="1" parent="ZKe3k0HI6D6ZrNZTQiI9-2" source="ZKe3k0HI6D6ZrNZTQiI9-5" target="ZKe3k0HI6D6ZrNZTQiI9-12">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="294" y="322" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZKe3k0HI6D6ZrNZTQiI9-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="ZKe3k0HI6D6ZrNZTQiI9-2" source="ZKe3k0HI6D6ZrNZTQiI9-12" target="ZKe3k0HI6D6ZrNZTQiI9-3">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="220" y="40" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZKe3k0HI6D6ZrNZTQiI9-12" value="If zero clients are connected&lt;div&gt;to the Websocket server than close the websocket Server and the TCP Client&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="ZKe3k0HI6D6ZrNZTQiI9-2">
+          <mxGeometry x="220" y="142.5" width="170" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-44" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="wO1Nlap3nljr65miblBk-17" source="wO1Nlap3nljr65miblBk-43" target="wO1Nlap3nljr65miblBk-16" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-43" value="Create Connection if doesen&#39;t exist" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-17" vertex="1">
+          <mxGeometry x="550" y="470" width="130" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-50" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="wO1Nlap3nljr65miblBk-17" source="wO1Nlap3nljr65miblBk-49" target="wO1Nlap3nljr65miblBk-43" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-49" value="Serve page" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-17" vertex="1">
+          <mxGeometry x="550" y="190" width="130" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-22" value="Car 1" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="70" y="270" width="490" height="360" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-23" value="&lt;span style=&quot;font-weight: 400; text-wrap: nowrap;&quot;&gt;ESP8266 esp-01&lt;/span&gt;" style="swimlane;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-22" vertex="1">
+          <mxGeometry x="290" y="40" width="160" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-24" value="TCP Server" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-23" vertex="1">
+          <mxGeometry x="30" y="225" width="85" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-25" value="Serial port" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-23" vertex="1">
+          <mxGeometry x="37.5" y="90" width="70" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-26" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="wO1Nlap3nljr65miblBk-23" source="wO1Nlap3nljr65miblBk-24" target="wO1Nlap3nljr65miblBk-25" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="350" y="-310" as="sourcePoint" />
+            <mxPoint x="220.00000000000023" y="-370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-27" value="bidirectional connection:&lt;br&gt;CSV&lt;br&gt;formatted data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="wO1Nlap3nljr65miblBk-26" connectable="0" vertex="1">
+          <mxGeometry x="-0.1862" y="-1" relative="1" as="geometry">
+            <mxPoint x="-1" y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-28" value="ip_v4: 192.168.0.32" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="wO1Nlap3nljr65miblBk-23" vertex="1">
+          <mxGeometry x="7.5" y="40" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-29" value="&lt;span style=&quot;font-weight: 400; text-wrap: nowrap;&quot;&gt;Microcontroller&lt;/span&gt;" style="swimlane;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-22" vertex="1">
+          <mxGeometry x="35" y="75" width="120" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-30" value="Serial port" style="ellipse;whiteSpace=wrap;html=1;" parent="wO1Nlap3nljr65miblBk-29" vertex="1">
+          <mxGeometry x="20" y="50" width="70" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-31" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="wO1Nlap3nljr65miblBk-22" source="wO1Nlap3nljr65miblBk-25" target="wO1Nlap3nljr65miblBk-30" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint y="230" as="sourcePoint" />
+            <mxPoint x="200" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-32" value="bidirectional connection:&lt;br&gt;CSV&lt;br&gt;formatted data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="wO1Nlap3nljr65miblBk-31" connectable="0" vertex="1">
+          <mxGeometry x="0.0116" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-45" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="wO1Nlap3nljr65miblBk-34" target="wO1Nlap3nljr65miblBk-49" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-46" value="GET request" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="wO1Nlap3nljr65miblBk-45" connectable="0" vertex="1">
+          <mxGeometry x="-0.0087" y="4" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-47" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="wO1Nlap3nljr65miblBk-33" target="wO1Nlap3nljr65miblBk-49" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wO1Nlap3nljr65miblBk-48" value="GET request" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="wO1Nlap3nljr65miblBk-47" connectable="0" vertex="1">
+          <mxGeometry x="0.0068" y="-4" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
