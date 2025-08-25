@@ -53,3 +53,43 @@ Teensy Microcontroller:
 * Safety features, including emergency remote stop and refresh rate control.
 
 This modular architecture ensures real-time image processing on the Debix while leaving low-level actuator control to the Teensy, balancing performance and reliability.
+
+## Algorithms
+
+The software relies on a multi-stage pipeline for perception and control. The main steps are lane detection, Bird’s Eye View transformation, and path tracking with Pure Pursuit.
+
+### Lane Detection
+
+![Lane Detection](images/laneDetection.png)
+
+The camera feed is processed in real time using OpenCV:
+* Preprocessing – thresholding to isolate lane markings from the background.
+* Skeletonization – reducing the lane shape to its central line for robustness.
+* Line detection and simplification – converting the skeleton into a polyline with fewer points, reducing computational load.
+* Midline generation – computing the midpoint between left and right lane boundaries to represent the drivable path.
+
+This stage outputs a discrete midline of the track, represented as a set of points.
+
+### Bird’s Eye View Transformation
+
+![Bird’s Eye View](images/birdEye.png)
+
+To improve perception accuracy, a perspective transform is applied to obtain a Bird’s Eye View (top-down) of the track.
+
+This reduces distortions from the forward-facing camera.
+Curves and straight segments are easier to analyze in this perspective.
+The transformation matrix is calibrated once for the camera position and then applied consistently during runtime.
+
+### Pure Pursuit with Dynamic Lookahead
+
+![Pure Pursuit](images/purePursuit.png)
+
+Path tracking is implemented using an enhanced Pure Pursuit algorithm:
+The algorithm selects a lookahead point on the midline, ahead of the car’s current position.
+The steering angle is computed geometrically based on the curvature required to reach this point.
+Dynamic lookahead distance:
+* Increases with higher vehicle speed.
+* Decreases for tighter curves (shorter radius).
+This adaptation improves both stability on straights and maneuverability in curves.
+
+The output is a steering command sent to the Teensy, while a separate speed control strategy adjusts motor power to balance agility and stability.
