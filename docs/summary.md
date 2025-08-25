@@ -16,7 +16,7 @@ The system architecture is divided into two main components: hardware and softwa
 
 ### Hardware Architecture
 
-![Hardware Architecture](docs/images/hardware_architecture.png)
+![Hardware Architecture](images/hardware_architecture.png)
 Processing Unit: Debix Model B (NXP i.MX 8M Plus, ARM Cortex-A53 quad-core @ 1.6 GHz, integrated NPU up to 2.3 TOPS) running Ubuntu Linux.
 
 Microcontroller: Teensy 4.0 used for real-time control of the servo motor and dual rear motors.
@@ -36,7 +36,7 @@ Power System: Li-Po battery with step-down converters for stable voltage supply.
 
 ### Software Architecture
 
-![Software Architecture](docs/images/software_architecture.png)
+![Software Architecture](images/software_architecture.png)
 The software stack is split across the Debix board and the Teensy microcontroller:
 
 Debix Board (Linux):

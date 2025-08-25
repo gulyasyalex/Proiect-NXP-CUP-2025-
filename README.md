@@ -1,5 +1,5 @@
 # Debix Smart RC Car — NXP Cup 2025
-
+(For more Information visit Docs folder)
 This project runs the **image processing** and **control logic** for the smart RC car using a **Debix Model B** with an **NXP i.MX 8M Plus** processor.  
 It handles:
 - Camera capture & processing (**OpenCV**)
