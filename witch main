@@ -1,0 +1,47 @@
+[33mfff87852[m[33m ([m[1;36mHEAD[m[33m)[m HEAD@{0}: checkout: moving from main to HEAD~1
+[33m4f34e644[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m HEAD@{1}: rebase (continue) (finish): returning to refs/heads/main
+[33m4f34e644[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m HEAD@{2}: rebase (continue): 2026_code_Revisit2
+[33mfff87852[m[33m ([m[1;36mHEAD[m[33m)[m HEAD@{3}: rebase (start): checkout origin/main
+[33m23bba826[m HEAD@{4}: commit: 2026_code_Revisit2
+[33ma4389e74[m HEAD@{5}: commit (merge): Merge branch 'rdpTry'
+[33mdb79820f[m HEAD@{6}: checkout: moving from rdpTry to main
+[33m6abe0474[m[33m ([m[1;31morigin/rdpTry[m[33m, [m[1;32mrdpTry[m[33m)[m HEAD@{7}: commit: after Eindhoven(6th place setup)
+[33m95da0cd1[m HEAD@{8}: commit: not good finish Line detection
+[33m0a5799f2[m HEAD@{9}: checkout: moving from rdpTry to rdpTry
+[33m0a5799f2[m HEAD@{10}: checkout: moving from returnToOLD to rdpTry
+[33m1fc939c7[m[33m ([m[1;31morigin/returnToOLD[m[33m, [m[1;32mreturnToOLD[m[33m)[m HEAD@{11}: checkout: moving from rdpTry to returnToOLD
+[33m0a5799f2[m HEAD@{12}: commit: EindHovenSetup
+[33m34b61095[m HEAD@{13}: checkout: moving from returnToOLD to rdpTry
+[33m1fc939c7[m[33m ([m[1;31morigin/returnToOLD[m[33m, [m[1;32mreturnToOLD[m[33m)[m HEAD@{14}: commit: better cornering but still 9s?
+[33m28f36893[m HEAD@{15}: commit: (GoodCompetitionSetup) 8.7s run with finishLine
+[33m6253b7ff[m HEAD@{16}: checkout: moving from rdpTry to returnToOLD
+[33m34b61095[m HEAD@{17}: commit: commit with errors
+[33m8cc48821[m HEAD@{18}: commit: Competition Setup 08/05/2025
+[33mb3074fe1[m HEAD@{19}: commit: FEAT(removed APPROACHING mode)
+[33m7e8cc428[m HEAD@{20}: checkout: moving from main to rdpTry
+[33mdb79820f[m HEAD@{21}: checkout: moving from master to main
+[33m4bf07e3f[m[33m ([m[1;31morigin/master[m[33m, [m[1;32mmaster[m[33m)[m HEAD@{22}: checkout: moving from oldComputeKtest to master
+[33m6253b7ff[m HEAD@{23}: checkout: moving from main to oldComputeKtest
+[33mdb79820f[m HEAD@{24}: commit: (check) tried longestline in FOLLOWING_LINE
+[33m02572541[m HEAD@{25}: commit: (feat) 8.4s run
+[33m7e8cc428[m HEAD@{26}: commit: (feat) Added Ramer-Douglas-Pecker(under 9s setup)
+[33m6253b7ff[m HEAD@{27}: commit: 9.7s official run with box stop ( still check blue led)
+[33m9b6ccaf9[m HEAD@{28}: commit: (feat) 8.77s
+[33m6396edfb[m HEAD@{29}: commit: (fix) last working update with edf fix and good speed
+[33m94eeeed9[m HEAD@{30}: commit: (feat) finish line working - need to fix 350 edf after finish
+[33mea08ed20[m HEAD@{31}: commit: (fix) Organized files
+[33m05102091[m HEAD@{32}: commit: 1st Place Run Bucharest(Jiggle alot and no Honor lap)
+[33mfa9c0247[m HEAD@{33}: commit: (feat)Speed Fix and Initial line Jiggle
+[33me61236c4[m HEAD@{34}: commit: Bucharest first test day commit
+[33md5b09aeb[m HEAD@{35}: checkout: moving from competition to main
+[33m83f9650c[m[33m ([m[1;31morigin/competition[m[33m, [m[1;32mcompetition[m[33m)[m HEAD@{36}: checkout: moving from main to competition
+[33md5b09aeb[m HEAD@{37}: checkout: moving from clean-run to main
+[33mbd8cff84[m[33m ([m[1;32mclean-run[m[33m)[m HEAD@{38}: commit: ok
+[33me4b0e1cf[m[33m ([m[1;31morigin/clean-run[m[33m)[m HEAD@{39}: checkout: moving from clean-run to clean-run
+[33me4b0e1cf[m[33m ([m[1;31morigin/clean-run[m[33m)[m HEAD@{40}: checkout: moving from main to clean-run
+[33md5b09aeb[m HEAD@{41}: checkout: moving from clean-run to main
+[33me4b0e1cf[m[33m ([m[1;31morigin/clean-run[m[33m)[m HEAD@{42}: checkout: moving from main to clean-run
+[33md5b09aeb[m HEAD@{43}: commit: issues..
+[33me4b0e1cf[m[33m ([m[1;31morigin/clean-run[m[33m)[m HEAD@{44}: commit: (feat) 8,795s clean run
+[33m83f9650c[m[33m ([m[1;31morigin/competition[m[33m, [m[1;32mcompetition[m[33m)[m HEAD@{45}: commit: under 9s setup
+[33m01bee67b[m HEAD@{46}: commit: 9.5s new config
