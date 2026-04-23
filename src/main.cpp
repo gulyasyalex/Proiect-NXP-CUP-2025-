@@ -4,6 +4,7 @@
 #include <memory>
 #include <csignal>
 #include <chrono>
+#include <cstring>
 
 // Needed for Shared Memory access
 #include <fcntl.h>                                  // Needed for O_CREAT, O_RDWR flags in shm_open()
@@ -24,6 +25,7 @@
 
 
 std::atomic<pid_t> child_pid(-1);  
+std::atomic<bool> app_running{true};
 
 // Global shared pointer for managing the camera
 std::shared_ptr<CameraProcessing> global_camera;
@@ -34,6 +36,8 @@ debix::SerialPort& serial = debix::SerialPort::getInstance();
     TcpConnection websiteTCP{8888};
 #endif
 
+std::mutex configMutex; 
+
 void signalHandler(int signal);
 void checkButtonPress();
 void websiteTCPLoop(TcpConnection& connection);
@@ -41,9 +45,14 @@ bool isValidConfig(const SharedConfig& config);
 
 int main() {
     std::signal(SIGINT, signalHandler); // Register SIGINT handler
+    std::signal(SIGSEGV, signalHandler); // Register SIGSEGV handler
+    std::signal(SIGTERM, signalHandler); // Register SIGTERM handler
 
     #if 1 == ENABLE_TEENSY_SERIAL
-        serial.connectTeensy(SERIAL_PORT);
+        if(!serial.connectTeensy(SERIAL_PORT))
+        {
+            exit(1);
+        }
     #endif    
     // for (int i = 0; i < 3; ++i) {
     //     serial.writeToSerial("Hello from Debix, message " + std::to_string(i));
@@ -108,7 +117,7 @@ int main() {
     global_config->currentEdfFanSpeed = 0; //this is set in startRace section -> DEFAULT_EDF_FAN_CURRENT_SPEED;
     global_config->curvatureFactor = DEFAULT_CURVATURE_FACTOR;
     global_config->rdp_epsilon = DEFAULT_RDP_EPSILON;
-    global_config->k_max = DEFAULT_K_MAX;
+    global_config->boostSpeedValue = DEFAULT_BOOST_SPEED_VALUE;
     global_config->minAngleLookAheadReference = DEFAULT_MIN_ANGLE_LOOKAHEAD_REFERENCE;
     global_config->maxAngleLookAheadReference = DEFAULT_MAX_ANGLE_LOOKAHEAD_REFERENCE;
     global_config->minLookAheadInCm = DEFAULT_MIN_LOOKAHEAD_IN_CM;
@@ -151,7 +160,7 @@ int main() {
             << raw_config->currentEdfFanSpeed << " "
             << raw_config->curvatureFactor << " "
             << raw_config->rdp_epsilon << " "
-            << raw_config->k_max << " "
+            << raw_config->boostSpeedValue << " "
             << raw_config->minAngleLookAheadReference << " "
             << raw_config->maxAngleLookAheadReference << " "
             << raw_config->minLookAheadInCm << " "
@@ -191,7 +200,7 @@ int main() {
     std::cout << "currentEdfFanSpeed: " << offsetof(SharedConfig, currentEdfFanSpeed) << std::endl;
     std::cout << "curvatureFactor: " << offsetof(SharedConfig, curvatureFactor) << std::endl;
     std::cout << "rdp_epsilon: " << offsetof(SharedConfig, rdp_epsilon) << std::endl;
-    std::cout << "k_max: " << offsetof(SharedConfig, k_max) << std::endl;
+    std::cout << "boostSpeedValue: " << offsetof(SharedConfig, boostSpeedValue) << std::endl;
     std::cout << "minAngleLookAheadReference: " << offsetof(SharedConfig, minAngleLookAheadReference) << std::endl;
     std::cout << "maxAngleLookAheadReference: " << offsetof(SharedConfig, maxAngleLookAheadReference) << std::endl;
     std::cout << "minLookAheadInCm: " << offsetof(SharedConfig, minLookAheadInCm) << std::endl;
@@ -227,14 +236,18 @@ int main() {
 
         
         while (global_camera->isRunning()) {
-            //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
+
+        app_running = false;
 
         if (buttonThread.joinable()) {
             buttonThread.join();
         }
 
         #if 1 == ENABLE_TCP_SITE_DEBUG 
+        
+            websiteTCP.close(); 
             if (websiteTCPThread.joinable()) {
                 websiteTCPThread.join();
             }
@@ -248,26 +261,51 @@ int main() {
     return 0;
 }
 
+// void signalHandler(int signal) {
+//     std::cout << "\nReceived signal " << signal << ". Stopping camera..." << std::endl;
+
+//     if (global_camera) {
+//         global_camera->stopCapture();
+//         global_camera->stopFrameProcessing();
+//     }
+//     #if 1 == ENABLE_TEENSY_SERIAL
+//         int checksum = 0;
+//         std::string serialString = "0;0;0;0;0;0;0;0;0;0";
+//         for (char c : serialString) {
+//             checksum += static_cast<unsigned char>(c);
+//         }
+
+//         serialString += ";" + std::to_string(checksum);
+//         serial.writeToSerial(serialString);
+//         serial.disconnectTeensy();
+//     #endif
+
+//     std::exit(signal);
+//}
+
 void signalHandler(int signal) {
-    std::cout << "\nReceived signal " << signal << ". Stopping camera..." << std::endl;
+    const char* crashMsg = "\n[FATAL] Signal received. Sending hard hardware kill...\n";
+    write(STDOUT_FILENO, crashMsg, strlen(crashMsg));
 
     if (global_camera) {
         global_camera->stopCapture();
         global_camera->stopFrameProcessing();
     }
+
     #if 1 == ENABLE_TEENSY_SERIAL
-        int checksum = 0;
-        std::string serialString = "0;0;0;0;0;0;0;0;0;0";
-        for (char c : serialString) {
-            checksum += static_cast<unsigned char>(c);
+        // Grab the singleton instance
+        debix::SerialPort& serial = debix::SerialPort::getInstance();
+        int fd = serial.getFileDescriptor(); 
+        
+        if (fd >= 0) {
+            // Hardcoded string: "0;0;0;0;0;0;0;0;0;0;1011\n"
+            // (1011 is the pre-calculated ASCII checksum of the ten zeros and nine semicolons)
+            const char* emergencyCmd = "0;0;0;0;0;0;0;0;0;0;1011\n";
+            
+            write(fd, emergencyCmd, strlen(emergencyCmd));
         }
-
-        serialString += ";" + std::to_string(checksum);
-        serial.writeToSerial(serialString);
-        serial.stopSerialRead();
     #endif
-
-    std::exit(signal);
+    _exit(signal); 
 }
 
 void stopChildProcess() {
@@ -365,39 +403,99 @@ void checkButtonPress() {
     gpiod_chip_close(chip);
 }
 
+// void websiteTCPLoop(TcpConnection& connection)
+// {
+//     while (app_running) {
+//         std::string command = connection.receiveStringData();
+
+//         if (command.empty() || !app_running) {
+//             std::cout << "[Website] TCP connection closed or shutting down.\n";
+//             break; 
+//         }
+
+//         if (command == "STOP") 
+//         {
+//             global_config->enableCarEngine = 0;
+//             global_config->currentEdfFanSpeed = 0;
+//             global_config->enableFinishLineDetection = 0;
+//             global_config->startRace = 0;
+//         }
+//         else if(command == "READ") 
+//         {
+//             SharedConfig* raw_config = global_config.get();
+//             std::string jsonStr = json(*raw_config).dump();
+//             connection.sendStringData(jsonStr + "\n");  // Ensure newline if you're using read_until
+//             std::cout << "[Website] Sent config JSON.\n";
+//         }
+//         else if (command.rfind("WRITE:", 0) == 0) {
+//             std::string jsonStr = command.substr(6);  // Remove "WRITE:"
+//             try {
+//                 SharedConfig newConfig = json::parse(jsonStr);
+//                 *global_config = newConfig;
+//                 std::cout << "[Website] Updated config from web.\n";
+//             } catch (const std::exception& e) {
+//                 std::cerr << "[Website] Failed to parse config: " << e.what() << std::endl;
+//             }
+//         } 
+//         else 
+//         {
+//             std::cerr << "[Website] Unknown command: " << command << std::endl;
+//         }
+//     }
+// }
+
+
 void websiteTCPLoop(TcpConnection& connection)
 {
-    while (true) {
-        std::string command = connection.receiveStringData();
+    try {
+        while (app_running) {
+            std::string command = connection.receiveStringData();
 
-        if (command == "STOP") 
-        {
-            global_config->enableCarEngine = 0;
-            global_config->currentEdfFanSpeed = 0;
-            global_config->enableFinishLineDetection = 0;
-            global_config->startRace = 0;
-        }
-        else if(command == "READ") 
-        {
-            SharedConfig* raw_config = global_config.get();
-            std::string jsonStr = json(*raw_config).dump();
-            connection.sendStringData(jsonStr + "\n");  // Ensure newline if you're using read_until
-            std::cout << "[Website] Sent config JSON.\n";
-        }
-        else if (command.rfind("WRITE:", 0) == 0) {
-            std::string jsonStr = command.substr(6);  // Remove "WRITE:"
-            try {
-                SharedConfig newConfig = json::parse(jsonStr);
-                *global_config = newConfig;
-                std::cout << "[Website] Updated config from web.\n";
-            } catch (const std::exception& e) {
-                std::cerr << "[Website] Failed to parse config: " << e.what() << std::endl;
+            if (command.empty() || !app_running) {
+                std::cout << "[Website] TCP connection closed or shutting down.\n";
+                break; 
             }
-        } 
-        else 
-        {
-            std::cerr << "[Website] Unknown command: " << command << std::endl;
+
+            if (command == "STOP") 
+            {
+                global_config->enableCarEngine = 0;
+                global_config->currentEdfFanSpeed = 0;
+                global_config->enableFinishLineDetection = 0;
+                global_config->startRace = 0;
+            }
+            else if(command == "READ") 
+            {
+                SharedConfig* raw_config = global_config.get();
+                std::string jsonStr = json(*raw_config).dump();
+                connection.sendStringData(jsonStr + "\n");  
+                std::cout << "[Website] Sent config JSON.\n";
+            }
+            else if (command.rfind("WRITE:", 0) == 0) {
+                std::string jsonStr = command.substr(6);  // Remove "WRITE:"
+                try {
+                    SharedConfig newConfig = json::parse(jsonStr);
+                    
+                    // 2. ADDED MUTEX LOCK: This prevents your camera thread from 
+                    // reading half-written data while you overwrite the struct!
+                    {
+                        std::lock_guard<std::mutex> lock(configMutex);
+                        *global_config = newConfig;
+                    }
+                    
+                    std::cout << "[Website] Updated config from web.\n";
+                } catch (const std::exception& e) {
+                    std::cerr << "[Website] Failed to parse config: " << e.what() << std::endl;
+                }
+            } 
+            else 
+            {
+                std::cerr << "[Website] Unknown command: " << command << std::endl;
+            }
         }
+    } 
+    // Catches the boost::system::system_error (and others) triggered by socket.close()
+    catch (const std::exception& e) {
+        std::cout << "[Website] TCP loop interrupted and closed cleanly (" << e.what() << ").\n";
     }
 }
 
@@ -423,14 +521,14 @@ bool isValidConfig(const SharedConfig& config) {
         config.finishLineAngleRange >= 90.0 && config.finishLineAngleRange <= 180.0 &&
         config.servoTurnAdjustmentCoefficient >= 0.0 && config.servoTurnAdjustmentCoefficient <= 5.0 &&
         config.corneringSpeedCoefficient >= 0.0 && config.corneringSpeedCoefficient <= 2.0 &&
-        config.minSpeed >= 0.0 && config.minSpeed <= 350.0 &&
-        config.maxSpeed >= 0.0 && config.maxSpeed <= 350.0 &&
+        config.minSpeed >= 0.0 && config.minSpeed <= 500.0 &&
+        config.maxSpeed >= 0.0 && config.maxSpeed <= 500.0 &&
         config.minSpeedAfterFinish >= 0.0 && config.minSpeedAfterFinish <= 350.0 &&
         config.maxSpeedAfterFinish >= 0.0 && config.maxSpeedAfterFinish <= 350.0 &&
-        config.currentEdfFanSpeed >= 0.0 && config.currentEdfFanSpeed <= 350.0 &&
+        config.currentEdfFanSpeed >= 0.0 && config.currentEdfFanSpeed <= 500.0 &&
         config.curvatureFactor >= 0.0 && config.curvatureFactor <= 200.0 &&
         config.rdp_epsilon >= 0.0 && config.rdp_epsilon <= 25.0 &&
-        config.k_max >= 0.0 && config.k_max <= 25.0 &&
+        config.boostSpeedValue >= 0.0 && config.boostSpeedValue <= 500.0 &&
         config.minAngleLookAheadReference >= 0.0 && config.minAngleLookAheadReference <= 4000.0 &&
         config.maxAngleLookAheadReference >= 0.0 && config.maxAngleLookAheadReference <= 4000.0 &&
         config.minLookAheadInCm >= 0.0 && config.minLookAheadInCm <= 100.0 &&

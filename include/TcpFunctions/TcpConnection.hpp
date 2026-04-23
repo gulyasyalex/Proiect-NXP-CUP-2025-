@@ -21,6 +21,7 @@ public:
     void sendFrame(const cv::Mat& frame);
     std::string receiveStringData();
     void sendStringData(const std::string& data);
+    void close();
 };
 
 #endif

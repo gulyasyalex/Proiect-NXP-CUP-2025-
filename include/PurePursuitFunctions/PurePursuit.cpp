@@ -28,11 +28,11 @@ void PurePursuit::computePurePursuit(std::vector<cv::Point2f> allMidPoints,
     {
         if(isFinishLineDetected)
         {
-            this->speed = CalculateCarSpeed(config->minSpeedAfterFinish, config->maxSpeedAfterFinish, wheelBaseInCm, config->corneringSpeedCoefficient, downward_accelerationCm, this->angleHeadingTarget);
+            this->speed = CalculateCarSpeed(config->minSpeedAfterFinish, config->maxSpeedAfterFinish, wheelBaseInCm, config->corneringSpeedCoefficient, downward_accelerationCm, this->angleHeadingTarget, config->boostSpeedValue);
         }
         else
         {
-            this->speed = CalculateCarSpeed(config->minSpeed, config->maxSpeed, wheelBaseInCm, config->corneringSpeedCoefficient, downward_accelerationCm, this->angleHeadingTarget);
+            this->speed = CalculateCarSpeed(config->minSpeed, config->maxSpeed, wheelBaseInCm, config->corneringSpeedCoefficient, downward_accelerationCm, this->angleHeadingTarget, config->boostSpeedValue);
         }
     }
 
@@ -199,6 +199,9 @@ double PurePursuit::calculateServoValue(double angleRadians, double lookaheadDis
     // Clamp servo value to [-30, 30]
     servoValue = std::max(maxLeftServoAngle, std::min(maxRightServoAngle, servoValue));
 
+    // New Servo has inverted left right
+    servoValue = servoValue * -1;
+    
     return servoValue;
 }
 
@@ -370,11 +373,10 @@ double PurePursuit::carTurnMaxSpeed(double _turn_radius, double _friction_coeffi
 	return _max_speed;
 }
 
-double PurePursuit::carBoostExitCornerSpeed(double new_car_speed, double _turn_angle)
+double PurePursuit::carBoostExitCornerSpeed(double new_car_speed, double _turn_angle, double boostSpeedValue)
 {
-    const double threshold = 0.35;
-    const double boostSpeedValue = 0;
-
+    const double threshold = 0.65;
+    std::cout << "Turn angle: " << _turn_angle << " | Threshold: " << threshold << "\n";
     if (fabs(_turn_angle) < threshold) 
     {
         new_car_speed = new_car_speed + boostSpeedValue;
@@ -399,7 +401,7 @@ double PurePursuit::RearWheelTurnRadius(double wheelBase, double turnAngle) {
 	angle = fabsf(angle);
 	return angle;
 }
-double PurePursuit::CalculateCarSpeed(double _min_speed, double _max_speed, double _wheel_base, double _friction_coefficient, double _downward_acceleration, double _turn_angle) {
+double PurePursuit::CalculateCarSpeed(double _min_speed, double _max_speed, double _wheel_base, double _friction_coefficient, double _downward_acceleration, double _turn_angle, double boostSpeedValue) {
 	double new_car_speed, turn_radius, booster_car_speed;
 	turn_radius = RearWheelTurnRadius(_wheel_base, _turn_angle);
 	if (doubleCmp(turn_radius, 0.0f) < 0) {
@@ -409,7 +411,7 @@ double PurePursuit::CalculateCarSpeed(double _min_speed, double _max_speed, doub
 		new_car_speed = carTurnMaxSpeed(turn_radius, _friction_coefficient, _downward_acceleration);
 	}
 	
-    booster_car_speed = carBoostExitCornerSpeed(new_car_speed, _turn_angle);
+    booster_car_speed = carBoostExitCornerSpeed(new_car_speed, _turn_angle, boostSpeedValue);
     new_car_speed = booster_car_speed;
 
 	new_car_speed = MAX(_min_speed, new_car_speed);

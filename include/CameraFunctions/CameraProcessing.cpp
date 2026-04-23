@@ -27,14 +27,39 @@ void CameraProcessing::setParameters(int cameraIndex, int width, int height, int
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, height);
     cap.set(cv::CAP_PROP_FPS, fps);
 
+    if (!cap.isOpened()) {
+        throw std::runtime_error("Error: Could not open video device");
+    }
+
+    std::string cmdAuto = "v4l2-ctl -d /dev/video" + std::to_string(cameraIndex) + " -c auto_exposure=3";
+    system(cmdAuto.c_str());
+
+    // Pull 10 dummy frames to force the sensor to calibrate to the room
+    cv::Mat dummyFrame;
+    for(int i = 0; i < 10; i++) {
+        cap >> dummyFrame; 
+    }
     // Apply v4l2-ctl camera settings for manual exposure NXP BUCHAREST FIX
     /*std::string command = "v4l2-ctl -d /dev/video" + std::to_string(cameraIndex) +
                           " -c auto_exposure=1 -c exposure_time_absolute=16";*/
                           
     // Apply v4l2-ctl camera settings for manual exposure TIMISOARA
-    std::string command = "v4l2-ctl -d /dev/video" + std::to_string(cameraIndex) +
-                          " -c auto_exposure=1 -c exposure_time_absolute=15";
-    system(command.c_str());
+    /*std::string command = "v4l2-ctl -d /dev/video" + std::to_string(cameraIndex) +
+                          " -c auto_exposure=1 -c exposure_time_absolute=100";*/
+    // Apply v4l2-ctl camera settings for manual exposure BUCURESTI 2026
+    //std::string command = "v4l2-ctl -d /dev/video" + std::to_string(cameraIndex) +
+    //      " -c power_line_frequency=1 -c auto_exposure=1 -c exposure_time_absolute=100 -c contrast=64 -c brightness=-20 -c gamma=72 -c backlight_compensation=0";
+    
+
+// v4l2-ctl --device=/dev/video2 --set-ctrl=power_line_frequency=1,auto_exposure=1,exposure_time_absolute=100,contrast=64,brightness=-20,gamma=72,backlight_compensation=0
+
+    //system(command.c_str());
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    std::string cmdManual = "v4l2-ctl -d /dev/video" + std::to_string(cameraIndex) + 
+                            " -c power_line_frequency=1,auto_exposure=1,exposure_time_absolute=100,contrast=64,brightness=-20,gamma=72,backlight_compensation=0";
+    //system(cmdManual.c_str());
 
     double actualWidth = cap.get(cv::CAP_PROP_FRAME_WIDTH);
     double actualHeight = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
@@ -48,9 +73,6 @@ void CameraProcessing::setParameters(int cameraIndex, int width, int height, int
     this->config = global_config.get();
     ppObject.setParameters(global_config);
 
-    if (!cap.isOpened()) {
-        throw std::runtime_error("Error: Could not open video device");
-    }
 }
 
 // Start capturing frames
@@ -320,15 +342,14 @@ void CameraProcessing::processFrames() {
                 else
                 {
                     /* NOTE: When modifying this bool from the menu, the car can restart the whole process */
-                    config->topCutOffPercentageCustomConnected = DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED;
                     this->isFinishLineDetected = false;
                     this->isObjectCloserThanDistanceBeforeIssuesAppear = false;
                     finishLineTimeState.startTimeEnabled = false;
                     isSlowDownSpeedActivated = false;
-                    config->corneringSpeedCoefficient = DEFAULT_CORNERING_SPEED_COEFFICIENT;
-                    config->servoTurnAdjustmentCoefficient = DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT;
-                }
-                
+                    //config->topCutOffPercentageCustomConnected = DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED;
+                    //config->corneringSpeedCoefficient = DEFAULT_CORNERING_SPEED_COEFFICIENT;
+                    //config->servoTurnAdjustmentCoefficient = DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT;
+                } 
                 /* NOTE: this boolean is used to block the frameProcessing algorithm after the box is closer then certain distance */
                 if(this->isObjectCloserThanDistanceBeforeIssuesAppear)
                 {                   
@@ -352,8 +373,9 @@ void CameraProcessing::processFrames() {
                     // * timer.start();
                     cv::Mat thresholdFrame = this->applyThreshold(frame);
                     // * timer.stop();
-                    // * std::cout << "applyThreshold Time: " << timer.getTimeMilli() << " ms" << std::endl;
-                     
+                    // * std::cout << "segmentEdges Time: " << timer.getTimeMilli() << " ms" << std::endl;
+                    
+                    
                     if ( 1 == config->enableCameraThresholdCheck ){
                         #if 1 == ENABLE_TCP_FRAMES 
                             liveVideoFeedTCP.sendFrame(frame);
@@ -397,7 +419,7 @@ void CameraProcessing::processFrames() {
                             {
                                 this->drawPoints(outputImage, lines[i], cv::Scalar(0, 255, 0));
                             }
-                            this->liveVideoFeedTCP.sendFrame(outputImage);
+                            //this->liveVideoFeedTCP.sendFrame(outputImage);
                         #endif
 
                         #if 1 != ENABLE_CAMERA_CALIBRATION 
@@ -697,7 +719,7 @@ void CameraProcessing::processFrames() {
                             std::vector<cv::Point2f> interpolatedPoints;
                             
                             #if 1 == ENABLE_TCP_FRAMES 
-                                //this->liveVideoFeedTCP.sendFrame(frame);
+                                this->liveVideoFeedTCP.sendFrame(frame);
                             #endif
                             
                             std::cout << "frameWidth:" << this->frameWidth << "\n";
@@ -732,8 +754,8 @@ void CameraProcessing::processFrames() {
                             
                             #if 1 == ENABLE_TCP_FRAMES 
                                 this->drawPoints(outputImage, srcPoints, cv::Scalar(0, 255, 0));
-                                this->drawHorizontalFromHeight(outputImage,calibrateTopLine,cv::Scalar(255, 255, 255));
-                                this->drawHorizontalFromHeight(outputImage,calibrateBottomLine,cv::Scalar(255, 255, 255));
+                                this->drawHorizontalFromHeight(outputImage,calibrateTopLine,cv::Scalar(0, 0, 255));
+                                this->drawHorizontalFromHeight(outputImage,calibrateBottomLine,cv::Scalar(0, 0, 255));
                                 this->liveVideoFeedTCP.sendFrame(outputImage);
                             #endif
                         #else 
@@ -816,7 +838,7 @@ void CameraProcessing::processFrames() {
                                 // Add the visualization (outputImage) on top of the original frame
                                 cv::Mat overlayedImage;
                                 cv::addWeighted(frame, overlayFrameWeight, outputImage, overlayFrameWeight, 0, overlayedImage);
-                                //liveVideoFeedTCP.sendFrame(overlayedImage);
+                                liveVideoFeedTCP.sendFrame(overlayedImage);
                             #endif
                         #endif
                     }
@@ -891,22 +913,32 @@ cv::Mat CameraProcessing::cropFrameBottom(const cv::Mat& frame, double l_bottomC
     return frame(roi);
 }
 
-
-/*cv::Mat CameraProcessing::skeletonizeFrame(cv::Mat& thresholdedImage) {
+cv::Mat CameraProcessing::skeletonizeFrame(cv::Mat& thresholdedImage) {
     cv::Mat skeleton(cv::Mat::zeros(thresholdedImage.size(), CV_8UC1));
     cv::Mat temp, eroded;
     cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(3, 3));
 
-    while (true) {
-        cv::erode(thresholdedImage, eroded, element);
+    int maxIterations = 200; // Hard failsafe limit
+    int currentIteration = 0;
+
+    while (currentIteration < maxIterations) {
+        // FIXED BORDER: the world outside the frame is BLACK, not white.
+        cv::erode(thresholdedImage, eroded, element, cv::Point(-1, -1), 1, cv::BORDER_CONSTANT, cv::Scalar(0));
+        
         cv::dilate(eroded, temp, element);
         cv::subtract(thresholdedImage, temp, temp);
         cv::bitwise_or(skeleton, temp, skeleton);
         eroded.copyTo(thresholdedImage);
 
         if (cv::countNonZero(thresholdedImage) == 0) {
-            break;
+            break; 
         }
+        
+        currentIteration++;
+    }
+
+    if (currentIteration >= maxIterations) {
+        std::cout << "[WARNING] Skeletonization hit max iterations! Check threshold/exposure.\n";
     }
 
     return skeleton;
@@ -1526,9 +1558,9 @@ void CameraProcessing::getLeftRightLines(const std::vector<std::vector<cv::Point
         // Classify the line as left or right based on weighted distances
         if(weightedDistToLeft < weightedDistToRight)
         {
-            std::cout << "Mirroring Right" << "\n";
+            //std::cout << "Mirroring Right" << "\n";
         }else{
-            std::cout << "Mirroring Left" << "\n";
+            //std::cout << "Mirroring Left" << "\n";
         }
         if (weightedDistToLeft < weightedDistToRight) {
             // Single line is closer to historical left, so it is the left line
@@ -1818,7 +1850,7 @@ uint16_t CameraProcessing::getDistanceFromCarsBumper(){
     std::string receivedData = serial.getReceivedData();
     size_t pos = receivedData.find(';');
 
-    std::cout << "receivedData value: " << receivedData << std::endl;
+    //std::cout << "receivedData value: " << receivedData << std::endl;
     if (pos != std::string::npos) {
         value = std::stoi(receivedData.substr(pos + 1));
         //std::cout << "Extracted value: " << value << std::endl;

@@ -38,7 +38,7 @@ inline void to_json(json& j, const SharedConfig& cfg) {
         {"currentEdfFanSpeed", cfg.currentEdfFanSpeed},
         {"curvatureFactor", cfg.curvatureFactor},
         {"rdp_epsilon", cfg.rdp_epsilon},
-        {"k_max", cfg.k_max},
+        {"boostSpeedValue", cfg.boostSpeedValue},
         {"minAngleLookAheadReference", cfg.minAngleLookAheadReference},
         {"maxAngleLookAheadReference", cfg.maxAngleLookAheadReference},
         {"minLookAheadInCm", cfg.minLookAheadInCm},
@@ -80,7 +80,7 @@ inline void from_json(const json& j, SharedConfig& cfg) {
     j.at("currentEdfFanSpeed").get_to(cfg.currentEdfFanSpeed);
     j.at("curvatureFactor").get_to(cfg.curvatureFactor);
     j.at("rdp_epsilon").get_to(cfg.rdp_epsilon);
-    j.at("k_max").get_to(cfg.k_max);
+    j.at("boostSpeedValue").get_to(cfg.boostSpeedValue);
     j.at("minAngleLookAheadReference").get_to(cfg.minAngleLookAheadReference);
     j.at("maxAngleLookAheadReference").get_to(cfg.maxAngleLookAheadReference);
     j.at("minLookAheadInCm").get_to(cfg.minLookAheadInCm);

@@ -1,6 +1,6 @@
 #include "SerialPortFunctions/SerialPort.hpp"
 
-void debix::SerialPort::initializeSerialPort(const std::string& portName) {
+bool debix::SerialPort::initializeSerialPort(const std::string& portName) {
     try {
         serialPort.Open(portName);
         serialPort.SetBaudRate(LibSerial::BaudRate::BAUD_230400);
@@ -10,8 +10,9 @@ void debix::SerialPort::initializeSerialPort(const std::string& portName) {
         std::cout << "Serial port initialized successfully.\n";
     } catch (const std::exception &e) {
         std::cerr << "Error initializing serial port: " << e.what() << std::endl;
-        exit(1);
+        return false;
     }
+    return true;
 }
 
 /*  Expected format: "<enableCarEngine>;<servoAngle>;<speed>;<isFinishLineDetected>;
@@ -25,7 +26,7 @@ void debix::SerialPort::writeToSerial(const std::string &data) {
         if (!writeAllWithTimeout(fd, data + "\n", 100)) {
             std::cerr << "[Serial] Write timed out.\n";
         } else {
-            std::cout << "[TX] Sent: " << data << std::endl;
+            //std::cout << "[TX] Sent: " << data << std::endl;
         }
     } catch (const std::exception &e) {
         std::cerr << "Error writing to serial port: " << e.what() << std::endl;
@@ -68,7 +69,29 @@ void debix::SerialPort::stopSerialRead() {
 }
 
 
-void debix::SerialPort::connectTeensy(const std::string& portName) {
-    this->initializeSerialPort(portName);
+bool debix::SerialPort::connectTeensy(const std::string& portName) {
+    if(!this->initializeSerialPort(portName))
+    {
+        return false;
+    }
     this->startSerialRead();
+    return true;
+}
+
+bool debix::SerialPort::disconnectTeensy() {
+    this->stopSerialRead();
+
+    std::lock_guard<std::mutex> lock(serialMutex);
+
+    try {
+        if (serialPort.IsOpen()) {
+            serialPort.Close();
+            std::cout << "Serial port disconnected successfully.\n";
+            return true;
+        }
+    } catch (const std::exception &e) {
+        std::cerr << "Error disconnecting serial port: " << e.what() << std::endl;
+        return false;
+    }
+    return false;
 }
