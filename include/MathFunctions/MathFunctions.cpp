@@ -43,15 +43,13 @@ cv::Point2f calculateCentroid(const std::vector<cv::Point2f>& line)
     centroid.y /= line.size();
     return centroid;
 }
-// Function that generates a radius of values for customConnectedComponents
+// Function that generates a radius of values for customConnectedComponentsWithThreshold
 std::vector<cv::Point2f> generateNeighborhood(int radius) 
 {
     std::vector<cv::Point2f> neighbors;
     for (int dy = -radius; dy <= radius; ++dy) {
         for (int dx = -radius; dx <= radius; ++dx) {
-            // Ensure point lies within the circle
-            if (dx * dx + dy * dy <= radius * radius)
-            {
+            if (std::sqrt(dx * dx + dy * dy) <= radius) { // Ensure point lies within the circle
                 neighbors.emplace_back(dx, dy);
             }
         }

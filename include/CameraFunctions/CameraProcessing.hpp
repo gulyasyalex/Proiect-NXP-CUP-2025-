@@ -5,7 +5,6 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
-#include <opencv2/ximgproc.hpp>
 #include <atomic>
 #include <thread>
 #include <mutex>
@@ -20,11 +19,6 @@
 #include "TcpFunctions/TcpConnection.hpp"
 #include "PurePursuitFunctions/PurePursuit.hpp"
 #include <cstdlib> // Required for exit()
-
-struct timerState{
-    std::chrono::steady_clock::time_point startTime;
-    bool startTimeEnabled = false;
-};
 
 class CameraProcessing {
     private:
@@ -110,10 +104,10 @@ class CameraProcessing {
         cv::Mat cropFrameBottom(const cv::Mat& frame, double l_bottomCutOffPercentage);
         cv::Mat skeletonizeFrame(cv::Mat& thresholdedImage);
         // Apply color segmentation to isolate specific features in the image
-        cv::Mat applyThreshold(const cv::Mat& frame);
+        cv::Mat segmentEdges(const cv::Mat& frame);
         // Function to find lines in a skeletonized frame
         std::vector<std::vector<cv::Point2f>> findLines(const cv::Mat& thresholdedImage, int currentState, const int rowTopCutOffThreshold);        
-        int customConnectedComponents(const cv::Mat& binaryImage, cv::Mat& labelImage, int radius,
+        int customConnectedComponentsWithThreshold(const cv::Mat& binaryImage, cv::Mat& labelImage, int radius,
              std::vector<std::vector<cv::Point2f>>& lines, int currentState, const int rowTopCutOffThreshold);
         // Function to smooth a vector of points using a moving average filter used in fitPolinomial
         std::vector<cv::Point2f> smoothPoints(const std::vector<cv::Point2f>& points, int windowSize);
@@ -158,8 +152,6 @@ class CameraProcessing {
         void drawCircle(cv::Mat& image, const cv::Point2f& center, int radius, const cv::Scalar& color, int thickness = 1);
 
         std::string createSerialString(bool isBlueStatusLedOn, bool isYellowStatusLedOn, bool isRadarEnabled);
-        void CameraProcessing::handleRaceStart(ConfigStruct* config, timerState& startTimeState, PurePursuit& ppObject,
-            int DEFAULT_EDF_FAN_CURRENT_SPEED, bool& isFinishLineDetected)
 };
 
 #endif

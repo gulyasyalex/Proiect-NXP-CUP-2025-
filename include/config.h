@@ -183,7 +183,7 @@ double topImageCutPercentage = 0; //0.35;
 // Used to calculate where chassis should be in image
 int distanceErrorFromChassis = 0;                    // Measured in Pixels
 
-// Used in customConnectedComponents()
+// Used in customConnectedComponentsWithThreshold()
 int lineMinPixelCount = 45;                           // 45 Defines how many pixel can make a line (removes noise)  finish lines sizes: 57 64       
 double topCutOffPercentageCustomConnected = 0.35;      // Top 40% cutoff to mitigate Far View error                (Range: 0.0 - 1.0)
 
@@ -237,7 +237,7 @@ constexpr int fitPolyWindowSize = static_cast<int>(35 * ScalingFactor);
 constexpr double fitPolyEpsilon = static_cast<double>(9.0 * ScalingFactor); // Epsilon value for curve approximation
 
 constexpr int captureFps = 100; // 120 for BUCHAREST;
-const cv::Point2f undefinedPoint(0.0f, float(resizeFrameHeight));
+const cv::Point2f undefinedPoint(0.0f, 0.0f);
 
 constexpr int distanceBeforeIssuesAppear = 60;
 

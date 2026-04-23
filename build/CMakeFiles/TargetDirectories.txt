@@ -1,3 +1,0 @@
-/home/debix/Documents/Proiect-NXP-CUP-2025-/build/CMakeFiles/DEBIX.dir
-/home/debix/Documents/Proiect-NXP-CUP-2025-/build/CMakeFiles/edit_cache.dir
-/home/debix/Documents/Proiect-NXP-CUP-2025-/build/CMakeFiles/rebuild_cache.dir
