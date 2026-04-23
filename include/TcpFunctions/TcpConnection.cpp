@@ -50,3 +50,18 @@ void TcpConnection::sendStringData(const std::string& data) {
         std::cerr << "Error sending string over TCP: " << e.what() << std::endl;
     }
 }
+
+void TcpConnection::close() {
+    boost::system::error_code ec;
+
+    if (socket.is_open()) {
+        // Stop both sending and receiving immediately. 
+        // This is what actually forces blocking reads to wake up.
+        socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+        
+        // Close the underlying file descriptor
+        socket.close(ec);
+        
+        std::cout << "[TCP] Socket successfully closed.\n";
+    }
+}

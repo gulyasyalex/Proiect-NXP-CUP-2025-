@@ -36,12 +36,20 @@ namespace debix{
                 static SerialPort instance;  // Static local instance
                 return instance;
             }
-            void initializeSerialPort(const std::string& portName);
+            bool initializeSerialPort(const std::string& portName);
             void writeToSerial(const std::string &data);
             void readFromSerial();
             void startSerialRead();
             void stopSerialRead();
-            void connectTeensy(const std::string& portName) ;
+            bool connectTeensy(const std::string& portName);
+            bool disconnectTeensy();
+
+            int getFileDescriptor() {
+                if (serialPort.IsOpen()) {
+                    return serialPort.GetFileDescriptor();
+                }
+                return -1; 
+            }
             std::string getReceivedData(){
                 return this->receivedData;
             };

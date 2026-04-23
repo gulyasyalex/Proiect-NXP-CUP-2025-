@@ -9,10 +9,10 @@ extern debix::SerialPort& serial;
 #define ENABLE_CAMERA_CALIBRATION 0
 #define ENABLE_CAMERA_THRESHOLD_CHECK 0
 #define ENABLE_CAMERA_STREAMING 1
-#define ENABLE_TCP_FRAMES 0
-#define ENABLE_TCP_SITE_DEBUG 0
+#define ENABLE_TCP_FRAMES 1
+#define ENABLE_TCP_SITE_DEBUG 1
 #define ENABLE_TEENSY_SERIAL 1
-#define ENABLE_FINISH_LINE_DETECTION 0 //THIS is set to 1 by timer after START_RACE
+#define ENABLE_FINISH_LINE_DETECTION 0//THIS is set to 1 by timer after START_RACE
 #define DEFAULT_START_RACE 0  // When set to 1 car starts 
 
 //#define SERIAL_PORT "/dev/ttymxc2"      
@@ -107,7 +107,7 @@ struct SharedConfig {
     double currentEdfFanSpeed;                              //Range: 0 - 350
     double curvatureFactor;                                 //Range: 0 - 200
     double rdp_epsilon;                                     //Range: 0 - 25
-    double k_max;                                           //Range: 0 - 25
+    double boostSpeedValue;                                 //Range: 0 - 500
     double minAngleLookAheadReference;                      //Range: 0 - 180
     double maxAngleLookAheadReference;                                       //Range: 0 - 180
     double minLookAheadInCm;                                //Range: 0 - 100
@@ -123,45 +123,45 @@ struct SharedConfig {
 // Integer values
 #define DEFAULT_ENABLE_CAR_ENGINE 0
 #define DEFAULT_ENABLE_CAR_STEERING 0
-#define DEFAULT_THRESHOLD_VALUE 160 //75 //150
+#define DEFAULT_THRESHOLD_VALUE 100 //75 //160
 #define DEFAULT_DISTANCE_ERROR_FROM_CHASSIS 0
 #define DEFAULT_LINE_MIN_PIXEL_COUNT 70 
 #define DEFAULT_DISTANCE_FROM_SENSOR_ERROR 10
-#define DEFAULT_STOPPING_DISTANCE_BOX_FRONT_END 3
+#define DEFAULT_STOPPING_DISTANCE_BOX_FRONT_END 0
 #define DEFAULT_INTERPOLATED_POINTS_SETUP 0         // 0 - Near View Setup 1 - Far View Setup (BirdEyeView)
 
 // Double values
-#define DEFAULT_CALIBRATE_TOP_LINE 36.6 //41.6(percentage) //100
-#define DEFAULT_CALIBRATE_BOTTOM_LINE 90.8 //95.8(percentage) //230
-#define DEFAULT_TRACK_LANE_WIDTH_OFFSET -8.4 //SET TO 0 AT FINALS
+#define DEFAULT_CALIBRATE_TOP_LINE 26.6 //41.6(percentage) //100
+#define DEFAULT_CALIBRATE_BOTTOM_LINE 95.8 //95.8(percentage) //230
+#define DEFAULT_TRACK_LANE_WIDTH_OFFSET 10
 #define DEFAULT_TOP_IMAGE_CUT_PERCENTAGE 0.0
 #define DEFAULT_BOTTOM_IMAGE_CUT_PERCENTAGE 0.35
-#define DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 0.4 // Cuts pixels from first 45% of image 
+#define DEFAULT_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 0.2 // Cuts pixels from first 45% of image 
 #define DEFAULT_LINE_START_POINT_Y 0.50 //0.60 // Used for intersection // birdsEyeViewHeight * lineStartPointY = Y threshold
 #define DEFAULT_BOTTOM_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 1 //0.65
 #define DEFAULT_LINE_90_DEGREE_ANGLE_RANGE 22.0                          // abs(degree-90) < range
 #define DEFAULT_FINISH_LINE_ANGLE_RANGE 15.0
-#define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 1.4 //1.0
-#define DEFAULT_CORNERING_SPEED_COEFFICIENT 1.6 //0.6
-#define DEFAULT_MIN_SPEED 80.0
-#define DEFAULT_MAX_SPEED 320.0
-#define DEFAULT_MIN_SPEED_AFTER_FINISH 35.0
-#define DEFAULT_MAX_SPEED_AFTER_FINISH 40.0
-#define DEFAULT_EDF_FAN_CURRENT_SPEED 350.0
+#define DEFAULT_SERVO_TURN_ADJUSTMENT_COEFFICIENT 0.8 //1.0
+#define DEFAULT_CORNERING_SPEED_COEFFICIENT 1.1 //0.6
+#define DEFAULT_MIN_SPEED 100 //180.0
+#define DEFAULT_MAX_SPEED 150 //300.0
+#define DEFAULT_MIN_SPEED_AFTER_FINISH 60.0
+#define DEFAULT_MAX_SPEED_AFTER_FINISH 60.0
+#define DEFAULT_EDF_FAN_CURRENT_SPEED 0.0 //350.0
 #define DEFAULT_CURVATURE_FACTOR 13.0
 #define DEFAULT_RDP_EPSILON 13
-#define DEFAULT_K_MAX 25.5 //55 // 25.5  //18.25
+#define DEFAULT_BOOST_SPEED_VALUE 0.0 //55 // 25.5  //18.25
 #define DEFAULT_MIN_ANGLE_LOOKAHEAD_REFERENCE 0.0
-#define DEFAULT_MAX_ANGLE_LOOKAHEAD_REFERENCE 50.0
+#define DEFAULT_MAX_ANGLE_LOOKAHEAD_REFERENCE 20.0
 #define DEFAULT_MIN_LOOKAHEAD_IN_CM 40.0
-#define DEFAULT_MAX_LOOKAHEAD_IN_CM 65.0
-#define DEFAULT_WAIT_BEFORE_START_SECONDS 4.0
+#define DEFAULT_MAX_LOOKAHEAD_IN_CM 90.0
+#define DEFAULT_WAIT_BEFORE_START_SECONDS 2.0
 #define DEFAULT_WAIT_BEFORE_EDF_START_SECONDS 0.5
 #define DEFAULT_WAIT_BEFORE_FINISH_DETECTION_SECONDS 7
 
 // OTHER DEFAULTS
 #define DEFAULT_AFTER_FINISH_TOP_CUTOFF_PERCENTAGE_CUSTOM_CONNECTED 0.4 // Cuts pixels from first 45% of image 
-#define DEFAULT_EDF_FAN_AFTER_FINISH_SPEED 350.0
+#define DEFAULT_EDF_FAN_AFTER_FINISH_SPEED 0.0
 #define DEFAULT_TORQUE_SPEED 60;
 
 /*
@@ -276,6 +276,6 @@ constexpr double maxLeftServoAngle = -30.0;                     // Used to limit
 constexpr double maxRightServoAngle = 30.0;                     // Used to limit servo rotation
 
 // Used in processFrames()
-constexpr double overlayFrameWeight = 0.6;                      // Used for visualization of two frames on top of eachother
+constexpr double overlayFrameWeight = 0.5;                      // Used for visualization of two frames on top of eachother
 
 #endif

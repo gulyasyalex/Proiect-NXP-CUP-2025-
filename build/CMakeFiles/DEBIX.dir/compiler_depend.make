@@ -4061,6 +4061,9 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/aarch64-linux-gnu/bits/types/struct_sigstack.h \
   /usr/include/aarch64-linux-gnu/bits/sigthread.h \
   /usr/include/aarch64-linux-gnu/bits/signal_ext.h \
+  /usr/include/c++/11/cstring \
+  /usr/include/string.h \
+  /usr/include/strings.h \
   /usr/include/fcntl.h \
   /usr/include/aarch64-linux-gnu/bits/fcntl.h \
   /usr/include/aarch64-linux-gnu/bits/fcntl-linux.h \
@@ -4093,9 +4096,6 @@ CMakeFiles/DEBIX.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/c++/11/bits/std_mutex.h \
   /usr/include/c++/11/bits/unique_lock.h \
   ../include/SerialPortFunctions/WriteAllWithTimeout.hpp \
-  /usr/include/c++/11/cstring \
-  /usr/include/string.h \
-  /usr/include/strings.h \
   ../include/CameraFunctions/CameraProcessing.hpp \
   /usr/include/opencv4/opencv2/opencv.hpp \
   /usr/include/opencv4/opencv2/opencv_modules.hpp \
