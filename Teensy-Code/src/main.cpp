@@ -4,6 +4,11 @@
 #include <IntervalTimer.h>
 #include "TFMiniPlus.h"
 
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+#define CLAMP(val, low, high) MIN(MAX(val, low), high)
+
 TFMiniPlus tfmini;
 
 #define BAUD_RATE  230400
@@ -31,27 +36,33 @@ TFMiniPlus tfmini;
 #define MAX_LIDAR_DISTANCE   500                                 
 
 // ================== DRIVER_MOTOR ==================
-#define DRIVER_MOTOR_PIN  9
+//#define DRIVER_MOTOR_PIN  9
+#define DRIVER_MOTOR_PIN_LEFT  6
+#define DRIVER_MOTOR_PIN_RIGHT  9
 
 #define STANDSTILL_SPEED 90.0f
-#define MAX_MOTOR_SPEED 121.0f
+#define MAX_MOTOR_SPEED 180.0f
 
 #define FINISH_LINE_SPEED 60                                                       // cm/s
-#define MAX_DESIRED_SPEED 350//215                                                 // cm/s
+#define MAX_DESIRED_SPEED 500//215                                                 // cm/s
+
+#define WHEEL_BASE_M 0.145f           // meters
 
 // ================== EDF_FAN ==================
 #define EDF_FAN_PIN  5
 
 // ================== RPM Sensor ==================
-#define RPM_SENSOR_PIN  14
+//#define RPM_SENSOR_PIN  14
+//#define RPM_SENSOR_PIN_LEFT  14
+//#define RPM_SENSOR_PIN_RIGHT  15
 
 #define PULSES_PER_REV  16
 #define RPM_MEDIAN_FILTER_SAMPLE_SIZE  10
 #define DISTANCE_PER_REVOLUTION 7                                              // Revolution = 7 cm on the ground
 
 // ================== Emergency Remote ==================
-#define REMOTE_START_PIN 15
-#define REMOTE_STOP_PIN 16
+//#define REMOTE_START_PIN 15
+//#define REMOTE_STOP_PIN 16
 
 // ================== Status LED pin ==================
 #define STATUS_LED_BLUE_PIN 20
@@ -60,7 +71,8 @@ TFMiniPlus tfmini;
 
 SteeringWheel servoSteering(STEERING_SERVO_ANGLE_MAX_LEFT, STEERING_SERVO_ANGLE_MIDDLE, STEERING_SERVO_ANGLE_MAX_RIGHT);
 SteeringWheel radarServo(RADAR_SERVO_ANGLE_MAX_LEFT, RADAR_SERVO_ANGLE_MIDDLE, RADAR_SERVO_ANGLE_MAX_RIGHT);
-PWMServo driverMotor;  
+PWMServo driverMotorRight;  
+PWMServo driverMotorLeft;
 PWMServo edfFan;  
 
 
@@ -91,7 +103,7 @@ bool isRadarEnabled = false;
 
 // Timing Variables
 unsigned long previousMillisSteering = 0;
-const unsigned long updateIntervalSteering = 20;                                // 20 ms(50hz) interval
+const unsigned long updateIntervalSteering = 10;                                // 20 ms(50hz) interval
 unsigned long previousMillisRadar = 0;
 const unsigned long updateIntervalRadar = 100;                                  // 100 ms(10hz) interval
 
@@ -140,6 +152,10 @@ int calculateRadarServoAngle(int lastServoAngle);
 #if (1 == PID_SPEED_CALIBRATION)    
   void processSerialCommandPidCalibration(const char* command);
 #endif
+static float RearWheelTurnRadius(float wheelBase, float turnAngle);
+int AngleToDirectionDeg(float angle_deg);
+void SetSoftwareDifferentialSpeed(float speed_ms, float turn_radius_m, int left_right_turn, float _distanceBwWheels_m);
+	
 
 // Buffer for incoming serial data
 const uint8_t SERIAL_BUFFER_SIZE = 128;
@@ -158,13 +174,13 @@ void setup() {
     radarServo.attach(RADAR_MOTOR_PIN);   
     radarServo.setSteeringAngleDeg(lastRadarAngle); 
 
-    pinMode(RPM_SENSOR_PIN, INPUT_PULLUP);
-    pinMode(REMOTE_STOP_PIN, INPUT_PULLDOWN);
-    pinMode(REMOTE_START_PIN, INPUT_PULLDOWN);
+    //pinMode(RPM_SENSOR_PIN, INPUT_PULLUP);
+    //pinMode(REMOTE_STOP_PIN, INPUT_PULLDOWN);
+    //pinMode(REMOTE_START_PIN, INPUT_PULLDOWN);
 
-    attachInterrupt(digitalPinToInterrupt(RPM_SENSOR_PIN), pulseISR, FALLING);
-    attachInterrupt(digitalPinToInterrupt(REMOTE_STOP_PIN), emergencyStopISR, RISING);
-    attachInterrupt(digitalPinToInterrupt(REMOTE_START_PIN), emergencyStartISR, RISING);
+    //attachInterrupt(digitalPinToInterrupt(RPM_SENSOR_PIN), pulseISR, FALLING);
+    //attachInterrupt(digitalPinToInterrupt(REMOTE_STOP_PIN), emergencyStopISR, RISING);
+    //attachInterrupt(digitalPinToInterrupt(REMOTE_START_PIN), emergencyStartISR, RISING);
     
     Serial.begin(BAUD_RATE);
     TFMINI_SERIAL.begin(TFMINI_BAUD_RATE);
@@ -176,8 +192,9 @@ void setup() {
     }
     tfmini.begin(&TFMINI_SERIAL);
 
-    driverMotor.attach(DRIVER_MOTOR_PIN, 1000, 2000); 
-    edfFan.attach(EDF_FAN_PIN, 1000, 2000); 
+    driverMotorRight.attach(DRIVER_MOTOR_PIN_RIGHT, 1148, 1832); 
+    driverMotorLeft.attach(DRIVER_MOTOR_PIN_LEFT, 1148, 1832); 
+    edfFan.attach(EDF_FAN_PIN, 1148, 1832); 
     
     edfFan.write(STANDSTILL_SPEED);
     delay(7000);
@@ -192,7 +209,7 @@ void loop() {
   setLedStatus(STATUS_LED_BLUE_PIN, isBlueStatusLedOn);
   setLedStatus(STATUS_LED_YELLOW_PIN, isYellowStatusLedOn);
 
-  static unsigned long RpsLocalBuffer[RPM_MEDIAN_FILTER_SAMPLE_SIZE];
+  /* static unsigned long RpsLocalBuffer[RPM_MEDIAN_FILTER_SAMPLE_SIZE];
 
   noInterrupts();
   for (int i = 0; i < RPM_MEDIAN_FILTER_SAMPLE_SIZE; i++) {
@@ -213,7 +230,8 @@ void loop() {
   }
 
   float actualSpeed = DISTANCE_PER_REVOLUTION * rps;
-
+  */
+ 
   int distance = getDistanceTfMiniPlus();
   if (distance > 0) {
     if(distance > MAX_LIDAR_DISTANCE){
@@ -243,12 +261,22 @@ void loop() {
     }
   }
 
-  float writeSpeedDriverMotor = speedToServoValue(desiredSpeed);
-  float writeSpeedEDF = speedToServoValue(desiredSpeedEDF);
-  
-  if (writeSpeedDriverMotor >= 0) {   
-    driverMotor.write(writeSpeedDriverMotor);
-  }
+  // float writeSpeedDriverMotor = speedToServoValue(desiredSpeed);
+ 
+  // if (writeSpeedDriverMotor >= 0) {   
+  //   driverMotorRight.write(writeSpeedDriverMotor);
+  //   driverMotorLeft.write(writeSpeedDriverMotor);
+  // }
+
+  float g_steering_angle_rad = lastServoAngle * M_PI / 180.0f;
+  float g_rear_axe_turn_radius_m = RearWheelTurnRadius(WHEEL_BASE_M, g_steering_angle_rad);
+
+  int steering_direction = AngleToDirectionDeg(lastServoAngle);
+
+  SetSoftwareDifferentialSpeed(desiredSpeed / 100.0f, g_rear_axe_turn_radius_m, steering_direction, WHEEL_BASE_M);
+
+
+   float writeSpeedEDF = speedToServoValue(desiredSpeedEDF);
   if (writeSpeedEDF >= 0) {   
     edfFan.write(writeSpeedEDF);
   }
@@ -445,7 +473,8 @@ void emergencyStopISR() {
     remoteControlOverride = true;
     enableCarEngine = false;
     desiredSpeed = 0;
-    driverMotor.write(STANDSTILL_SPEED);
+    driverMotorRight.write(STANDSTILL_SPEED);
+    driverMotorLeft.write(STANDSTILL_SPEED);
 }
 
 void emergencyStartISR() {
@@ -517,22 +546,167 @@ unsigned long getMedian(unsigned long *array, int size) {
     }
 }
 */
-float speedToServoValue(float speed) {
-  if (speed <= 0) return STANDSTILL_SPEED;
+// float speedToServoValue(float speed) {
+//   if (speed <= 0) return STANDSTILL_SPEED;
   
-  float a = -0.0020;
-  float b = 13.9775;
-  float c = -1263.7335 - speed;
+//   float a = -0.0020;
+//   float b = 13.9775;
+//   float c = -1263.7335 - speed;
   
-  float discriminant = b * b - 4 * a * c;
-  if (discriminant < 0) {
-    // No real solution
-    return -1;
-  }
+//   float discriminant = b * b - 4 * a * c;
+//   if (discriminant < 0) {
+//     // No real solution
+//     return -1;
+//   }
 
-  // Use the '+' branch since servo value increases with speed
-  float servoValue = (-b + sqrt(discriminant)) / (2 * a);
-  return servoValue;
+//   // Use the '+' branch since servo value increases with speed
+//   float servoValue = (-b + sqrt(discriminant)) / (2 * a);
+//   return servoValue;
+// }
+
+int floatCmp(float a, float b)
+{
+    const float abs_epsilon = 1e-6f;
+    const float rel_epsilon = 1e-5f;
+
+    // NaN handling
+    if (isnan(a) || isnan(b))
+        return 0;   // sau poți decide alt comportament
+
+    // Handle infinities explicitly
+    if (isinf(a) || isinf(b))
+    {
+        if (a == b) return 0;
+        return (a < b) ? -1 : 1;
+    }
+
+    // Handle exact equality (+0 vs -0 included)
+    if (a == b)
+        return 0;
+
+    float diff = a - b;
+    float abs_diff = fabsf(diff);
+
+    // Absolute tolerance
+    if (abs_diff <= abs_epsilon)
+        return 0;
+
+    // Relative tolerance
+    float max_ab = fmaxf(fabsf(a), fabsf(b));
+    if (abs_diff <= max_ab * rel_epsilon)
+        return 0;
+
+    return (diff < 0.0f) ? -1 : 1;
+}
+
+static float RearWheelTurnRadius(float wheelBase, float turnAngle) {
+	float angle;
+	//float temp_sin = sinf(turnAngle);
+	if (floatCmp(turnAngle, 0.0f) == 0) {
+		return -1.0f;
+	}
+	float temp_sin = tanf(turnAngle);
+	if (floatCmp(temp_sin, 0.0f) == 0) {
+		return 0.0f;
+	}
+
+	//angle = (wheelBase / tanf(turnAngle));
+	angle = (wheelBase / temp_sin);
+
+	angle = fabsf(angle);
+	return angle;
+}
+
+// maxLeft:30 ; maxRight:-30
+// -1: left, 0: forward, 1: right
+	int AngleToDirectionDeg(float angle_deg) {
+		int cmp_result = floatCmp(angle_deg, 0.0);
+		if (cmp_result > 0) {
+			return 1;
+		}
+		else if (cmp_result < 0.0) {
+			return -1;
+		}
+		else {
+			return 0;
+		}
+	}
+
+
+// left_right_turn: negative if turning left, positive if turning right
+void SetSoftwareDifferentialSpeed(float speed_ms, float turn_radius_m, int left_right_turn, float _distanceBwWheels_m){
+		float left_wheel_turn_radius;
+		float right_wheel_turn_radius;
+		float left_wheel_turn_circonference;
+		float right_wheel_turn_circonference;
+		float car_turn_circumference;
+		float left_wheel_speed_request_m;
+		float right_wheel_speed_request_m;
+
+		turn_radius_m = fabs(turn_radius_m);
+
+		if (floatCmp(turn_radius_m, 0.0) == 0 || left_right_turn == 0)	// going straight
+		{
+			left_wheel_speed_request_m = speed_ms;
+			right_wheel_speed_request_m = speed_ms;
+		}
+		else{
+			if (left_right_turn < 0)	// left turn
+			{
+				left_wheel_turn_radius = turn_radius_m - (_distanceBwWheels_m / 2.0);
+				right_wheel_turn_radius = turn_radius_m + (_distanceBwWheels_m / 2.0);
+			}
+			else if (left_right_turn > 0)	// right turn
+			{
+				left_wheel_turn_radius = turn_radius_m + (_distanceBwWheels_m / 2.0);
+				right_wheel_turn_radius = turn_radius_m - (_distanceBwWheels_m / 2.0);
+			}
+
+			left_wheel_turn_circonference = (2.0 * left_wheel_turn_radius) * M_PI;
+			right_wheel_turn_circonference = (2.0 * right_wheel_turn_radius) * M_PI;
+			car_turn_circumference = (2.0 * turn_radius_m) * M_PI;
+			
+			left_wheel_speed_request_m =(left_wheel_turn_circonference / car_turn_circumference) * speed_ms;
+			right_wheel_speed_request_m =(right_wheel_turn_circonference / car_turn_circumference) * speed_ms;
+		}
+		
+
+  float left_motor_speed_raw = speedToServoValue(left_wheel_speed_request_m * 100.0f);
+  float right_motor_speed_raw = speedToServoValue(right_wheel_speed_request_m * 100.0f);
+
+ 
+    driverMotorRight.write(right_motor_speed_raw);
+    driverMotorLeft.write(left_motor_speed_raw);
+	}
+
+
+float MeterPerSecondToESCValue(float speed_mps){
+  float ESC_standstill_value = STANDSTILL_SPEED; // ESC value for standstill
+  float ESC_max_value = MAX_MOTOR_SPEED; // ESC value for maximum speed
+
+  float wheel_diameter_m = 0.063f; // in meters
+  float motor_kv = 980.0f;
+  float battery_viltage_v = 8.4f;
+  float little_gear_total_theeths = 17.0f;
+  float big_gear_total_theeths = 84.0f;
+
+  float wheel_circumference_m = 3.14159f * wheel_diameter_m;
+  float wheel_rpm = (speed_mps / wheel_circumference_m) * 60.0f;
+  float motor_rpm = wheel_rpm * (big_gear_total_theeths / little_gear_total_theeths);
+  float motor_speed_fraction = motor_rpm / (motor_kv * battery_viltage_v);
+
+  float esc_value = ESC_standstill_value + (ESC_max_value - ESC_standstill_value) * motor_speed_fraction;
+  return (float)esc_value;
+}
+
+
+// speed in cm/s
+float speedToServoValue(float speed){
+  if (speed <= 0.001f) return STANDSTILL_SPEED;
+  
+  float escValue = MeterPerSecondToESCValue(speed / 100.0f); // Convert cm/s to m/s
+  escValue = MAX(escValue, STANDSTILL_SPEED);
+  return escValue;
 }
 
 

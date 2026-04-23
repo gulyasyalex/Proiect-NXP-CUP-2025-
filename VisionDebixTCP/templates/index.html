@@ -11,59 +11,77 @@
       height: 100vh;
     }
     .left {
+      position: relative; /* Anchors the absolute button panel */
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 20px;
+      background-color: #f9f9f9; /* Optional: just to see the boundary */
     }
+    
+    /* New absolute container for the buttons */
+    .button-panel {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px; /* Replaces margin-top on buttons */
+      z-index: 10; /* Ensures buttons float on top of the video */
+    }
+    
+    .button-panel button {
+      width: 120px;
+      padding: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
     .left img {
       max-width: 100%;
       height: auto;
       border: 1px solid #ccc;
-    }
-    .left button {
       margin-top: 10px;
-      width: 120px;
-      padding: 10px;
     }
+    
     .right {
       overflow-y: auto;
       padding: 20px;
     }
     .config-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 2px;
-  }
-
-  .config-item label {
-    width: 250px;
-    font-weight: bold;
-    margin-right: 10px;
-  }
-
-  .config-item input {
-    flex: 1;
-    padding: 5px;
-  }
+      display: flex;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+    .config-item label {
+      width: 250px;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+    .config-item input {
+      flex: 1;
+      padding: 5px;
+    }
   </style>
 </head>
 <body>
   <div class="left">
-    <img id="videoStream0">
-    <img id="videoStream1">
-    <button onclick="readConfig()">Config Read</button>
-    <button onclick="writeConfig()">Config Write</button>
-    <button onclick="sendStopCommand()">STOP CAR</button>
+    <div class="button-panel">
+      <button onclick="readConfig()">Config Read</button>
+      <button onclick="writeConfig()">Config Write</button>
+      <button style="background-color: #ff4d4d; color: white;" onclick="sendStopCommand()">STOP CAR</button>
+    </div>
+    
+    <img id="videoStream0" alt="Video Stream 0">
+    <img id="videoStream1" alt="Video Stream 1">
   </div>
+  
   <div class="right" id="configForm">
-    <!-- Config items will go here -->
-  </div>
+    </div>
 
   <script>
     async function readConfig() {
-        
       const res = await fetch("/read-config");
       const config = await res.json();
 
@@ -94,7 +112,6 @@
       }
     }
 
-
     async function writeConfig() {
       const inputs = document.querySelectorAll(".config-item input");
       const config = {};
@@ -107,7 +124,6 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(config)
       });
-      
     }
 
     async function writeBeforeReload() {
