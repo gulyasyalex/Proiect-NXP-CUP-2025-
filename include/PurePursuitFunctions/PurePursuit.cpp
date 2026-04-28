@@ -194,6 +194,7 @@ double PurePursuit::calculateServoValue(double angleRadians, double lookaheadDis
 
     double steeringAngleRadians = atan((2.0 * wheelBaseInCm * sin(angleRadians)) / lookaheadDistance);
     this->steeringAngleDegrees = steeringAngleRadians * 180.0 / CV_PI;
+    std::cout << " steeringAngleDegrees: " << this->steeringAngleDegrees << "\n";
     double servoValue = (this->steeringAngleDegrees / maxSteeringAngleDegrees) * maxServoAngle * config->servoTurnAdjustmentCoefficient;
 
     // Clamp servo value to [-30, 30]
@@ -202,6 +203,7 @@ double PurePursuit::calculateServoValue(double angleRadians, double lookaheadDis
     // New Servo has inverted left right
     servoValue = servoValue * -1;
     
+    std::cout << " servoValue: " << servoValue << "\n";
     return servoValue;
 }
 

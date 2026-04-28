@@ -999,12 +999,34 @@ cv::Mat CameraProcessing::skeletonizeFrame(cv::Mat& thresholdedImage) {
     return skeleton;
 }
 // Apply color segmentation to isolate specific features in the image
-cv::Mat CameraProcessing::segmentEdges(const cv::Mat& frame) {
+/*cv::Mat CameraProcessing::segmentEdges(const cv::Mat& frame) {
     cv::Mat thresholdFrame;
     cv::threshold(frame, thresholdFrame, config->thresholdValue, maxThresholdValue, cv::THRESH_BINARY);
     //cv::threshold(frame, thresholdFrame, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
     cv::bitwise_not(thresholdFrame, thresholdFrame);
     return thresholdFrame;
+}*/
+
+cv::Mat CameraProcessing::segmentEdges(const cv::Mat& frame) {
+    cv::Mat processed;
+
+    // 1. Bigger Blur (Fixes the "Double Line" source)
+    // A 9x9 kernel smudges the inner and outer edges of the track line
+    // so Canny sees them as one thick transition rather than two sharp ones.
+    cv::GaussianBlur(frame, processed, cv::Size(9, 9), 0);
+
+    // 2. Canny Edge Detection
+    // We keep these thresholds. If you still see double lines, 
+    // try lowering the high threshold (e.g., 120) to make the edges "fatter".
+    cv::Canny(processed, processed, 50, 150);
+
+    // 3. Stronger Dilation (The "Bridge")
+    // If the blur didn't merge them, dilation will. 
+    // Increasing iterations to 3 or 4 will bridge wider gaps.
+    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+    cv::dilate(processed, processed, kernel, cv::Point(-1, -1), 3); 
+
+    return processed;
 }
         
 // Function to find lines in a skeletonized frame
